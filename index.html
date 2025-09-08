@@ -1,0 +1,841 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Registro Personal de Montos</title>
+  
+  <!-- PWA Manifest Link -->
+  <link rel="manifest" href="manifest.json">
+  <!-- Theme Color for PWA -->
+  <meta name="theme-color" content="#007bff"/>
+
+  <style>
+    :root {
+        --menu-width: 250px;
+        --primary-color: #007bff;
+        --secondary-color: #4CAF50;
+        --danger-color: #dc3545;
+        --success-color: #28a745;
+        --error-color: #dc3545;
+        --info-color: #17a2b8;
+        --edit-color: #ffc107;
+        --text-dark: #222;
+        --bg-light: #f0f2f5;
+        --bg-white: #fff;
+    }
+    body {
+        font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+        background-color: var(--bg-light);
+        margin: 0;
+        color: var(--text-dark);
+        transition: margin-left 0.3s ease;
+    }
+    
+    /* --- INICIO: ESTILOS MENÚ HAMBURGUESA --- */
+    .menu-toggle {
+        position: fixed;
+        top: 15px;
+        left: 15px;
+        z-index: 1002;
+        width: 40px;
+        height: 40px;
+        background-color: var(--secondary-color);
+        border: none;
+        border-radius: 8px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        cursor: pointer;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        transition: left 0.3s ease;
+    }
+    .menu-toggle span {
+        display: block;
+        width: 22px;
+        height: 2px;
+        background-color: white;
+        margin: 2px 0;
+        transition: all 0.3s ease;
+    }
+    .side-menu.open + .main-container .menu-toggle {
+        left: calc(var(--menu-width) + 15px);
+    }
+    .menu-toggle.active span:nth-child(1) { transform: translateY(6px) rotate(45deg); }
+    .menu-toggle.active span:nth-child(2) { opacity: 0; }
+    .menu-toggle.active span:nth-child(3) { transform: translateY(-6px) rotate(-45deg); }
+
+    .side-menu {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: var(--menu-width);
+        height: 100%;
+        background-color: #2c3e50;
+        z-index: 1001;
+        transform: translateX(-100%);
+        transition: transform 0.3s ease;
+        display: flex;
+        flex-direction: column;
+        padding-top: 20px;
+        box-shadow: 5px 0 15px rgba(0,0,0,0.1);
+    }
+    .side-menu.open { transform: translateX(0); }
+    .side-menu .menu-header {
+        color: white;
+        font-size: 1.4em;
+        font-weight: 700;
+        text-align: center;
+        padding: 20px 10px;
+        border-bottom: 1px solid #4a627a;
+    }
+    .side-menu a {
+        color: white;
+        text-decoration: none;
+        padding: 15px 20px;
+        display: block;
+        transition: background-color 0.2s ease, padding-left 0.2s ease;
+        border-bottom: 1px solid #3e5268;
+    }
+    .side-menu a:hover, .side-menu a.active-link {
+        background-color: var(--secondary-color);
+        padding-left: 25px;
+    }
+    
+    .main-container {
+        transition: margin-left 0.3s ease;
+        padding: 20px;
+    }
+
+    .content-panel { display: none; }
+    .content-panel.active { display: block; animation: fadeIn 0.5s ease; }
+    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+    @media (min-width: 992px) {
+        body { margin-left: var(--menu-width); }
+        .menu-toggle { display: none; }
+        .side-menu { transform: translateX(0); }
+    }
+    /* --- FIN: ESTILOS MENÚ HAMBURGUESA --- */
+
+    /* --- INICIO: ESTILOS NOTIFICACIÓN TOAST --- */
+    #toast-container {
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        z-index: 2000;
+        display: flex;
+        flex-direction: column;
+        align-items: flex-end;
+        gap: 10px;
+    }
+    .toast {
+        background-color: var(--success-color);
+        color: white;
+        padding: 15px 20px;
+        border-radius: 8px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        font-size: 1em;
+        opacity: 0;
+        transform: translateX(100%);
+        transition: all 0.4s ease;
+    }
+    .toast.show {
+        opacity: 1;
+        transform: translateX(0);
+    }
+    .toast.error {
+        background-color: var(--error-color);
+    }
+    /* --- FIN: ESTILOS NOTIFICACIÓN TOAST --- */
+
+    h1 { text-align: center; margin-bottom: 20px; font-size: 2em; }
+    section { margin-bottom: 30px; background: var(--bg-white); padding: 20px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
+    h2 { margin-top: 0; margin-bottom: 15px; font-size: 1.7em; border-bottom: 2px solid var(--bg-light); padding-bottom: 10px; }
+    #totalDiario { font-weight: bold; font-size: 1.5em; margin: 15px 0; color: var(--primary-color); text-align: center; }
+    form { display: flex; flex-wrap: wrap; gap: 10px; }
+    input, select, button { padding: 12px; border: 1px solid #ccc; border-radius: 6px; font-size: 1em; }
+    input:focus { border-color: var(--secondary-color); outline: none; }
+    button { background-color: var(--secondary-color); color: #fff; border: none; font-weight: bold; cursor: pointer; flex-grow: 1; }
+    button:hover { background-color: #388E3C; }
+    .reset-button { background-color: var(--danger-color); }
+    .reset-button:hover { background-color: #c82333; }
+    .edit-button-modal { background-color: var(--edit-color); color: #212529;}
+    .edit-button-modal:hover { background-color: #e0a800; }
+    #importarDesdeSheetsBtn { background-color: var(--info-color); }
+    #importarDesdeSheetsBtn:hover { background-color: #138496; }
+    .logout-button { background-color: var(--danger-color); font-weight: normal; padding: 8px 12px; font-size: 0.9em; flex-grow: 0; }
+    .logout-button:hover { background-color: #c82333; }
+    #tarjetasMontos { display: flex; flex-direction: column; gap: 10px; margin-top: 20px; }
+    .tarjeta { background-color: #fdfdfd; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); padding: 15px; border-left: 4px solid var(--primary-color); }
+    .tarjeta h3 { margin: 0 0 8px 0; font-size: 1.1em; cursor: pointer; display: flex; justify-content: space-between; }
+    .tarjeta h3 .total-in-header { font-weight: bold; color: var(--primary-color); }
+    .tarjeta h3::after { content: '▼'; transition: transform 0.2s ease-in-out; }
+    .tarjeta.collapsed h3::after { transform: rotate(-90deg); }
+    .tarjeta.collapsed .montos-list { display: none; }
+    .montos-list { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 8px; margin-top: 10px; }
+    .monto-item { background-color: #f9f9f9; padding: 8px; border-radius: 6px; font-size: 0.9em; display: flex; justify-content: space-between; align-items: center; }
+    .delete-button { background: none; border: none; font-size: 1.2em; color: var(--danger-color); cursor: pointer; }
+    
+    /* ESTILOS DE RETIRO */
+    .retiro-container { background-color: #eef7ff; padding: 20px; border-radius: 8px; border: 1px solid #bde0ff; }
+    .calculation-item { margin-bottom: 12px; font-size: 1.1em; display: flex; justify-content: space-between; align-items: center; }
+    .calculation-item strong { color: var(--text-dark); }
+    .final-calculation { border-top: 2px solid #ddd; padding-top: 15px; margin-top: 15px; }
+    .total-result { font-size: 1.8em; font-weight: bold; color: var(--primary-color); }
+    .retiro-actions { display: flex; gap: 10px; margin-top: 20px; flex-wrap: wrap; }
+    #anticipos-list-container {
+        margin-top: 10px;
+        max-height: 160px;
+        overflow-y: auto;
+        border: 1px solid #ddd;
+        border-radius: 6px;
+        padding: 10px;
+        background-color: #fff;
+    }
+    .anticipo-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 8px 5px;
+        border-bottom: 1px solid #eee;
+        font-size: 0.95em;
+    }
+    .anticipo-item:last-child { border-bottom: none; }
+    .anticipo-item .actions { display: flex; gap: 8px; }
+    .anticipo-item-btn { background: none; border: none; cursor: pointer; font-size: 1.2em; padding: 0 5px; }
+    .delete-anticipo-btn { color: var(--danger-color); }
+    .edit-anticipo-btn { color: var(--edit-color); }
+
+    /* ESTILOS DE MODALES */
+    .modal-backdrop { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.6); display: flex; justify-content: center; align-items: center; z-index: 1000; }
+    .modal-content { background-color: var(--bg-white); padding: 25px; border-radius: 8px; box-shadow: 0 5px 15px rgba(0,0,0,0.3); width: 90%; max-width: 400px; }
+    .modal-header h4 { margin: 0 0 15px 0; font-size: 1.3em; }
+    .modal-body label { display: block; margin-bottom: 5px; font-weight: bold; }
+    .modal-body input { width: 100%; box-sizing: border-box; margin-bottom: 10px; padding: 10px; }
+    .modal-footer { display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px; }
+  </style>
+</head>
+<body>
+
+<nav id="sideMenu" class="side-menu"></nav>
+
+<div id="mainContainer" class="main-container">
+    <button id="menuToggle" class="menu-toggle" style="display: none;">
+        <span></span><span></span><span></span>
+    </button>
+
+    <div id="login-container">
+      <section id="loginSection">
+        <h2>Ingresar a tu Registro</h2>
+        <form id="loginForm">
+          <input type="text" id="loginNombre" placeholder="Nombre" required />
+          <input type="text" id="loginApellido" placeholder="Apellido" required />
+          <select id="loginSeccion" required>
+              <option value="">Selecciona tu Sección</option>
+              <option value="Mesas">Mesas</option>
+              <option value="Máquinas">Máquinas</option>
+              <option value="Bóveda">Bóveda</option>
+              <option value="Otros">Otros</option>
+          </select>
+          <input type="number" id="loginAnio" placeholder="Año de ingreso" required />
+          <input type="number" id="loginPuntos" placeholder="Cantidad de Puntos" required />
+          <input type="password" id="loginPassword" placeholder="Contraseña" required />
+          <button type="submit">Ingresar o Registrar</button>
+        </form>
+      </section>
+    </div>
+
+    <div id="main-content" style="display: none;">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 10px;">
+        <h1 style="margin: 0; font-size: 1.8em;">Registro Personal</h1>
+        <div style="text-align: right;">
+            <span id="userInfo"></span>
+            <button id="logoutBtn" class="logout-button">Cerrar Sesión</button>
+        </div>
+      </div>
+      
+      <section id="montosSection" class="content-panel active">
+        <h2>Registrar Montos por Noche</h2>
+        <button id="importarDesdeSheetsBtn" style="width: 100%; margin-bottom: 15px;">Importar desde Sheets</button>
+        <div id="totalDiario">Total recaudado: $0</div>
+        <form id="montosForm">
+          <input type="date" id="fecha" required />
+          <select id="areaMonto" required>
+            <option value="">Selecciona Área</option>
+            <option value="Mesas">Mesas</option>
+            <option value="Máquinas">Máquinas</option>
+            <option value="Otros">Otros</option>
+          </select>
+          <input type="text" id="monto" placeholder="Monto" inputmode="numeric" required />
+          <button type="submit">Agregar Monto</button>
+        </form>
+        <div id="tarjetasMontos"></div>
+      </section>
+
+      <section id="retirosPropinaSection" class="content-panel">
+          <h2>Retiro de Propina</h2>
+          <div class="retiro-container">
+              <div id="calculationDisplay">
+                  <div class="calculation-item"><strong>Mis Puntos:</strong> <span id="puntosUsuarioDisplay">0</span></div>
+                  <hr>
+                  <div class="calculation-item"><strong>Total Recaudado:</strong> <span id="totalMontoDividir">$0</span></div>
+                  <div class="calculation-item"><strong>Divisor Registrado:</strong> <span id="divisorDisplay">No registrado</span></div>
+                  <div class="calculation-item" style="color: var(--info-color); font-weight: bold;"><strong>Valor por Punto:</strong> <span id="valorPorPuntoDisplay">$0</span></div>
+                  <hr>
+                  <div class="calculation-item"><strong>Subtotal (Puntos x Valor):</strong> <span id="subtotalDisplay">$0</span></div>
+                  <div class="calculation-item"><strong>Total Anticipos:</strong> <span id="anticiposDisplay">-$0</span></div>
+                  
+                  <div id="anticipos-list-container">
+                      <!-- Detalle de anticipos se insertará aquí -->
+                  </div>
+
+                  <div class="calculation-item final-calculation">
+                      <strong class="total-result">Total a Retirar:</strong> 
+                      <span id="resultadoFinal" class="total-result">$0</span>
+                  </div>
+              </div>
+              <div class="retiro-actions">
+                  <button id="registrarDivisorBtn">Registrar Divisor</button>
+                  <button id="registrarAnticipoBtn">Registrar Anticipo</button>
+                  <button id="resetMesBtn" class="reset-button">Reiniciar Mes</button>
+              </div>
+          </div>
+      </section>
+    </div>
+
+</div> 
+
+<div id="toast-container"></div>
+
+<!-- MODALES -->
+<div id="addAnticipoModal" class="modal-backdrop" style="display: none;">
+    <div class="modal-content">
+        <div class="modal-header"><h4>Registrar Anticipo</h4></div>
+        <div class="modal-body">
+            <label for="addAnticipoMontoInput">Monto:</label>
+            <input type="text" id="addAnticipoMontoInput" placeholder="Monto del anticipo" inputmode="numeric" required />
+            <label for="addAnticipoFechaInput">Fecha:</label>
+            <input type="date" id="addAnticipoFechaInput" required />
+        </div>
+        <div class="modal-footer">
+            <button class="reset-button" id="cancelAddAnticipoBtn">Cancelar</button>
+            <button id="saveAddAnticipoBtn">Guardar</button>
+        </div>
+    </div>
+</div>
+
+<div id="editAnticipoModal" class="modal-backdrop" style="display: none;">
+    <div class="modal-content">
+        <div class="modal-header"><h4>Editar Anticipo</h4></div>
+        <div class="modal-body">
+            <label for="editAnticipoMontoInput">Monto:</label>
+            <input type="text" id="editAnticipoMontoInput" placeholder="Monto del anticipo" inputmode="numeric" required />
+            <label for="editAnticipoFechaInput">Fecha:</label>
+            <input type="date" id="editAnticipoFechaInput" required />
+        </div>
+        <div class="modal-footer">
+            <button class="reset-button" id="cancelEditAnticipoBtn">Cancelar</button>
+            <button class="edit-button-modal" id="saveEditAnticipoBtn">Guardar Cambios</button>
+        </div>
+    </div>
+</div>
+
+<div id="divisorModal" class="modal-backdrop" style="display: none;">
+    <div class="modal-content">
+        <div class="modal-header"><h4>Registrar Divisor</h4></div>
+        <div class="modal-body">
+            <label for="divisorInput">Divisor:</label>
+            <input type="text" id="divisorInput" placeholder="Ej: 150000" inputmode="numeric" required />
+            <label for="divisorFechaInput">Fecha:</label>
+            <input type="date" id="divisorFechaInput" required />
+        </div>
+        <div class="modal-footer">
+            <button class="reset-button" id="cancelDivisorBtn">Cancelar</button>
+            <button id="saveDivisorBtn">Guardar</button>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    // =======================================================
+    //                 VARIABLES GLOBALES Y CONSTANTES
+    // =======================================================
+    const SCRIPT_URL_RECAUDACION = 'https://script.google.com/macros/s/AKfycbxna9EH5LZPTPCPws58pGro6qCrZ8_zNwvUkUHS28BYfd8CsAcD1MRcqlITbDm4lTk/exec'; 
+    const loginForm = document.getElementById('loginForm');
+    const loginContainer = document.getElementById('login-container');
+    const mainContent = document.getElementById('main-content');
+    const userInfoSpan = document.getElementById('userInfo');
+    const logoutBtn = document.getElementById('logoutBtn');
+    const menuToggle = document.getElementById('menuToggle');
+    const sideMenu = document.getElementById('sideMenu');
+    let loggedInUser = null;
+    let currentEditAnticipoId = null;
+
+    // =======================================================
+    //                 UTILIDADES
+    // =======================================================
+    function showToast(message, type = 'success') {
+        const toastContainer = document.getElementById('toast-container');
+        const toast = document.createElement('div');
+        toast.className = `toast ${type}`;
+        toast.textContent = message;
+        toastContainer.appendChild(toast);
+        setTimeout(() => toast.classList.add('show'), 10);
+        setTimeout(() => {
+            toast.classList.remove('show');
+            setTimeout(() => toast.remove(), 400);
+        }, 3000);
+    }
+
+    function formatNumberWithPoints(value) {
+        if (value === null || value === undefined || isNaN(value)) { return "0"; }
+        return Math.round(value).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+    }
+
+    function formatDate(dateString) {
+        if (!dateString) return '';
+        const [year, month, day] = dateString.split('-');
+        return `${day}/${month}/${year}`;
+    }
+
+    function getTodayDateString() {
+        return new Date().toISOString().split('T')[0];
+    }
+
+    function setupNumericInputFormatting(inputElement) {
+        if (!inputElement) return;
+        inputElement.addEventListener('input', (e) => {
+            let value = e.target.value.replace(/\./g, '');
+            if (isNaN(value) || value === '') {
+                e.target.dataset.cleanValue = '';
+                e.target.value = '';
+            } else {
+                e.target.dataset.cleanValue = value;
+                e.target.value = formatNumberWithPoints(parseInt(value, 10));
+            }
+        });
+    }
+
+    // =======================================================
+    //                 GESTIÓN DE MENÚ Y NAVEGACIÓN
+    // =======================================================
+    const setupMenu = () => {
+        const sections = document.querySelectorAll('#main-content > section.content-panel');
+        sideMenu.innerHTML = '<div class="menu-header">Menú</div>';
+        sections.forEach(section => {
+            const title = section.querySelector('h2').textContent;
+            const link = document.createElement('a');
+            link.href = '#';
+            link.textContent = title;
+            link.className = 'menu-link';
+            link.dataset.target = section.id;
+            if (section.classList.contains('active')) link.classList.add('active-link');
+            sideMenu.appendChild(link);
+        });
+
+        sideMenu.addEventListener('click', (e) => {
+            if (e.target.classList.contains('menu-link')) {
+                e.preventDefault();
+                const targetId = e.target.dataset.target;
+                sections.forEach(panel => panel.classList.remove('active'));
+                document.getElementById(targetId).classList.add('active');
+                document.querySelectorAll('.menu-link').forEach(l => l.classList.remove('active-link'));
+                e.target.classList.add('active-link');
+                if (window.innerWidth < 992) {
+                    sideMenu.classList.remove('open');
+                    menuToggle.classList.remove('active');
+                }
+            }
+        });
+    };
+
+    menuToggle.addEventListener('click', () => {
+        sideMenu.classList.toggle('open');
+        menuToggle.classList.toggle('active');
+    });
+
+    // =======================================================
+    //                 GESTIÓN DE SESIÓN
+    // =======================================================
+    function checkLogin() {
+        const user = JSON.parse(localStorage.getItem('loggedInUser'));
+        if (user && user.nombre) {
+            loggedInUser = user;
+            loginContainer.style.display = 'none';
+            mainContent.style.display = 'block';
+            menuToggle.style.display = 'flex';
+            userInfoSpan.textContent = `${user.nombre} ${user.apellido}`;
+            setupMenu();
+            initApp();
+        } else {
+            loginContainer.style.display = 'block';
+            mainContent.style.display = 'none';
+            menuToggle.style.display = 'none';
+        }
+    }
+
+    loginForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const nombre = document.getElementById('loginNombre').value.trim();
+        const apellido = document.getElementById('loginApellido').value.trim();
+        const seccion = document.getElementById('loginSeccion').value;
+        const anio = document.getElementById('loginAnio').value;
+        const puntos = document.getElementById('loginPuntos').value;
+        const password = document.getElementById('loginPassword').value;
+        
+        if (!nombre || !apellido || !seccion || !anio || !puntos || !password) {
+            showToast("Por favor, completa todos los campos.", "error");
+            return;
+        }
+
+        const storedUser = JSON.parse(localStorage.getItem('appUser')) || {};
+
+        if (storedUser.nombre && storedUser.apellido) { // Login
+            if (storedUser.nombre === nombre && storedUser.apellido === apellido && storedUser.password === password) {
+                if (parseFloat(puntos) !== storedUser.puntos) {
+                   storedUser.puntos = parseFloat(puntos);
+                   localStorage.setItem('appUser', JSON.stringify(storedUser));
+                }
+                localStorage.setItem('loggedInUser', JSON.stringify(storedUser));
+                location.reload();
+            } else {
+                showToast('Datos incorrectos. Intenta de nuevo.', 'error');
+            }
+        } else { // Registro (primera vez)
+            const newUser = { nombre, apellido, seccion, anio, puntos: parseFloat(puntos), password };
+            localStorage.setItem('appUser', JSON.stringify(newUser));
+            localStorage.setItem('loggedInUser', JSON.stringify(newUser));
+            location.reload();
+        }
+    });
+
+    logoutBtn.addEventListener('click', () => {
+        localStorage.removeItem('loggedInUser');
+        location.reload();
+    });
+
+    // =======================================================
+    //                 IMPORTACIÓN DESDE SHEETS
+    // =======================================================
+    async function importarDesdeSheets() {
+        const btn = document.getElementById('importarDesdeSheetsBtn');
+        btn.textContent = 'Importando...';
+        btn.disabled = true;
+
+        const url = new URL(SCRIPT_URL_RECAUDACION);
+        url.searchParams.append('action', 'get');
+
+        try {
+            const response = await fetch(url);
+            if (!response.ok) throw new Error(`Error de red: ${response.statusText}`);
+            const result = await response.json();
+
+            if (result.status !== 'success' || !result.data) {
+                throw new Error(result.message || 'La respuesta del script no fue exitosa.');
+            }
+
+            const datosImportados = result.data;
+            let montosActuales = JSON.parse(localStorage.getItem('montosPorFecha')) || {};
+            let registrosNuevos = 0;
+
+            datosImportados.forEach(dato => {
+                const { fecha, tipo, monto } = dato;
+                if (!montosActuales[fecha]) montosActuales[fecha] = [];
+                const existe = montosActuales[fecha].some(m => m.area === tipo && parseFloat(m.monto) === parseFloat(monto));
+                if (!existe) {
+                    montosActuales[fecha].push({ area: tipo, monto: parseFloat(monto) });
+                    registrosNuevos++;
+                }
+            });
+
+            if (registrosNuevos > 0) {
+                localStorage.setItem('montosPorFecha', JSON.stringify(montosActuales));
+                cargarYMostrarMontos();
+                showToast(`${registrosNuevos} nuevo(s) registro(s) importado(s).`);
+            } else {
+                showToast("No se encontraron registros nuevos para importar.");
+            }
+
+        } catch (error) {
+            showToast('Error al importar desde Sheets: ' + error.message, 'error');
+            console.error("Error detallado:", error);
+        } finally {
+            btn.textContent = 'Importar desde Sheets';
+            btn.disabled = false;
+        }
+    }
+
+    // =======================================================
+    //                 GESTIÓN DE MONTOS
+    // =======================================================
+    function cargarYMostrarMontos() {
+        const montosPorFecha = JSON.parse(localStorage.getItem('montosPorFecha')) || {};
+        const contenedor = document.getElementById('tarjetasMontos');
+        contenedor.innerHTML = '';
+        const fechasOrdenadas = Object.keys(montosPorFecha).sort((a, b) => b.localeCompare(a));
+        let totalGeneral = 0;
+
+        fechasOrdenadas.forEach(fecha => {
+            const montos = montosPorFecha[fecha];
+            let totalFecha = montos.reduce((sum, m) => sum + parseFloat(m.monto), 0);
+            totalGeneral += totalFecha;
+            const tarjetaDiv = document.createElement('div');
+            tarjetaDiv.className = 'tarjeta collapsed';
+            tarjetaDiv.innerHTML = `
+                <h3>
+                    <span>Fecha: ${formatDate(fecha)}</span>
+                    <span class="total-in-header">$${formatNumberWithPoints(totalFecha)}</span>
+                </h3>
+                <div class="montos-list">
+                    ${montos.map((m, index) => `
+                        <div class="monto-item">
+                            <span><strong>${m.area}:</strong> $${formatNumberWithPoints(m.monto)}</span>
+                            <button class="delete-button" data-fecha="${fecha}" data-index="${index}">🗑️</button>
+                        </div>
+                    `).join('')}
+                </div>`;
+            contenedor.appendChild(tarjetaDiv);
+            tarjetaDiv.querySelector('h3').addEventListener('click', () => tarjetaDiv.classList.toggle('collapsed'));
+        });
+
+        document.getElementById('totalDiario').textContent = `Total recaudado: $${formatNumberWithPoints(totalGeneral)}`;
+        actualizarCalculoRetiro();
+
+        document.querySelectorAll('.delete-button').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const { fecha, index } = e.currentTarget.dataset;
+                let montos = JSON.parse(localStorage.getItem('montosPorFecha')) || {};
+                montos[fecha].splice(index, 1);
+                if (montos[fecha].length === 0) delete montos[fecha];
+                localStorage.setItem('montosPorFecha', JSON.stringify(montos));
+                cargarYMostrarMontos();
+                showToast("Monto eliminado.");
+            });
+        });
+    }
+    
+    document.getElementById('montosForm').addEventListener('submit', e => {
+        e.preventDefault();
+        const fecha = document.getElementById('fecha').value;
+        const area = document.getElementById('areaMonto').value;
+        const montoInput = document.getElementById('monto');
+        const montoNum = parseFloat(montoInput.dataset.cleanValue) || 0;
+
+        if (!fecha || !area || montoNum <= 0) {
+            showToast('Completa todos los campos correctamente.', 'error');
+            return;
+        }
+
+        let montosPorFecha = JSON.parse(localStorage.getItem('montosPorFecha')) || {};
+        if (!montosPorFecha[fecha]) montosPorFecha[fecha] = [];
+        montosPorFecha[fecha].push({ area, monto: montoNum });
+        localStorage.setItem('montosPorFecha', JSON.stringify(montosPorFecha));
+
+        cargarYMostrarMontos();
+        showToast('Monto agregado con éxito.');
+        e.target.reset();
+        montoInput.value = '';
+        montoInput.dataset.cleanValue = '';
+        document.getElementById('fecha').value = getTodayDateString();
+    });
+
+    // =======================================================
+    //            GESTIÓN DE RETIROS Y CÁLCULOS
+    // =======================================================
+    function actualizarCalculoRetiro() {
+        const puntosUsuario = loggedInUser ? parseFloat(loggedInUser.puntos) : 0;
+        const totalRecaudado = Object.values(JSON.parse(localStorage.getItem('montosPorFecha')) || {}).flat().reduce((sum, m) => sum + m.monto, 0);
+        const divisor = parseFloat(localStorage.getItem('divisor')) || 0;
+        const anticipos = JSON.parse(localStorage.getItem('anticipos')) || [];
+        const anticiposTotal = anticipos.reduce((sum, a) => sum + a.monto, 0);
+        const valorPorPunto = divisor > 0 ? (totalRecaudado / divisor) : 0;
+        const subtotal = valorPorPunto * puntosUsuario;
+        const resultadoFinal = subtotal - anticiposTotal;
+        
+        document.getElementById('puntosUsuarioDisplay').textContent = puntosUsuario;
+        document.getElementById('totalMontoDividir').textContent = `$${formatNumberWithPoints(totalRecaudado)}`;
+        document.getElementById('divisorDisplay').textContent = divisor > 0 ? formatNumberWithPoints(divisor) : 'No registrado';
+        document.getElementById('valorPorPuntoDisplay').textContent = `$${formatNumberWithPoints(valorPorPunto)}`;
+        document.getElementById('subtotalDisplay').textContent = `$${formatNumberWithPoints(subtotal)}`;
+        document.getElementById('anticiposDisplay').textContent = `-$${formatNumberWithPoints(anticiposTotal)}`;
+        document.getElementById('resultadoFinal').textContent = `$${formatNumberWithPoints(resultadoFinal)}`;
+        
+        const anticiposContainer = document.getElementById('anticipos-list-container');
+        anticiposContainer.innerHTML = '';
+        if (anticipos.length === 0) {
+            anticiposContainer.innerHTML = '<p style="text-align:center; color:#888; margin:0;">No hay anticipos registrados.</p>';
+        } else {
+            anticipos.forEach(anticipo => {
+                const item = document.createElement('div');
+                item.className = 'anticipo-item';
+                item.innerHTML = `
+                    <span>${formatDate(anticipo.fecha)}</span>
+                    <strong>$${formatNumberWithPoints(anticipo.monto)}</strong>
+                    <div class="actions">
+                        <button class="anticipo-item-btn edit-anticipo-btn" data-id="${anticipo.id}">✏️</button>
+                        <button class="anticipo-item-btn delete-anticipo-btn" data-id="${anticipo.id}">🗑️</button>
+                    </div>
+                `;
+                anticiposContainer.appendChild(item);
+            });
+        }
+    }
+
+    document.getElementById('anticipos-list-container').addEventListener('click', (e) => {
+        const target = e.target.closest('.anticipo-item-btn');
+        if (!target) return;
+
+        const anticipoId = Number(target.dataset.id);
+        let anticipos = JSON.parse(localStorage.getItem('anticipos')) || [];
+
+        if (target.classList.contains('delete-anticipo-btn')) {
+            anticipos = anticipos.filter(a => a.id !== anticipoId);
+            localStorage.setItem('anticipos', JSON.stringify(anticipos));
+            actualizarCalculoRetiro();
+            showToast("Anticipo eliminado.");
+        }
+        
+        if (target.classList.contains('edit-anticipo-btn')) {
+            const anticipoToEdit = anticipos.find(a => a.id === anticipoId);
+            if(anticipoToEdit) {
+                openEditAnticipoModal(anticipoToEdit);
+            }
+        }
+    });
+
+    document.getElementById('resetMesBtn').addEventListener('click', () => {
+        if (confirm('¿Estás SEGURO de reiniciar el mes? Se borrarán TODOS los montos, el divisor y los anticipos. Esta acción no se puede deshacer.')) {
+            localStorage.removeItem('montosPorFecha');
+            localStorage.removeItem('divisor');
+            localStorage.removeItem('anticipos');
+            showToast('Se han reiniciado todos los datos del período.', 'success');
+            setTimeout(() => location.reload(), 1000);
+        }
+    });
+    
+    // --- Lógica de Modales ---
+    const addAnticipoModal = document.getElementById('addAnticipoModal');
+    const editAnticipoModal = document.getElementById('editAnticipoModal');
+    const divisorModal = document.getElementById('divisorModal');
+    
+    document.getElementById('registrarAnticipoBtn').addEventListener('click', () => {
+        document.getElementById('addAnticipoFechaInput').value = getTodayDateString();
+        addAnticipoModal.style.display = 'flex';
+    });
+    document.getElementById('cancelAddAnticipoBtn').addEventListener('click', () => addAnticipoModal.style.display = 'none');
+    document.getElementById('saveAddAnticipoBtn').addEventListener('click', () => {
+        const montoInput = document.getElementById('addAnticipoMontoInput');
+        const monto = parseFloat(montoInput.dataset.cleanValue) || 0;
+        const fecha = document.getElementById('addAnticipoFechaInput').value;
+        if (monto <= 0 || !fecha) {
+            showToast('Ingresa un monto y fecha válidos.', 'error');
+            return;
+        }
+        let anticipos = JSON.parse(localStorage.getItem('anticipos')) || [];
+        anticipos.push({ id: Date.now(), monto, fecha });
+        localStorage.setItem('anticipos', JSON.stringify(anticipos));
+        montoInput.value = '';
+        montoInput.dataset.cleanValue = '';
+        addAnticipoModal.style.display = 'none';
+        actualizarCalculoRetiro();
+        showToast("Anticipo registrado con éxito.");
+    });
+    
+    function openEditAnticipoModal(anticipo) {
+        currentEditAnticipoId = anticipo.id;
+        const montoInput = document.getElementById('editAnticipoMontoInput');
+        const fechaInput = document.getElementById('editAnticipoFechaInput');
+        montoInput.value = formatNumberWithPoints(anticipo.monto);
+        montoInput.dataset.cleanValue = anticipo.monto;
+        fechaInput.value = anticipo.fecha;
+        editAnticipoModal.style.display = 'flex';
+    }
+    
+    document.getElementById('cancelEditAnticipoBtn').addEventListener('click', () => editAnticipoModal.style.display = 'none');
+    document.getElementById('saveEditAnticipoBtn').addEventListener('click', () => {
+        const montoInput = document.getElementById('editAnticipoMontoInput');
+        const newMonto = parseFloat(montoInput.dataset.cleanValue) || 0;
+        const newFecha = document.getElementById('editAnticipoFechaInput').value;
+        if (newMonto <= 0 || !newFecha) {
+            showToast('Ingresa un monto y fecha válidos.', 'error');
+            return;
+        }
+
+        let anticipos = JSON.parse(localStorage.getItem('anticipos')) || [];
+        const anticipoIndex = anticipos.findIndex(a => a.id === currentEditAnticipoId);
+        
+        if (anticipoIndex > -1) {
+            anticipos[anticipoIndex].monto = newMonto;
+            anticipos[anticipoIndex].fecha = newFecha;
+            localStorage.setItem('anticipos', JSON.stringify(anticipos));
+            editAnticipoModal.style.display = 'none';
+            currentEditAnticipoId = null;
+            actualizarCalculoRetiro();
+            showToast("Anticipo actualizado.");
+        }
+    });
+
+    document.getElementById('registrarDivisorBtn').addEventListener('click', () => {
+        document.getElementById('divisorFechaInput').value = getTodayDateString();
+        divisorModal.style.display = 'flex';
+    });
+    document.getElementById('cancelDivisorBtn').addEventListener('click', () => divisorModal.style.display = 'none');
+    document.getElementById('saveDivisorBtn').addEventListener('click', () => {
+        const divisorInput = document.getElementById('divisorInput');
+        const divisor = parseFloat(divisorInput.dataset.cleanValue) || 0;
+        if (divisor <= 0) {
+            showToast('Ingresa un divisor válido.', 'error');
+            return;
+        }
+        localStorage.setItem('divisor', divisor);
+        divisorInput.value = '';
+        divisorInput.dataset.cleanValue = '';
+        divisorModal.style.display = 'none';
+        actualizarCalculoRetiro();
+        showToast("Divisor guardado con éxito.");
+    });
+
+    // =======================================================
+    //                 INICIALIZACIÓN DE APP Y SERVICE WORKER
+    // =======================================================
+    function initApp() {
+        if (!loggedInUser) return;
+        
+        cargarYMostrarMontos();
+        actualizarCalculoRetiro();
+
+        document.getElementById('fecha').value = getTodayDateString();
+        document.getElementById('importarDesdeSheetsBtn').addEventListener('click', importarDesdeSheets);
+
+        setupNumericInputFormatting(document.getElementById('monto'));
+        setupNumericInputFormatting(document.getElementById('addAnticipoMontoInput'));
+        setupNumericInputFormatting(document.getElementById('editAnticipoMontoInput'));
+        setupNumericInputFormatting(document.getElementById('divisorInput'));
+        
+        // Importación automática al cargar
+        importarDesdeSheets();
+    }
+
+    // Register Service Worker
+    if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+            navigator.serviceWorker.register('service-worker.js')
+                .then(registration => {
+                    console.log('ServiceWorker registration successful with scope: ', registration.scope);
+                })
+                .catch(err => {
+                    console.log('ServiceWorker registration failed: ', err);
+                });
+        });
+    }
+
+    checkLogin();
+});
+</script>
+</body>
+</html>
+
+
