@@ -79,6 +79,30 @@
         .side-menu { transform: translateX(0); }
     }
     /* --- FIN: ESTILOS MENÚ HAMBURGUESA --- */
+    
+    /* Header Styles */
+    .app-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+        flex-wrap: wrap;
+        gap: 10px;
+        padding-left: 50px; /* Space for the hamburger menu */
+    }
+     @media (min-width: 992px) {
+        .app-header {
+            padding-left: 0;
+        }
+    }
+    .app-header h1 {
+        margin: 0;
+        font-size: 1.8em;
+    }
+    .user-info-cluster {
+        text-align: right;
+    }
+
 
     /* --- INICIO: ESTILOS NOTIFICACIÓN TOAST --- */
     #toast-container { position: fixed; top: 20px; right: 20px; z-index: 2000; display: flex; flex-direction: column; align-items: flex-end; gap: 10px; }
@@ -188,16 +212,16 @@
     </div>
 
     <div id="main-content" style="display: none;">
-      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 10px;">
-        <h1 style="margin: 0; font-size: 1.8em;">Registro Personal</h1>
-        <div style="text-align: right;">
+      <div class="app-header">
+        <h1>Registro Personal</h1>
+        <div class="user-info-cluster">
             <span id="userInfo"></span>
             <button id="logoutBtn" class="logout-button">Cerrar Sesión</button>
         </div>
       </div>
       
       <section id="retirosPropinaSection" class="content-panel active">
-          <h2>Retiro de Propina</h2>
+          <h2 id="titulo-retiro">Retiro de Propina</h2>
           <!-- Vista para Planta -->
           <div id="vistaPlanta" style="display: none;">
               <div class="retiro-container">
@@ -689,6 +713,9 @@ document.addEventListener('DOMContentLoaded', () => {
     // APP INITIALIZATION
     function initApp() {
         if (!loggedInUser) return;
+        
+        document.getElementById('titulo-retiro').textContent = `Retiro de Propina (${loggedInUser.tipo})`;
+        
         if (loggedInUser.tipo === 'Planta') {
             document.getElementById('vistaPlanta').style.display = 'block'; document.getElementById('vistaPartTime').style.display = 'none';
         } else {
