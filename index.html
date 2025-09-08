@@ -174,6 +174,33 @@
     .modal-body label { display: block; margin-bottom: 5px; font-weight: bold; }
     .modal-body input { width: 100%; box-sizing: border-box; margin-bottom: 10px; padding: 10px; }
     .modal-footer { display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px; }
+    
+    /* --- INICIO: ESTILOS ACCESO RÁPIDO Y RECUPERACIÓN --- */
+    .quick-access-container { display: flex; justify-content: center; gap: 15px; flex-wrap: wrap; margin-top: 10px; }
+    .quick-access-user { display: flex; flex-direction: column; align-items: center; gap: 8px; cursor: pointer; background-color: #f9f9f9; padding: 10px; border-radius: 8px; border: 1px solid #ddd; transition: all 0.2s ease; min-width: 80px; }
+    .quick-access-user:hover { transform: translateY(-3px); box-shadow: 0 4px 8px rgba(0,0,0,0.1); border-color: var(--primary-color); }
+    .quick-access-avatar { width: 50px; height: 50px; border-radius: 50%; background-color: var(--secondary-color); color: white; display: flex; justify-content: center; align-items: center; font-size: 1.8em; font-weight: bold; }
+    .quick-access-name { font-size: 0.9em; font-weight: 500; }
+    .forgot-password-link { text-align: center; display: block; margin-top: 15px; color: var(--primary-color); text-decoration: none; font-size: 0.9em; }
+    .forgot-password-link:hover { text-decoration: underline; }
+    #recoveryResult { padding: 10px; border-radius: 6px; display: none; margin-top: 15px; font-weight: bold; word-break: break-word; }
+    #recoveryResult.success { background-color: #e8f5e9; color: #2e7d32; display: block; }
+    #recoveryResult.error { background-color: #ffebee; color: #c62828; display: block; }
+    /* --- FIN: ESTILOS ACCESO RÁPIDO Y RECUPERACIÓN --- */
+
+    /* --- INICIO: ESTILOS FOOTER --- */
+    footer { text-align: center; padding: 20px; margin-top: 30px; color: #777; font-size: 0.9em; border-top: 1px solid #e0e0e0; }
+    /* --- FIN: ESTILOS FOOTER --- */
+
+    /* --- INICIO: ESTILOS DATOS DE USUARIO --- */
+    .user-data-container { display: grid; grid-template-columns: 1fr 1fr; gap: 15px 20px; }
+    .data-item { background-color: #f9f9f9; padding: 15px; border-radius: 8px; border: 1px solid #eee; }
+    .data-item-label { font-weight: bold; color: #555; display: block; margin-bottom: 5px; font-size: 0.9em; }
+    .data-item-value { font-size: 1.2em; color: var(--primary-color); }
+    #changePasswordBtn { width: 100%; margin-top: 20px; background-color: var(--edit-color); color: #212529; }
+    #changePasswordBtn:hover { background-color: #e0a800; }
+    /* --- FIN: ESTILOS DATOS DE USUARIO --- */
+
   </style>
 </head>
 <body>
@@ -188,6 +215,11 @@
     <div id="login-container">
       <section id="loginSection">
         <h2>Ingresar a tu Registro</h2>
+        <section id="quickAccessSection" style="display: none; padding: 10px; box-shadow: none;">
+            <h4 style="text-align: center; margin:0 0 15px 0; font-size: 1em; color: #555;">Acceso Rápido</h4>
+            <div id="quickAccessUsers" class="quick-access-container">
+            </div>
+        </section>
         <form id="loginForm">
           <input type="text" id="loginNombre" placeholder="Nombre" required />
           <input type="text" id="loginApellido" placeholder="Apellido" required />
@@ -207,6 +239,7 @@
           <input type="number" id="loginPuntos" placeholder="Cantidad de Puntos" required />
           <input type="password" id="loginPassword" placeholder="Contraseña" required />
           <button type="submit">Ingresar o Registrar</button>
+          <a href="#" id="forgotPasswordLink" class="forgot-password-link">¿Olvidaste tu contraseña?</a>
         </form>
       </section>
     </div>
@@ -293,9 +326,37 @@
         </form>
         <div id="tarjetasMontos"></div>
       </section>
+
+      <!-- NUEVA SECCIÓN: DATOS DEL USUARIO -->
+      <section id="datosUsuarioSection" class="content-panel">
+          <h2>Mis Datos</h2>
+          <div class="user-data-container">
+              <div class="data-item">
+                  <span class="data-item-label">Nombre Completo</span>
+                  <span id="userDataNombre" class="data-item-value"></span>
+              </div>
+              <div class="data-item">
+                  <span class="data-item-label">Tipo de Contrato</span>
+                  <span id="userDataContrato" class="data-item-value"></span>
+              </div>
+              <div class="data-item">
+                  <span class="data-item-label">Puntos Asignados</span>
+                  <span id="userDataPuntos" class="data-item-value"></span>
+              </div>
+              <div class="data-item">
+                  <span class="data-item-label">Año de Ingreso</span>
+                  <span id="userDataAnio" class="data-item-value"></span>
+              </div>
+          </div>
+          <button id="changePasswordBtn">Cambiar Contraseña</button>
+      </section>
     </div>
 
 </div> 
+
+<footer>
+    CarlosPN Interactive®
+</footer>
 
 <div id="toast-container"></div>
 <!-- MODALES -->
@@ -356,6 +417,60 @@
     </div>
 </div>
 
+<!-- MODAL PARA PEDIR TELÉFONO -->
+<div id="phoneModal" class="modal-backdrop" style="display: none;">
+    <div class="modal-content">
+        <div class="modal-header"><h4>¡Bienvenido(a)!</h4></div>
+        <div class="modal-body">
+            <p>Para proteger tu cuenta, por favor ingresa tu número de teléfono. Lo usaremos para cambiar tu contraseña si la olvidas.</p>
+            <label for="phoneInput">Número de Teléfono:</label>
+            <input type="tel" id="phoneInput" placeholder="Ej: 912345678" required />
+        </div>
+        <div class="modal-footer">
+            <button id="savePhoneBtn">Guardar y Continuar</button>
+        </div>
+    </div>
+</div>
+<!-- MODAL PARA CAMBIAR CONTRASEÑA (DESDE LOGIN) -->
+<div id="forgotPasswordModal" class="modal-backdrop" style="display: none;">
+    <div class="modal-content">
+        <div class="modal-header"><h4>Cambiar Contraseña</h4></div>
+        <div class="modal-body">
+            <div id="verifyPhoneContainer">
+                <p>Ingresa tu número de teléfono para verificar tu identidad.</p>
+                <label for="recoverPhoneInput">Número de Teléfono:</label>
+                <input type="tel" id="recoverPhoneInput" placeholder="Tu número de teléfono" required />
+                 <div id="recoveryResult"></div>
+            </div>
+            <div id="newPasswordContainer" style="display: none;">
+                <p>Verificación exitosa. Ahora puedes establecer tu nueva contraseña.</p>
+                <label for="newPasswordInput">Nueva Contraseña:</label>
+                <input type="password" id="newPasswordInput" required />
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="reset-button" id="cancelForgotBtn">Cancelar</button>
+            <button id="verifyPhoneBtn">Verificar</button>
+            <button id="saveNewPasswordBtn" style="display: none;">Guardar Nueva Contraseña</button>
+        </div>
+    </div>
+</div>
+<!-- MODAL PARA CAMBIAR CONTRASEÑA (LOGUEADO) -->
+<div id="changePasswordModal" class="modal-backdrop" style="display: none;">
+    <div class="modal-content">
+        <div class="modal-header"><h4>Actualizar Contraseña</h4></div>
+        <div class="modal-body">
+             <label for="newPasswordLoggedInInput">Ingresa tu nueva contraseña:</label>
+             <input type="password" id="newPasswordLoggedInInput" required />
+        </div>
+        <div class="modal-footer">
+            <button class="reset-button" id="cancelChangePasswordBtn">Cancelar</button>
+            <button id="saveNewPasswordLoggedInBtn">Guardar Cambios</button>
+        </div>
+    </div>
+</div>
+
+
 <script>
 document.addEventListener('DOMContentLoaded', () => {
     const SCRIPT_URL_RECAUDACION = 'https://script.google.com/macros/s/AKfycbxna9EH5LZPTPCPws58pGro6qCrZ8_zNwvUkUHS28BYfd8CsAcD1MRcqlITbDm4lTk/exec'; 
@@ -365,8 +480,10 @@ document.addEventListener('DOMContentLoaded', () => {
     const sideMenu = document.getElementById('sideMenu');
     let loggedInUser = null;
     let currentEditAnticipoId = null;
+    let pendingLoginUser = null; 
+    let userToChangePasswordId = null; // Guardará el ID del usuario que va a cambiar la contraseña
 
-    // --- DATA MANAGEMENT (MULTI-USER) ---
+    // --- DATA MANAGEMENT ---
     function getAppData() { return JSON.parse(localStorage.getItem('appData')) || { usuarios: {}, userData: {} }; }
     function saveAppData(data) { localStorage.setItem('appData', JSON.stringify(data)); }
     function getUserData() {
@@ -403,7 +520,13 @@ document.addEventListener('DOMContentLoaded', () => {
     const setupMenu = () => {
         const sections = document.querySelectorAll('#main-content > section.content-panel');
         sideMenu.innerHTML = '<div class="menu-header">Menú</div>';
-        Array.from(sections).sort((a, b) => (a.id === 'retirosPropinaSection' ? -1 : 1)).forEach(section => {
+        const orderedSections = Array.from(sections).sort((a, b) => {
+            if (a.id === 'retirosPropinaSection') return -1;
+            if (b.id === 'retirosPropinaSection') return 1;
+            return 0;
+        });
+
+        orderedSections.forEach(section => {
             const title = section.querySelector('h2').textContent;
             const link = document.createElement('a');
             link.href = '#'; link.textContent = title; link.className = 'menu-link'; link.dataset.target = section.id;
@@ -418,13 +541,61 @@ document.addEventListener('DOMContentLoaded', () => {
                 document.getElementById(targetId).classList.add('active');
                 document.querySelectorAll('.menu-link').forEach(l => l.classList.remove('active-link'));
                 e.target.classList.add('active-link');
+                if(targetId === 'datosUsuarioSection') populateUserDataSection();
                 if (window.innerWidth < 992) { sideMenu.classList.remove('open'); menuToggle.classList.remove('active'); }
             }
         });
     };
     menuToggle.addEventListener('click', () => { sideMenu.classList.toggle('open'); menuToggle.classList.toggle('active'); });
 
-    // SESSION MANAGEMENT
+    // --- LOGIN & SESSION FUNCTIONS ---
+    function displayRecentLogins() {
+        const recentLogins = JSON.parse(localStorage.getItem('recentLogins')) || [];
+        const container = document.getElementById('quickAccessUsers');
+        const section = document.getElementById('quickAccessSection');
+        container.innerHTML = '';
+        if (recentLogins.length > 0) {
+            section.style.display = 'block';
+            recentLogins.forEach(user => {
+                const userDiv = document.createElement('div');
+                userDiv.className = 'quick-access-user';
+                userDiv.dataset.userId = user.id;
+                userDiv.innerHTML = `<div class="quick-access-avatar">${user.nombre.charAt(0).toUpperCase()}</div><div class="quick-access-name">${user.nombre}</div>`;
+                userDiv.addEventListener('click', (e) => {
+                    const userId = e.currentTarget.dataset.userId;
+                    const fullUser = getAppData().usuarios[userId];
+                    if (fullUser) {
+                        document.getElementById('loginNombre').value = fullUser.nombre;
+                        document.getElementById('loginApellido').value = fullUser.apellido;
+                        document.getElementById('loginTipoContrato').value = fullUser.tipo;
+                        document.getElementById('loginSeccion').value = fullUser.seccion;
+                        document.getElementById('loginAnio').value = fullUser.anio;
+                        document.getElementById('loginPuntos').value = fullUser.puntos;
+                        document.getElementById('loginPassword').value = ''; 
+                        document.getElementById('loginPassword').focus();   
+                    }
+                });
+                container.appendChild(userDiv);
+            });
+        } else {
+            section.style.display = 'none';
+        }
+    }
+
+    function addRecentLogin(user) {
+        let recentLogins = JSON.parse(localStorage.getItem('recentLogins')) || [];
+        recentLogins = recentLogins.filter(u => u.id !== user.id); 
+        recentLogins.unshift({ id: user.id, nombre: user.nombre, apellido: user.apellido });
+        recentLogins = recentLogins.slice(0, 4);
+        localStorage.setItem('recentLogins', JSON.stringify(recentLogins));
+    }
+
+    function completeLogin(user) {
+        localStorage.setItem('loggedInUser', JSON.stringify(user));
+        addRecentLogin(user);
+        location.reload();
+    }
+
     function checkLogin() {
         const user = JSON.parse(localStorage.getItem('loggedInUser'));
         if (user && user.id) {
@@ -434,41 +605,157 @@ document.addEventListener('DOMContentLoaded', () => {
             setupMenu(); initApp();
         } else {
             loginContainer.style.display = 'block'; mainContent.style.display = 'none'; menuToggle.style.display = 'none';
+            displayRecentLogins();
         }
     }
+    
     document.getElementById('loginForm').addEventListener('submit', e => {
         e.preventDefault();
-        const nombre = document.getElementById('loginNombre').value.trim().toLowerCase();
-        const apellido = document.getElementById('loginApellido').value.trim().toLowerCase();
+        const nombre = document.getElementById('loginNombre').value.trim();
+        const apellido = document.getElementById('loginApellido').value.trim();
         const password = document.getElementById('loginPassword').value;
         if (!nombre || !apellido || !password) { showToast("Nombre, Apellido y Contraseña son requeridos.", "error"); return; }
-        const userId = `${nombre}-${apellido}`;
+        const userId = `${nombre.toLowerCase()}-${apellido.toLowerCase()}`;
         const appData = getAppData();
-        const existingUser = appData.usuarios[userId];
-        if (existingUser) { // LOGIN
+        let existingUser = appData.usuarios[userId];
+        
+        if (existingUser) { 
             if (existingUser.password === password) {
                 existingUser.tipo = document.getElementById('loginTipoContrato').value;
                 existingUser.seccion = document.getElementById('loginSeccion').value;
                 existingUser.anio = document.getElementById('loginAnio').value;
                 existingUser.puntos = parseFloat(document.getElementById('loginPuntos').value) || 0;
-                appData.usuarios[userId] = existingUser;
+                appData.usuarios[userId] = existingUser; // Actualizar datos en la BD local
                 saveAppData(appData);
-                localStorage.setItem('loggedInUser', JSON.stringify(existingUser));
-                location.reload();
-            } else { showToast('Contraseña incorrecta.', 'error'); }
-        } else { // REGISTER
+                pendingLoginUser = existingUser;
+                if (!pendingLoginUser.telefono) {
+                    document.getElementById('phoneModal').style.display = 'flex';
+                } else {
+                    completeLogin(pendingLoginUser);
+                }
+            } else { 
+                showToast('Contraseña incorrecta.', 'error'); 
+            }
+        } else { 
             const newUser = {
-                id: userId, nombre: document.getElementById('loginNombre').value.trim(), apellido: document.getElementById('loginApellido').value.trim(), tipo: document.getElementById('loginTipoContrato').value, seccion: document.getElementById('loginSeccion').value, anio: document.getElementById('loginAnio').value, puntos: parseFloat(document.getElementById('loginPuntos').value) || 0, password: password
+                id: userId, nombre: nombre, apellido: apellido, 
+                tipo: document.getElementById('loginTipoContrato').value, 
+                seccion: document.getElementById('loginSeccion').value, 
+                anio: document.getElementById('loginAnio').value, 
+                puntos: parseFloat(document.getElementById('loginPuntos').value) || 0, 
+                password: password, telefono: ''
             };
-            if (!newUser.tipo || !newUser.seccion || !newUser.anio || newUser.puntos <= 0) { showToast("Completa todos los campos para registrarte.", "error"); return; }
-            appData.usuarios[userId] = newUser;
-            saveAppData(appData);
-            localStorage.setItem('loggedInUser', JSON.stringify(newUser));
-            location.reload();
+            if (!newUser.tipo || !newUser.seccion || !newUser.anio || newUser.puntos <= 0) { 
+                showToast("Completa todos los campos para registrarte.", "error"); return; 
+            }
+            pendingLoginUser = newUser;
+            document.getElementById('phoneModal').style.display = 'flex';
         }
     });
+    
     document.getElementById('logoutBtn').addEventListener('click', () => { localStorage.removeItem('loggedInUser'); location.reload(); });
     
+    // --- PASSWORD & PHONE MODAL LOGIC ---
+    document.getElementById('savePhoneBtn').addEventListener('click', () => {
+        const phoneInput = document.getElementById('phoneInput');
+        const phone = phoneInput.value.trim();
+        if (phone && !isNaN(phone) && phone.length > 5) {
+            if (pendingLoginUser) {
+                pendingLoginUser.telefono = phone;
+                let appData = getAppData();
+                appData.usuarios[pendingLoginUser.id] = pendingLoginUser;
+                saveAppData(appData);
+                document.getElementById('phoneModal').style.display = 'none';
+                phoneInput.value = '';
+                completeLogin(pendingLoginUser);
+            }
+        } else {
+            showToast("Por favor, ingresa un número de teléfono válido.", "error");
+        }
+    });
+
+    document.getElementById('forgotPasswordLink').addEventListener('click', (e) => {
+        e.preventDefault();
+        const modal = document.getElementById('forgotPasswordModal');
+        modal.querySelector('#verifyPhoneContainer').style.display = 'block';
+        modal.querySelector('#newPasswordContainer').style.display = 'none';
+        modal.querySelector('#verifyPhoneBtn').style.display = 'inline-block';
+        modal.querySelector('#saveNewPasswordBtn').style.display = 'none';
+        modal.querySelector('#recoverPhoneInput').value = '';
+        modal.querySelector('#newPasswordInput').value = '';
+        modal.querySelector('#recoveryResult').style.display = 'none';
+        modal.style.display = 'flex';
+    });
+
+    document.getElementById('cancelForgotBtn').addEventListener('click', () => {
+        document.getElementById('forgotPasswordModal').style.display = 'none';
+        userToChangePasswordId = null;
+    });
+
+    document.getElementById('verifyPhoneBtn').addEventListener('click', () => {
+        const phone = document.getElementById('recoverPhoneInput').value.trim();
+        const resultDiv = document.getElementById('recoveryResult');
+        if (!phone) { showToast("Ingresa un número de teléfono.", "error"); return; }
+
+        const allUsers = Object.values(getAppData().usuarios);
+        const foundUser = allUsers.find(user => user.telefono === phone);
+
+        if (foundUser) {
+            userToChangePasswordId = foundUser.id;
+            const modal = document.getElementById('forgotPasswordModal');
+            modal.querySelector('#verifyPhoneContainer').style.display = 'none';
+            modal.querySelector('#newPasswordContainer').style.display = 'block';
+            modal.querySelector('#verifyPhoneBtn').style.display = 'none';
+            modal.querySelector('#saveNewPasswordBtn').style.display = 'inline-block';
+        } else {
+            resultDiv.textContent = 'No se encontró ninguna cuenta con ese número.';
+            resultDiv.className = 'error';
+            resultDiv.style.display = 'block';
+        }
+    });
+    
+    document.getElementById('saveNewPasswordBtn').addEventListener('click', () => {
+        const newPassword = document.getElementById('newPasswordInput').value;
+        if(newPassword.length < 4){ showToast("La contraseña debe tener al menos 4 caracteres.", "error"); return; }
+        if(userToChangePasswordId){
+            const appData = getAppData();
+            appData.usuarios[userToChangePasswordId].password = newPassword;
+            saveAppData(appData);
+            showToast("Contraseña cambiada con éxito.");
+            document.getElementById('forgotPasswordModal').style.display = 'none';
+            userToChangePasswordId = null;
+        }
+    });
+
+    // --- LOGIC FOR USER DATA SECTION ---
+    function populateUserDataSection() {
+        if (!loggedInUser) return;
+        document.getElementById('userDataNombre').textContent = `${loggedInUser.nombre} ${loggedInUser.apellido}`;
+        document.getElementById('userDataContrato').textContent = loggedInUser.tipo;
+        document.getElementById('userDataPuntos').textContent = loggedInUser.puntos;
+        document.getElementById('userDataAnio').textContent = loggedInUser.anio;
+    }
+    
+    document.getElementById('changePasswordBtn').addEventListener('click', () => {
+        document.getElementById('newPasswordLoggedInInput').value = '';
+        document.getElementById('changePasswordModal').style.display = 'flex';
+    });
+
+    document.getElementById('cancelChangePasswordBtn').addEventListener('click', () => {
+        document.getElementById('changePasswordModal').style.display = 'none';
+    });
+    
+    document.getElementById('saveNewPasswordLoggedInBtn').addEventListener('click', () => {
+        const newPassword = document.getElementById('newPasswordLoggedInInput').value;
+        if (newPassword.length < 4) { showToast("La contraseña debe tener al menos 4 caracteres.", "error"); return; }
+        const appData = getAppData();
+        appData.usuarios[loggedInUser.id].password = newPassword;
+        saveAppData(appData);
+        showToast("Contraseña actualizada con éxito.");
+        document.getElementById('changePasswordModal').style.display = 'none';
+    });
+
+
     // DATA IMPORT
     async function importarDesdeSheets() {
         if (!loggedInUser) return;
@@ -594,7 +881,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (anticipos.length === 0) {
             container.innerHTML = '<p style="text-align:center; color:#888; margin:0;">No hay anticipos.</p>';
         } else {
-            anticipos.forEach(anticipo => { container.innerHTML += `<div class="anticipo-item"><span>${formatDate(anticipo.fecha)}</span><strong>$${formatNumberWithPoints(anticipo.monto)}</strong><div class="actions"><button class="anticipo-item-btn edit-anticipo-btn" data-id="${anticipo.id}">✏️</button><button class="anticipo-item-btn delete-anticipo-btn" data-id="${anticipo.id}">🗑️</button></div></div>`; });
+            anticipos.sort((a,b) => b.fecha.localeCompare(a.fecha)).forEach(anticipo => { container.innerHTML += `<div class="anticipo-item"><span>${formatDate(anticipo.fecha)}</span><strong>$${formatNumberWithPoints(anticipo.monto)}</strong><div class="actions"><button class="anticipo-item-btn edit-anticipo-btn" data-id="${anticipo.id}">✏️</button><button class="anticipo-item-btn delete-anticipo-btn" data-id="${anticipo.id}">🗑️</button></div></div>`; });
         }
     }
 
