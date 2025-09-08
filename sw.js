@@ -1,13 +1,13 @@
 // A name for our cache
-const CACHE_NAME = 'registro-personal-v2'; // Changed version to force update
+const CACHE_NAME = 'registro-personal-v3'; // Changed version to force update
 
 // The files we want to cache for offline use
 const urlsToCache = [
   '.',
   'index.html',
   'manifest.json',
-  'icon-192.png',
-  'icon-512.png'
+  'icons/icon-192x192.png',
+  'icons/icon-512x512.png'
 ];
 
 // Clean up old caches on activation
@@ -27,7 +27,7 @@ self.addEventListener('install', event => {
   event.waitUntil(
     caches.open(CACHE_NAME)
       .then(cache => {
-        console.log('Opened cache');
+        console.log('Opened cache and caching core files.');
         return cache.addAll(urlsToCache);
       })
   );
