@@ -309,21 +309,11 @@
           </div>
       </section>
 
+      <!-- SECCIÓN DE MONTOS MODIFICADA -->
       <section id="montosSection" class="content-panel">
-        <h2>Registrar Montos por Noche</h2>
+        <h2>Montos por Noche</h2>
         <button id="importarDesdeSheetsBtn" style="width: 100%; margin-bottom: 15px;">Importar desde Sheets</button>
         <div id="totalDiario">Total recaudado: $0</div>
-        <form id="montosForm">
-          <input type="date" id="fecha" required />
-          <select id="areaMonto" required>
-            <option value="">Selecciona Área</option>
-            <option value="Mesas">Mesas</option>
-            <option value="Máquinas">Máquinas</option>
-            <option value="Otros">Otros</option>
-          </select>
-          <input type="text" id="monto" placeholder="Monto" inputmode="numeric" required />
-          <button type="submit">Agregar Monto</button>
-        </form>
         <div id="tarjetasMontos"></div>
       </section>
 
@@ -481,7 +471,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let loggedInUser = null;
     let currentEditAnticipoId = null;
     let pendingLoginUser = null; 
-    let userToChangePasswordId = null; // Guardará el ID del usuario que va a cambiar la contraseña
+    let userToChangePasswordId = null; 
 
     // --- DATA MANAGEMENT ---
     function getAppData() { return JSON.parse(localStorage.getItem('appData')) || { usuarios: {}, userData: {} }; }
@@ -625,7 +615,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 existingUser.seccion = document.getElementById('loginSeccion').value;
                 existingUser.anio = document.getElementById('loginAnio').value;
                 existingUser.puntos = parseFloat(document.getElementById('loginPuntos').value) || 0;
-                appData.usuarios[userId] = existingUser; // Actualizar datos en la BD local
+                appData.usuarios[userId] = existingUser;
                 saveAppData(appData);
                 pendingLoginUser = existingUser;
                 if (!pendingLoginUser.telefono) {
@@ -825,19 +815,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
     }
-    document.getElementById('montosForm').addEventListener('submit', e => {
-        e.preventDefault();
-        const fecha = document.getElementById('fecha').value, area = document.getElementById('areaMonto').value, montoInput = document.getElementById('monto');
-        const montoNum = parseFloat(montoInput.dataset.cleanValue) || 0;
-        if (!fecha || !area || montoNum <= 0) { showToast('Completa todos los campos.', 'error'); return; }
-        const userData = getUserData();
-        if (!userData.montosPorFecha[fecha]) userData.montosPorFecha[fecha] = [];
-        userData.montosPorFecha[fecha].push({ area, monto: montoNum });
-        saveUserData(userData);
-        cargarYMostrarMontos(); showToast('Monto agregado.'); e.target.reset();
-        montoInput.value = ''; montoInput.dataset.cleanValue = ''; document.getElementById('fecha').value = getTodayDateString();
-    });
-
+    
     // CALCULATION LOGIC
     function actualizarCalculoRetiro() { if (!loggedInUser) return; loggedInUser.tipo === 'Planta' ? actualizarCalculoPlanta() : actualizarCalculoPartTime(); }
     function actualizarCalculoPlanta() {
@@ -1010,9 +988,8 @@ document.addEventListener('DOMContentLoaded', () => {
             renderCalendar(document.getElementById('calendar-container'));
         }
         cargarYMostrarMontos(); actualizarCalculoRetiro();
-        document.getElementById('fecha').value = getTodayDateString();
         document.getElementById('importarDesdeSheetsBtn').addEventListener('click', importarDesdeSheets);
-        ['monto', 'addAnticipoMontoInput', 'editAnticipoMontoInput', 'divisorInput', 'divisorPTInput'].forEach(id => setupNumericInputFormatting(document.getElementById(id)));
+        ['addAnticipoMontoInput', 'editAnticipoMontoInput', 'divisorInput', 'divisorPTInput'].forEach(id => setupNumericInputFormatting(document.getElementById(id)));
         importarDesdeSheets();
     }
     if ('serviceWorker' in navigator) { window.addEventListener('load', () => { navigator.serviceWorker.register('service-worker.js').then(reg => console.log('SW registered.')).catch(err => console.log('SW registration failed: ', err)); }); }
