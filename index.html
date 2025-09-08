@@ -51,63 +51,24 @@
         box-shadow: 0 4px 10px rgba(0,0,0,0.1);
         transition: left 0.3s ease;
     }
-    .menu-toggle span {
-        display: block;
-        width: 22px;
-        height: 2px;
-        background-color: white;
-        margin: 2px 0;
-        transition: all 0.3s ease;
-    }
-    .side-menu.open + .main-container .menu-toggle {
-        left: calc(var(--menu-width) + 15px);
-    }
+    .menu-toggle span { display: block; width: 22px; height: 2px; background-color: white; margin: 2px 0; transition: all 0.3s ease; }
+    .side-menu.open + .main-container .menu-toggle { left: calc(var(--menu-width) + 15px); }
     .menu-toggle.active span:nth-child(1) { transform: translateY(6px) rotate(45deg); }
     .menu-toggle.active span:nth-child(2) { opacity: 0; }
     .menu-toggle.active span:nth-child(3) { transform: translateY(-6px) rotate(-45deg); }
 
     .side-menu {
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: var(--menu-width);
-        height: 100%;
-        background-color: #2c3e50;
-        z-index: 1001;
-        transform: translateX(-100%);
-        transition: transform 0.3s ease;
-        display: flex;
-        flex-direction: column;
-        padding-top: 20px;
-        box-shadow: 5px 0 15px rgba(0,0,0,0.1);
+        position: fixed; top: 0; left: 0; width: var(--menu-width); height: 100%;
+        background-color: #2c3e50; z-index: 1001; transform: translateX(-100%);
+        transition: transform 0.3s ease; display: flex; flex-direction: column;
+        padding-top: 20px; box-shadow: 5px 0 15px rgba(0,0,0,0.1);
     }
     .side-menu.open { transform: translateX(0); }
-    .side-menu .menu-header {
-        color: white;
-        font-size: 1.4em;
-        font-weight: 700;
-        text-align: center;
-        padding: 20px 10px;
-        border-bottom: 1px solid #4a627a;
-    }
-    .side-menu a {
-        color: white;
-        text-decoration: none;
-        padding: 15px 20px;
-        display: block;
-        transition: background-color 0.2s ease, padding-left 0.2s ease;
-        border-bottom: 1px solid #3e5268;
-    }
-    .side-menu a:hover, .side-menu a.active-link {
-        background-color: var(--secondary-color);
-        padding-left: 25px;
-    }
+    .side-menu .menu-header { color: white; font-size: 1.4em; font-weight: 700; text-align: center; padding: 20px 10px; border-bottom: 1px solid #4a627a; }
+    .side-menu a { color: white; text-decoration: none; padding: 15px 20px; display: block; transition: background-color 0.2s ease, padding-left 0.2s ease; border-bottom: 1px solid #3e5268; }
+    .side-menu a:hover, .side-menu a.active-link { background-color: var(--secondary-color); padding-left: 25px; }
     
-    .main-container {
-        transition: margin-left 0.3s ease;
-        padding: 20px;
-    }
-
+    .main-container { transition: margin-left 0.3s ease; padding: 20px; }
     .content-panel { display: none; }
     .content-panel.active { display: block; animation: fadeIn 0.5s ease; }
     @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
@@ -120,34 +81,10 @@
     /* --- FIN: ESTILOS MENÚ HAMBURGUESA --- */
 
     /* --- INICIO: ESTILOS NOTIFICACIÓN TOAST --- */
-    #toast-container {
-        position: fixed;
-        top: 20px;
-        right: 20px;
-        z-index: 2000;
-        display: flex;
-        flex-direction: column;
-        align-items: flex-end;
-        gap: 10px;
-    }
-    .toast {
-        background-color: var(--success-color);
-        color: white;
-        padding: 15px 20px;
-        border-radius: 8px;
-        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-        font-size: 1em;
-        opacity: 0;
-        transform: translateX(100%);
-        transition: all 0.4s ease;
-    }
-    .toast.show {
-        opacity: 1;
-        transform: translateX(0);
-    }
-    .toast.error {
-        background-color: var(--error-color);
-    }
+    #toast-container { position: fixed; top: 20px; right: 20px; z-index: 2000; display: flex; flex-direction: column; align-items: flex-end; gap: 10px; }
+    .toast { background-color: var(--success-color); color: white; padding: 15px 20px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); font-size: 1em; opacity: 0; transform: translateX(100%); transition: all 0.4s ease; }
+    .toast.show { opacity: 1; transform: translateX(0); }
+    .toast.error { background-color: var(--error-color); }
     /* --- FIN: ESTILOS NOTIFICACIÓN TOAST --- */
 
     h1 { text-align: center; margin-bottom: 20px; font-size: 2em; }
@@ -179,34 +116,32 @@
     .delete-button { background: none; border: none; font-size: 1.2em; color: var(--danger-color); cursor: pointer; }
     
     /* ESTILOS DE RETIRO */
-    .retiro-container { background-color: #eef7ff; padding: 20px; border-radius: 8px; border: 1px solid #bde0ff; }
+    .retiro-container, .retiro-container-pt { background-color: #eef7ff; padding: 20px; border-radius: 8px; border: 1px solid #bde0ff; }
     .calculation-item { margin-bottom: 12px; font-size: 1.1em; display: flex; justify-content: space-between; align-items: center; }
     .calculation-item strong { color: var(--text-dark); }
     .final-calculation { border-top: 2px solid #ddd; padding-top: 15px; margin-top: 15px; }
     .total-result { font-size: 1.8em; font-weight: bold; color: var(--primary-color); }
     .retiro-actions { display: flex; gap: 10px; margin-top: 20px; flex-wrap: wrap; }
-    #anticipos-list-container {
-        margin-top: 10px;
-        max-height: 160px;
-        overflow-y: auto;
-        border: 1px solid #ddd;
-        border-radius: 6px;
-        padding: 10px;
-        background-color: #fff;
-    }
-    .anticipo-item {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        padding: 8px 5px;
-        border-bottom: 1px solid #eee;
-        font-size: 0.95em;
-    }
+    .anticipos-list-container { margin-top: 10px; max-height: 160px; overflow-y: auto; border: 1px solid #ddd; border-radius: 6px; padding: 10px; background-color: #fff; }
+    .anticipo-item { display: flex; justify-content: space-between; align-items: center; padding: 8px 5px; border-bottom: 1px solid #eee; font-size: 0.95em; }
     .anticipo-item:last-child { border-bottom: none; }
     .anticipo-item .actions { display: flex; gap: 8px; }
     .anticipo-item-btn { background: none; border: none; cursor: pointer; font-size: 1.2em; padding: 0 5px; }
     .delete-anticipo-btn { color: var(--danger-color); }
     .edit-anticipo-btn { color: var(--edit-color); }
+    
+    /* ESTILOS PART-TIME */
+    .part-time-layout { display: flex; flex-wrap: wrap; gap: 20px; }
+    .calendar-section { flex: 1; min-width: 300px; }
+    .calculation-section-pt { flex: 1; min-width: 300px; }
+    .calendar-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; font-weight: bold; }
+    .calendar-header button { padding: 5px 10px; background-color: #eee; color: #333; border: 1px solid #ccc; border-radius: 4px; cursor: pointer; flex: 0; }
+    .calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 5px; text-align: center; }
+    .day-name { font-weight: bold; color: #777; padding-bottom: 5px; }
+    .day { padding: 8px; border-radius: 4px; background-color: #fff; cursor: pointer; border: 1px solid #eee; }
+    .day:hover { background-color: #e0e0e0; }
+    .day.marked { background-color: var(--success-color); color: #fff; font-weight: bold; }
+    .day.empty { background-color: transparent; border: none; cursor: default; }
 
     /* ESTILOS DE MODALES */
     .modal-backdrop { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.6); display: flex; justify-content: center; align-items: center; z-index: 1000; }
@@ -232,6 +167,11 @@
         <form id="loginForm">
           <input type="text" id="loginNombre" placeholder="Nombre" required />
           <input type="text" id="loginApellido" placeholder="Apellido" required />
+          <select id="loginTipoContrato" required>
+              <option value="">Tipo de Contrato</option>
+              <option value="Planta">Planta</option>
+              <option value="Part Time">Part Time</option>
+          </select>
           <select id="loginSeccion" required>
               <option value="">Selecciona tu Sección</option>
               <option value="Mesas">Mesas</option>
@@ -256,7 +196,63 @@
         </div>
       </div>
       
-      <section id="montosSection" class="content-panel active">
+      <section id="retirosPropinaSection" class="content-panel active">
+          <h2>Retiro de Propina</h2>
+          <!-- Vista para Planta -->
+          <div id="vistaPlanta" style="display: none;">
+              <div class="retiro-container">
+                  <div class="calculation-item"><strong>Mis Puntos:</strong> <span id="puntosUsuarioDisplayPlanta">0</span></div>
+                  <hr>
+                  <div class="calculation-item"><strong>Total Recaudado:</strong> <span id="totalMontoDividirPlanta">$0</span></div>
+                  <div class="calculation-item"><strong>Divisor Registrado:</strong> <span id="divisorDisplayPlanta">No registrado</span></div>
+                  <div class="calculation-item" style="color: var(--info-color); font-weight: bold;"><strong>Valor por Punto:</strong> <span id="valorPorPuntoDisplayPlanta">$0</span></div>
+                  <hr>
+                  <div class="calculation-item"><strong>Subtotal (Puntos x Valor):</strong> <span id="subtotalDisplayPlanta">$0</span></div>
+                  <div class="calculation-item"><strong>Total Anticipos:</strong> <span id="anticiposDisplayPlanta">-$0</span></div>
+                  <div id="anticipos-list-container-planta" class="anticipos-list-container"></div>
+                  <div class="calculation-item final-calculation">
+                      <strong class="total-result">Total a Retirar:</strong> 
+                      <span id="resultadoFinalPlanta" class="total-result">$0</span>
+                  </div>
+              </div>
+          </div>
+          <!-- Vista para Part Time -->
+          <div id="vistaPartTime" style="display: none;">
+              <div class="part-time-layout">
+                  <div class="calendar-section">
+                      <h4>Marca tus días trabajados:</h4>
+                      <div id="calendar-container"></div>
+                  </div>
+                  <div class="calculation-section-pt">
+                      <div class="retiro-container-pt">
+                          <div class="calculation-item"><strong>Mis Puntos:</strong> <span id="puntosUsuarioDisplayPT">0</span></div>
+                          <hr>
+                          <div class="calculation-item"><strong>Días trabajados:</strong> <span id="diasTrabajadosDisplayPT">0</span></div>
+                          <div class="calculation-item"><strong>Pozo Individual:</strong> <span id="pozoIndividualDisplayPT">$0</span></div>
+                          <div class="calculation-item"><strong>Divisor Personal:</strong> <span id="divisorDisplayPT">1</span></div>
+                          <div class="calculation-item" style="color: var(--info-color); font-weight: bold;"><strong>Valor por Punto:</strong> <span id="valorPorPuntoDisplayPT">$0</span></div>
+                          <hr>
+                          <div class="calculation-item"><strong>Subtotal:</strong> <span id="subtotalDisplayPT">$0</span></div>
+                          <div class="calculation-item"><strong>Total Anticipos:</strong> <span id="anticiposDisplayPT">-$0</span></div>
+                          <div id="anticipos-list-container-pt" class="anticipos-list-container"></div>
+                          <div class="calculation-item final-calculation">
+                              <strong class="total-result">Total a Retirar:</strong> 
+                              <span id="resultadoFinalPT" class="total-result">$0</span>
+                          </div>
+                          <button id="registrarDivisorPTBtn" style="width:100%; margin-top:10px;">Editar Divisor Personal</button>
+                      </div>
+                  </div>
+              </div>
+          </div>
+          <!-- Acciones Generales -->
+          <div class="retiro-actions">
+              <button id="registrarDivisorBtn">Registrar Divisor General (Planta)</button>
+              <button id="registrarAnticipoBtn">Registrar Anticipo</button>
+              <button id="resetMesBtn" class="reset-button">Reiniciar Mes</button>
+          </div>
+      </section>
+
+      <section id="montosSection" class="content-panel">
         <h2>Registrar Montos por Noche</h2>
         <button id="importarDesdeSheetsBtn" style="width: 100%; margin-bottom: 15px;">Importar desde Sheets</button>
         <div id="totalDiario">Total recaudado: $0</div>
@@ -273,49 +269,18 @@
         </form>
         <div id="tarjetasMontos"></div>
       </section>
-
-      <section id="retirosPropinaSection" class="content-panel">
-          <h2>Retiro de Propina</h2>
-          <div class="retiro-container">
-              <div id="calculationDisplay">
-                  <div class="calculation-item"><strong>Mis Puntos:</strong> <span id="puntosUsuarioDisplay">0</span></div>
-                  <hr>
-                  <div class="calculation-item"><strong>Total Recaudado:</strong> <span id="totalMontoDividir">$0</span></div>
-                  <div class="calculation-item"><strong>Divisor Registrado:</strong> <span id="divisorDisplay">No registrado</span></div>
-                  <div class="calculation-item" style="color: var(--info-color); font-weight: bold;"><strong>Valor por Punto:</strong> <span id="valorPorPuntoDisplay">$0</span></div>
-                  <hr>
-                  <div class="calculation-item"><strong>Subtotal (Puntos x Valor):</strong> <span id="subtotalDisplay">$0</span></div>
-                  <div class="calculation-item"><strong>Total Anticipos:</strong> <span id="anticiposDisplay">-$0</span></div>
-                  
-                  <div id="anticipos-list-container">
-                      <!-- Detalle de anticipos se insertará aquí -->
-                  </div>
-
-                  <div class="calculation-item final-calculation">
-                      <strong class="total-result">Total a Retirar:</strong> 
-                      <span id="resultadoFinal" class="total-result">$0</span>
-                  </div>
-              </div>
-              <div class="retiro-actions">
-                  <button id="registrarDivisorBtn">Registrar Divisor</button>
-                  <button id="registrarAnticipoBtn">Registrar Anticipo</button>
-                  <button id="resetMesBtn" class="reset-button">Reiniciar Mes</button>
-              </div>
-          </div>
-      </section>
     </div>
 
 </div> 
 
 <div id="toast-container"></div>
-
 <!-- MODALES -->
 <div id="addAnticipoModal" class="modal-backdrop" style="display: none;">
     <div class="modal-content">
         <div class="modal-header"><h4>Registrar Anticipo</h4></div>
         <div class="modal-body">
             <label for="addAnticipoMontoInput">Monto:</label>
-            <input type="text" id="addAnticipoMontoInput" placeholder="Monto del anticipo" inputmode="numeric" required />
+            <input type="text" id="addAnticipoMontoInput" inputmode="numeric" required />
             <label for="addAnticipoFechaInput">Fecha:</label>
             <input type="date" id="addAnticipoFechaInput" required />
         </div>
@@ -325,13 +290,12 @@
         </div>
     </div>
 </div>
-
 <div id="editAnticipoModal" class="modal-backdrop" style="display: none;">
     <div class="modal-content">
         <div class="modal-header"><h4>Editar Anticipo</h4></div>
         <div class="modal-body">
             <label for="editAnticipoMontoInput">Monto:</label>
-            <input type="text" id="editAnticipoMontoInput" placeholder="Monto del anticipo" inputmode="numeric" required />
+            <input type="text" id="editAnticipoMontoInput" inputmode="numeric" required />
             <label for="editAnticipoFechaInput">Fecha:</label>
             <input type="date" id="editAnticipoFechaInput" required />
         </div>
@@ -341,15 +305,12 @@
         </div>
     </div>
 </div>
-
 <div id="divisorModal" class="modal-backdrop" style="display: none;">
     <div class="modal-content">
-        <div class="modal-header"><h4>Registrar Divisor</h4></div>
+        <div class="modal-header"><h4>Registrar Divisor General</h4></div>
         <div class="modal-body">
             <label for="divisorInput">Divisor:</label>
-            <input type="text" id="divisorInput" placeholder="Ej: 150000" inputmode="numeric" required />
-            <label for="divisorFechaInput">Fecha:</label>
-            <input type="date" id="divisorFechaInput" required />
+            <input type="text" id="divisorInput" inputmode="numeric" required />
         </div>
         <div class="modal-footer">
             <button class="reset-button" id="cancelDivisorBtn">Cancelar</button>
@@ -357,85 +318,74 @@
         </div>
     </div>
 </div>
+<div id="divisorPTModal" class="modal-backdrop" style="display: none;">
+    <div class="modal-content">
+        <div class="modal-header"><h4>Editar Divisor Personal</h4></div>
+        <div class="modal-body">
+            <label for="divisorPTInput">Divisor:</label>
+            <input type="text" id="divisorPTInput" inputmode="numeric" required />
+        </div>
+        <div class="modal-footer">
+            <button class="reset-button" id="cancelDivisorPTBtn">Cancelar</button>
+            <button id="saveDivisorPTBtn">Guardar</button>
+        </div>
+    </div>
+</div>
 
 <script>
 document.addEventListener('DOMContentLoaded', () => {
-    // =======================================================
-    //                 VARIABLES GLOBALES Y CONSTANTES
-    // =======================================================
     const SCRIPT_URL_RECAUDACION = 'https://script.google.com/macros/s/AKfycbxna9EH5LZPTPCPws58pGro6qCrZ8_zNwvUkUHS28BYfd8CsAcD1MRcqlITbDm4lTk/exec'; 
-    const loginForm = document.getElementById('loginForm');
     const loginContainer = document.getElementById('login-container');
     const mainContent = document.getElementById('main-content');
-    const userInfoSpan = document.getElementById('userInfo');
-    const logoutBtn = document.getElementById('logoutBtn');
     const menuToggle = document.getElementById('menuToggle');
     const sideMenu = document.getElementById('sideMenu');
     let loggedInUser = null;
     let currentEditAnticipoId = null;
 
-    // =======================================================
-    //                 UTILIDADES
-    // =======================================================
+    // --- DATA MANAGEMENT (MULTI-USER) ---
+    function getAppData() { return JSON.parse(localStorage.getItem('appData')) || { usuarios: {}, userData: {} }; }
+    function saveAppData(data) { localStorage.setItem('appData', JSON.stringify(data)); }
+    function getUserData() {
+        const appData = getAppData();
+        const userId = loggedInUser.id;
+        if (!appData.userData[userId]) {
+            appData.userData[userId] = { montosPorFecha: {}, anticipos: [], divisor: 0, diasTrabajados: [], divisorPartTime: 1 };
+            saveAppData(appData);
+        }
+        return appData.userData[userId];
+    }
+    function saveUserData(userData) {
+        const appData = getAppData();
+        const userId = loggedInUser.id;
+        appData.userData[userId] = userData;
+        saveAppData(appData);
+    }
+    
+    // UTILITIES
     function showToast(message, type = 'success') {
         const toastContainer = document.getElementById('toast-container');
         const toast = document.createElement('div');
-        toast.className = `toast ${type}`;
-        toast.textContent = message;
+        toast.className = `toast ${type}`; toast.textContent = message;
         toastContainer.appendChild(toast);
         setTimeout(() => toast.classList.add('show'), 10);
-        setTimeout(() => {
-            toast.classList.remove('show');
-            setTimeout(() => toast.remove(), 400);
-        }, 3000);
+        setTimeout(() => { toast.classList.remove('show'); setTimeout(() => toast.remove(), 400); }, 3000);
     }
+    function formatNumberWithPoints(value) { if (value === null || value === undefined || isNaN(value)) { return "0"; } return Math.round(value).toString().replace(/\B(?=(\d{3})+(?!\d))/g, "."); }
+    function formatDate(dateString) { if (!dateString) return ''; const [year, month, day] = dateString.split('-'); return `${day}/${month}/${year}`; }
+    function getTodayDateString() { return new Date().toISOString().split('T')[0]; }
+    function setupNumericInputFormatting(el) { if(el) el.addEventListener('input', e => { let v = e.target.value.replace(/\./g, ''); e.target.dataset.cleanValue = (isNaN(v) || v === '') ? '' : v; e.target.value = (isNaN(v) || v === '') ? '' : formatNumberWithPoints(parseInt(v, 10)); }); }
 
-    function formatNumberWithPoints(value) {
-        if (value === null || value === undefined || isNaN(value)) { return "0"; }
-        return Math.round(value).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
-    }
-
-    function formatDate(dateString) {
-        if (!dateString) return '';
-        const [year, month, day] = dateString.split('-');
-        return `${day}/${month}/${year}`;
-    }
-
-    function getTodayDateString() {
-        return new Date().toISOString().split('T')[0];
-    }
-
-    function setupNumericInputFormatting(inputElement) {
-        if (!inputElement) return;
-        inputElement.addEventListener('input', (e) => {
-            let value = e.target.value.replace(/\./g, '');
-            if (isNaN(value) || value === '') {
-                e.target.dataset.cleanValue = '';
-                e.target.value = '';
-            } else {
-                e.target.dataset.cleanValue = value;
-                e.target.value = formatNumberWithPoints(parseInt(value, 10));
-            }
-        });
-    }
-
-    // =======================================================
-    //                 GESTIÓN DE MENÚ Y NAVEGACIÓN
-    // =======================================================
+    // MENU & NAVIGATION
     const setupMenu = () => {
         const sections = document.querySelectorAll('#main-content > section.content-panel');
         sideMenu.innerHTML = '<div class="menu-header">Menú</div>';
-        sections.forEach(section => {
+        Array.from(sections).sort((a, b) => (a.id === 'retirosPropinaSection' ? -1 : 1)).forEach(section => {
             const title = section.querySelector('h2').textContent;
             const link = document.createElement('a');
-            link.href = '#';
-            link.textContent = title;
-            link.className = 'menu-link';
-            link.dataset.target = section.id;
+            link.href = '#'; link.textContent = title; link.className = 'menu-link'; link.dataset.target = section.id;
             if (section.classList.contains('active')) link.classList.add('active-link');
             sideMenu.appendChild(link);
         });
-
         sideMenu.addEventListener('click', (e) => {
             if (e.target.classList.contains('menu-link')) {
                 e.preventDefault();
@@ -444,104 +394,72 @@ document.addEventListener('DOMContentLoaded', () => {
                 document.getElementById(targetId).classList.add('active');
                 document.querySelectorAll('.menu-link').forEach(l => l.classList.remove('active-link'));
                 e.target.classList.add('active-link');
-                if (window.innerWidth < 992) {
-                    sideMenu.classList.remove('open');
-                    menuToggle.classList.remove('active');
-                }
+                if (window.innerWidth < 992) { sideMenu.classList.remove('open'); menuToggle.classList.remove('active'); }
             }
         });
     };
+    menuToggle.addEventListener('click', () => { sideMenu.classList.toggle('open'); menuToggle.classList.toggle('active'); });
 
-    menuToggle.addEventListener('click', () => {
-        sideMenu.classList.toggle('open');
-        menuToggle.classList.toggle('active');
-    });
-
-    // =======================================================
-    //                 GESTIÓN DE SESIÓN
-    // =======================================================
+    // SESSION MANAGEMENT
     function checkLogin() {
         const user = JSON.parse(localStorage.getItem('loggedInUser'));
-        if (user && user.nombre) {
+        if (user && user.id) {
             loggedInUser = user;
-            loginContainer.style.display = 'none';
-            mainContent.style.display = 'block';
-            menuToggle.style.display = 'flex';
-            userInfoSpan.textContent = `${user.nombre} ${user.apellido}`;
-            setupMenu();
-            initApp();
+            loginContainer.style.display = 'none'; mainContent.style.display = 'block'; menuToggle.style.display = 'flex';
+            document.getElementById('userInfo').textContent = `${user.nombre} ${user.apellido}`;
+            setupMenu(); initApp();
         } else {
-            loginContainer.style.display = 'block';
-            mainContent.style.display = 'none';
-            menuToggle.style.display = 'none';
+            loginContainer.style.display = 'block'; mainContent.style.display = 'none'; menuToggle.style.display = 'none';
         }
     }
-
-    loginForm.addEventListener('submit', (e) => {
+    document.getElementById('loginForm').addEventListener('submit', e => {
         e.preventDefault();
-        const nombre = document.getElementById('loginNombre').value.trim();
-        const apellido = document.getElementById('loginApellido').value.trim();
-        const seccion = document.getElementById('loginSeccion').value;
-        const anio = document.getElementById('loginAnio').value;
-        const puntos = document.getElementById('loginPuntos').value;
+        const nombre = document.getElementById('loginNombre').value.trim().toLowerCase();
+        const apellido = document.getElementById('loginApellido').value.trim().toLowerCase();
         const password = document.getElementById('loginPassword').value;
-        
-        if (!nombre || !apellido || !seccion || !anio || !puntos || !password) {
-            showToast("Por favor, completa todos los campos.", "error");
-            return;
-        }
-
-        const storedUser = JSON.parse(localStorage.getItem('appUser')) || {};
-
-        if (storedUser.nombre && storedUser.apellido) { // Login
-            if (storedUser.nombre === nombre && storedUser.apellido === apellido && storedUser.password === password) {
-                if (parseFloat(puntos) !== storedUser.puntos) {
-                   storedUser.puntos = parseFloat(puntos);
-                   localStorage.setItem('appUser', JSON.stringify(storedUser));
-                }
-                localStorage.setItem('loggedInUser', JSON.stringify(storedUser));
+        if (!nombre || !apellido || !password) { showToast("Nombre, Apellido y Contraseña son requeridos.", "error"); return; }
+        const userId = `${nombre}-${apellido}`;
+        const appData = getAppData();
+        const existingUser = appData.usuarios[userId];
+        if (existingUser) { // LOGIN
+            if (existingUser.password === password) {
+                existingUser.tipo = document.getElementById('loginTipoContrato').value;
+                existingUser.seccion = document.getElementById('loginSeccion').value;
+                existingUser.anio = document.getElementById('loginAnio').value;
+                existingUser.puntos = parseFloat(document.getElementById('loginPuntos').value) || 0;
+                appData.usuarios[userId] = existingUser;
+                saveAppData(appData);
+                localStorage.setItem('loggedInUser', JSON.stringify(existingUser));
                 location.reload();
-            } else {
-                showToast('Datos incorrectos. Intenta de nuevo.', 'error');
-            }
-        } else { // Registro (primera vez)
-            const newUser = { nombre, apellido, seccion, anio, puntos: parseFloat(puntos), password };
-            localStorage.setItem('appUser', JSON.stringify(newUser));
+            } else { showToast('Contraseña incorrecta.', 'error'); }
+        } else { // REGISTER
+            const newUser = {
+                id: userId, nombre: document.getElementById('loginNombre').value.trim(), apellido: document.getElementById('loginApellido').value.trim(), tipo: document.getElementById('loginTipoContrato').value, seccion: document.getElementById('loginSeccion').value, anio: document.getElementById('loginAnio').value, puntos: parseFloat(document.getElementById('loginPuntos').value) || 0, password: password
+            };
+            if (!newUser.tipo || !newUser.seccion || !newUser.anio || newUser.puntos <= 0) { showToast("Completa todos los campos para registrarte.", "error"); return; }
+            appData.usuarios[userId] = newUser;
+            saveAppData(appData);
             localStorage.setItem('loggedInUser', JSON.stringify(newUser));
             location.reload();
         }
     });
-
-    logoutBtn.addEventListener('click', () => {
-        localStorage.removeItem('loggedInUser');
-        location.reload();
-    });
-
-    // =======================================================
-    //                 IMPORTACIÓN DESDE SHEETS
-    // =======================================================
+    document.getElementById('logoutBtn').addEventListener('click', () => { localStorage.removeItem('loggedInUser'); location.reload(); });
+    
+    // DATA IMPORT
     async function importarDesdeSheets() {
+        if (!loggedInUser) return;
         const btn = document.getElementById('importarDesdeSheetsBtn');
-        btn.textContent = 'Importando...';
-        btn.disabled = true;
-
-        const url = new URL(SCRIPT_URL_RECAUDACION);
-        url.searchParams.append('action', 'get');
-
+        btn.textContent = 'Importando...'; btn.disabled = true;
         try {
-            const response = await fetch(url);
+            const response = await fetch(`${SCRIPT_URL_RECAUDACION}?action=get`);
             if (!response.ok) throw new Error(`Error de red: ${response.statusText}`);
             const result = await response.json();
-
-            if (result.status !== 'success' || !result.data) {
-                throw new Error(result.message || 'La respuesta del script no fue exitosa.');
-            }
-
-            const datosImportados = result.data;
-            let montosActuales = JSON.parse(localStorage.getItem('montosPorFecha')) || {};
+            if (result.status !== 'success' || !result.data) throw new Error(result.message || 'La respuesta no fue exitosa.');
+            
+            const userData = getUserData();
+            let montosActuales = userData.montosPorFecha || {};
             let registrosNuevos = 0;
-
-            datosImportados.forEach(dato => {
+            result.data.forEach(dato => {
                 const { fecha, tipo, monto } = dato;
                 if (!montosActuales[fecha]) montosActuales[fecha] = [];
                 const existe = montosActuales[fecha].some(m => m.area === tipo && parseFloat(m.monto) === parseFloat(monto));
@@ -550,288 +468,241 @@ document.addEventListener('DOMContentLoaded', () => {
                     registrosNuevos++;
                 }
             });
-
             if (registrosNuevos > 0) {
-                localStorage.setItem('montosPorFecha', JSON.stringify(montosActuales));
+                userData.montosPorFecha = montosActuales;
+                saveUserData(userData);
                 cargarYMostrarMontos();
                 showToast(`${registrosNuevos} nuevo(s) registro(s) importado(s).`);
             } else {
                 showToast("No se encontraron registros nuevos para importar.");
             }
-
         } catch (error) {
             showToast('Error al importar desde Sheets: ' + error.message, 'error');
             console.error("Error detallado:", error);
         } finally {
-            btn.textContent = 'Importar desde Sheets';
-            btn.disabled = false;
+            btn.textContent = 'Importar desde Sheets'; btn.disabled = false;
         }
     }
 
-    // =======================================================
-    //                 GESTIÓN DE MONTOS
-    // =======================================================
+    // AMOUNTS MANAGEMENT
     function cargarYMostrarMontos() {
-        const montosPorFecha = JSON.parse(localStorage.getItem('montosPorFecha')) || {};
+        const montosPorFecha = getUserData().montosPorFecha;
         const contenedor = document.getElementById('tarjetasMontos');
         contenedor.innerHTML = '';
         const fechasOrdenadas = Object.keys(montosPorFecha).sort((a, b) => b.localeCompare(a));
         let totalGeneral = 0;
-
         fechasOrdenadas.forEach(fecha => {
             const montos = montosPorFecha[fecha];
             let totalFecha = montos.reduce((sum, m) => sum + parseFloat(m.monto), 0);
             totalGeneral += totalFecha;
             const tarjetaDiv = document.createElement('div');
             tarjetaDiv.className = 'tarjeta collapsed';
-            tarjetaDiv.innerHTML = `
-                <h3>
-                    <span>Fecha: ${formatDate(fecha)}</span>
-                    <span class="total-in-header">$${formatNumberWithPoints(totalFecha)}</span>
-                </h3>
-                <div class="montos-list">
-                    ${montos.map((m, index) => `
-                        <div class="monto-item">
-                            <span><strong>${m.area}:</strong> $${formatNumberWithPoints(m.monto)}</span>
-                            <button class="delete-button" data-fecha="${fecha}" data-index="${index}">🗑️</button>
-                        </div>
-                    `).join('')}
-                </div>`;
+            tarjetaDiv.innerHTML = `<h3><span>Fecha: ${formatDate(fecha)}</span><span class="total-in-header">$${formatNumberWithPoints(totalFecha)}</span></h3><div class="montos-list">${montos.map((m, index) => `<div class="monto-item"><span><strong>${m.area}:</strong> $${formatNumberWithPoints(m.monto)}</span><button class="delete-button" data-fecha="${fecha}" data-index="${index}">🗑️</button></div>`).join('')}</div>`;
             contenedor.appendChild(tarjetaDiv);
             tarjetaDiv.querySelector('h3').addEventListener('click', () => tarjetaDiv.classList.toggle('collapsed'));
         });
-
         document.getElementById('totalDiario').textContent = `Total recaudado: $${formatNumberWithPoints(totalGeneral)}`;
         actualizarCalculoRetiro();
-
-        document.querySelectorAll('.delete-button').forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                const { fecha, index } = e.currentTarget.dataset;
-                let montos = JSON.parse(localStorage.getItem('montosPorFecha')) || {};
-                montos[fecha].splice(index, 1);
-                if (montos[fecha].length === 0) delete montos[fecha];
-                localStorage.setItem('montosPorFecha', JSON.stringify(montos));
-                cargarYMostrarMontos();
-                showToast("Monto eliminado.");
-            });
+        contenedor.addEventListener('click', e => {
+            if (e.target.classList.contains('delete-button')) {
+                const { fecha, index } = e.target.dataset;
+                const userData = getUserData();
+                userData.montosPorFecha[fecha].splice(index, 1);
+                if (userData.montosPorFecha[fecha].length === 0) delete userData.montosPorFecha[fecha];
+                saveUserData(userData);
+                cargarYMostrarMontos(); showToast("Monto eliminado.");
+            }
         });
     }
-    
     document.getElementById('montosForm').addEventListener('submit', e => {
         e.preventDefault();
-        const fecha = document.getElementById('fecha').value;
-        const area = document.getElementById('areaMonto').value;
-        const montoInput = document.getElementById('monto');
+        const fecha = document.getElementById('fecha').value, area = document.getElementById('areaMonto').value, montoInput = document.getElementById('monto');
         const montoNum = parseFloat(montoInput.dataset.cleanValue) || 0;
-
-        if (!fecha || !area || montoNum <= 0) {
-            showToast('Completa todos los campos correctamente.', 'error');
-            return;
-        }
-
-        let montosPorFecha = JSON.parse(localStorage.getItem('montosPorFecha')) || {};
-        if (!montosPorFecha[fecha]) montosPorFecha[fecha] = [];
-        montosPorFecha[fecha].push({ area, monto: montoNum });
-        localStorage.setItem('montosPorFecha', JSON.stringify(montosPorFecha));
-
-        cargarYMostrarMontos();
-        showToast('Monto agregado con éxito.');
-        e.target.reset();
-        montoInput.value = '';
-        montoInput.dataset.cleanValue = '';
-        document.getElementById('fecha').value = getTodayDateString();
+        if (!fecha || !area || montoNum <= 0) { showToast('Completa todos los campos.', 'error'); return; }
+        const userData = getUserData();
+        if (!userData.montosPorFecha[fecha]) userData.montosPorFecha[fecha] = [];
+        userData.montosPorFecha[fecha].push({ area, monto: montoNum });
+        saveUserData(userData);
+        cargarYMostrarMontos(); showToast('Monto agregado.'); e.target.reset();
+        montoInput.value = ''; montoInput.dataset.cleanValue = ''; document.getElementById('fecha').value = getTodayDateString();
     });
 
-    // =======================================================
-    //            GESTIÓN DE RETIROS Y CÁLCULOS
-    // =======================================================
-    function actualizarCalculoRetiro() {
-        const puntosUsuario = loggedInUser ? parseFloat(loggedInUser.puntos) : 0;
-        const totalRecaudado = Object.values(JSON.parse(localStorage.getItem('montosPorFecha')) || {}).flat().reduce((sum, m) => sum + m.monto, 0);
-        const divisor = parseFloat(localStorage.getItem('divisor')) || 0;
-        const anticipos = JSON.parse(localStorage.getItem('anticipos')) || [];
-        const anticiposTotal = anticipos.reduce((sum, a) => sum + a.monto, 0);
-        const valorPorPunto = divisor > 0 ? (totalRecaudado / divisor) : 0;
-        const subtotal = valorPorPunto * puntosUsuario;
-        const resultadoFinal = subtotal - anticiposTotal;
-        
-        document.getElementById('puntosUsuarioDisplay').textContent = puntosUsuario;
-        document.getElementById('totalMontoDividir').textContent = `$${formatNumberWithPoints(totalRecaudado)}`;
-        document.getElementById('divisorDisplay').textContent = divisor > 0 ? formatNumberWithPoints(divisor) : 'No registrado';
-        document.getElementById('valorPorPuntoDisplay').textContent = `$${formatNumberWithPoints(valorPorPunto)}`;
-        document.getElementById('subtotalDisplay').textContent = `$${formatNumberWithPoints(subtotal)}`;
-        document.getElementById('anticiposDisplay').textContent = `-$${formatNumberWithPoints(anticiposTotal)}`;
-        document.getElementById('resultadoFinal').textContent = `$${formatNumberWithPoints(resultadoFinal)}`;
-        
-        const anticiposContainer = document.getElementById('anticipos-list-container');
-        anticiposContainer.innerHTML = '';
+    // CALCULATION LOGIC
+    function actualizarCalculoRetiro() { if (!loggedInUser) return; loggedInUser.tipo === 'Planta' ? actualizarCalculoPlanta() : actualizarCalculoPartTime(); }
+    function actualizarCalculoPlanta() {
+        const userData = getUserData();
+        const p = loggedInUser.puntos || 0;
+        const total = Object.values(userData.montosPorFecha || {}).flat().reduce((s, m) => s + m.monto, 0);
+        const div = userData.divisor || 0;
+        const anticiposTotal = (userData.anticipos || []).reduce((s, a) => s + a.monto, 0);
+        const vpp = div > 0 ? (total / div) : 0; const sub = vpp * p; const res = sub - anticiposTotal;
+        document.getElementById('puntosUsuarioDisplayPlanta').textContent = p;
+        document.getElementById('totalMontoDividirPlanta').textContent = `$${formatNumberWithPoints(total)}`;
+        document.getElementById('divisorDisplayPlanta').textContent = div > 0 ? formatNumberWithPoints(div) : 'N/A';
+        document.getElementById('valorPorPuntoDisplayPlanta').textContent = `$${formatNumberWithPoints(vpp)}`;
+        document.getElementById('subtotalDisplayPlanta').textContent = `$${formatNumberWithPoints(sub)}`;
+        document.getElementById('anticiposDisplayPlanta').textContent = `-$${formatNumberWithPoints(anticiposTotal)}`;
+        document.getElementById('resultadoFinalPlanta').textContent = `$${formatNumberWithPoints(res)}`;
+        renderAnticiposList('#anticipos-list-container-planta');
+    }
+    function actualizarCalculoPartTime() {
+        const userData = getUserData();
+        const p = loggedInUser.puntos || 0, dias = userData.diasTrabajados || [], montos = userData.montosPorFecha || {};
+        const pozo = dias.reduce((s, f) => s + (montos[f] || []).reduce((ds, m) => ds + m.monto, 0), 0);
+        const div = userData.divisorPartTime || 1;
+        const anticiposTotal = (userData.anticipos || []).reduce((s, a) => s + a.monto, 0);
+        const vpp = div > 0 ? (pozo / div) : 0; const sub = vpp * p; const res = sub - anticiposTotal;
+        document.getElementById('puntosUsuarioDisplayPT').textContent = p;
+        document.getElementById('diasTrabajadosDisplayPT').textContent = dias.length;
+        document.getElementById('pozoIndividualDisplayPT').textContent = `$${formatNumberWithPoints(pozo)}`;
+        document.getElementById('divisorDisplayPT').textContent = formatNumberWithPoints(div);
+        document.getElementById('valorPorPuntoDisplayPT').textContent = `$${formatNumberWithPoints(vpp)}`;
+        document.getElementById('subtotalDisplayPT').textContent = `$${formatNumberWithPoints(sub)}`;
+        document.getElementById('anticiposDisplayPT').textContent = `-$${formatNumberWithPoints(anticiposTotal)}`;
+        document.getElementById('resultadoFinalPT').textContent = `$${formatNumberWithPoints(res)}`;
+        renderAnticiposList('#anticipos-list-container-pt');
+    }
+    function renderAnticiposList(containerSelector) {
+        const container = document.querySelector(containerSelector);
+        if (!container) return;
+        const anticipos = getUserData().anticipos || [];
+        container.innerHTML = '';
         if (anticipos.length === 0) {
-            anticiposContainer.innerHTML = '<p style="text-align:center; color:#888; margin:0;">No hay anticipos registrados.</p>';
+            container.innerHTML = '<p style="text-align:center; color:#888; margin:0;">No hay anticipos.</p>';
         } else {
-            anticipos.forEach(anticipo => {
-                const item = document.createElement('div');
-                item.className = 'anticipo-item';
-                item.innerHTML = `
-                    <span>${formatDate(anticipo.fecha)}</span>
-                    <strong>$${formatNumberWithPoints(anticipo.monto)}</strong>
-                    <div class="actions">
-                        <button class="anticipo-item-btn edit-anticipo-btn" data-id="${anticipo.id}">✏️</button>
-                        <button class="anticipo-item-btn delete-anticipo-btn" data-id="${anticipo.id}">🗑️</button>
-                    </div>
-                `;
-                anticiposContainer.appendChild(item);
-            });
+            anticipos.forEach(anticipo => { container.innerHTML += `<div class="anticipo-item"><span>${formatDate(anticipo.fecha)}</span><strong>$${formatNumberWithPoints(anticipo.monto)}</strong><div class="actions"><button class="anticipo-item-btn edit-anticipo-btn" data-id="${anticipo.id}">✏️</button><button class="anticipo-item-btn delete-anticipo-btn" data-id="${anticipo.id}">🗑️</button></div></div>`; });
         }
     }
 
-    document.getElementById('anticipos-list-container').addEventListener('click', (e) => {
-        const target = e.target.closest('.anticipo-item-btn');
-        if (!target) return;
-
-        const anticipoId = Number(target.dataset.id);
-        let anticipos = JSON.parse(localStorage.getItem('anticipos')) || [];
-
-        if (target.classList.contains('delete-anticipo-btn')) {
-            anticipos = anticipos.filter(a => a.id !== anticipoId);
-            localStorage.setItem('anticipos', JSON.stringify(anticipos));
-            actualizarCalculoRetiro();
-            showToast("Anticipo eliminado.");
-        }
-        
-        if (target.classList.contains('edit-anticipo-btn')) {
-            const anticipoToEdit = anticipos.find(a => a.id === anticipoId);
-            if(anticipoToEdit) {
-                openEditAnticipoModal(anticipoToEdit);
+    // CALENDAR LOGIC
+    function renderCalendar(container) {
+        let date = new Date();
+        const render = () => {
+            const month = date.getMonth(), year = date.getFullYear();
+            container.innerHTML = `<div class="calendar-header"><button id="prev-month">‹</button><span>${date.toLocaleString("es-ES", { month: "long", year: "numeric" })}</span><button id="next-month">›</button></div><div class="calendar-grid"><div class="day-name">Dom</div><div class="day-name">Lun</div><div class="day-name">Mar</div><div class="day-name">Mié</div><div class="day-name">Jue</div><div class="day-name">Vie</div><div class="day-name">Sáb</div></div>`;
+            const firstDay = new Date(year, month, 1).getDay(), lastDate = new Date(year, month + 1, 0).getDate();
+            const grid = container.querySelector('.calendar-grid');
+            for (let i = 0; i < firstDay; i++) grid.insertAdjacentHTML("beforeend", `<div class="day empty"></div>`);
+            const userData = getUserData();
+            for (let i = 1; i <= lastDate; i++) {
+                const dateString = new Date(year, month, i).toISOString().split('T')[0];
+                const isMarked = (userData.diasTrabajados || []).includes(dateString);
+                grid.insertAdjacentHTML("beforeend", `<div class="day ${isMarked ? 'marked' : ''}" data-date="${dateString}">${i}</div>`);
+            }
+            document.getElementById("prev-month").addEventListener("click", () => { date.setMonth(date.getMonth() - 1); render(); });
+            document.getElementById("next-month").addEventListener("click", () => { date.setMonth(date.getMonth() + 1); render(); });
+        };
+        render();
+    }
+    
+    // MODAL & ACTIONS LOGIC
+    document.getElementById('main-content').addEventListener('click', e => {
+        const targetBtn = e.target.closest('button');
+        if (targetBtn) {
+            const id = targetBtn.id;
+            if (id === 'registrarDivisorBtn') document.getElementById('divisorModal').style.display = 'flex';
+            if (id === 'registrarAnticipoBtn') { document.getElementById('addAnticipoModal').style.display = 'flex'; document.getElementById('addAnticipoFechaInput').value = getTodayDateString(); }
+            if (id === 'resetMesBtn') { if (confirm('¿Estás SEGURO de reiniciar el mes?')) { let userData = getUserData(); userData.montosPorFecha = {}; userData.anticipos = []; userData.divisor = 0; userData.diasTrabajados = []; saveUserData(userData); showToast('Datos reiniciados.'); setTimeout(() => location.reload(), 1000); }}
+            if (id === 'registrarDivisorPTBtn') {
+                const input = document.getElementById('divisorPTInput');
+                const userData = getUserData();
+                input.value = formatNumberWithPoints(userData.divisorPartTime || 1);
+                input.dataset.cleanValue = userData.divisorPartTime || 1;
+                document.getElementById('divisorPTModal').style.display = 'flex';
             }
         }
-    });
-
-    document.getElementById('resetMesBtn').addEventListener('click', () => {
-        if (confirm('¿Estás SEGURO de reiniciar el mes? Se borrarán TODOS los montos, el divisor y los anticipos. Esta acción no se puede deshacer.')) {
-            localStorage.removeItem('montosPorFecha');
-            localStorage.removeItem('divisor');
-            localStorage.removeItem('anticipos');
-            showToast('Se han reiniciado todos los datos del período.', 'success');
-            setTimeout(() => location.reload(), 1000);
+        const anticipoBtn = e.target.closest('.anticipo-item-btn');
+        if (anticipoBtn) {
+            const anticipoId = Number(anticipoBtn.dataset.id);
+            let userData = getUserData();
+            if (anticipoBtn.classList.contains('delete-anticipo-btn')) {
+                userData.anticipos = userData.anticipos.filter(a => a.id !== anticipoId);
+                saveUserData(userData); actualizarCalculoRetiro(); showToast("Anticipo eliminado.");
+            }
+            if (anticipoBtn.classList.contains('edit-anticipo-btn')) {
+                const anticipoToEdit = userData.anticipos.find(a => a.id === anticipoId);
+                if(anticipoToEdit) {
+                    currentEditAnticipoId = anticipoToEdit.id;
+                    const montoInput = document.getElementById('editAnticipoMontoInput');
+                    montoInput.value = formatNumberWithPoints(anticipoToEdit.monto);
+                    montoInput.dataset.cleanValue = anticipoToEdit.monto;
+                    document.getElementById('editAnticipoFechaInput').value = anticipoToEdit.fecha;
+                    document.getElementById('editAnticipoModal').style.display = 'flex';
+                }
+            }
+        }
+        if(e.target.classList.contains('day') && !e.target.classList.contains('empty')) {
+            const dateString = e.target.dataset.date;
+            const userData = getUserData();
+            const dias = userData.diasTrabajados || [];
+            const dateIndex = dias.indexOf(dateString);
+            if (dateIndex > -1) { dias.splice(dateIndex, 1); } else { dias.push(dateString); }
+            userData.diasTrabajados = dias;
+            saveUserData(userData);
+            e.target.classList.toggle('marked');
+            actualizarCalculoPartTime();
         }
     });
-    
-    // --- Lógica de Modales ---
-    const addAnticipoModal = document.getElementById('addAnticipoModal');
-    const editAnticipoModal = document.getElementById('editAnticipoModal');
-    const divisorModal = document.getElementById('divisorModal');
-    
-    document.getElementById('registrarAnticipoBtn').addEventListener('click', () => {
-        document.getElementById('addAnticipoFechaInput').value = getTodayDateString();
-        addAnticipoModal.style.display = 'flex';
-    });
-    document.getElementById('cancelAddAnticipoBtn').addEventListener('click', () => addAnticipoModal.style.display = 'none');
+
+    ['cancelAddAnticipoBtn', 'cancelEditAnticipoBtn', 'cancelDivisorBtn', 'cancelDivisorPTBtn'].forEach(id => { document.getElementById(id).addEventListener('click', () => { document.getElementById(id.replace('cancel', '').replace('Btn', 'Modal')).style.display = 'none'; }); });
     document.getElementById('saveAddAnticipoBtn').addEventListener('click', () => {
-        const montoInput = document.getElementById('addAnticipoMontoInput');
-        const monto = parseFloat(montoInput.dataset.cleanValue) || 0;
+        const monto = parseFloat(document.getElementById('addAnticipoMontoInput').dataset.cleanValue) || 0;
         const fecha = document.getElementById('addAnticipoFechaInput').value;
-        if (monto <= 0 || !fecha) {
-            showToast('Ingresa un monto y fecha válidos.', 'error');
-            return;
-        }
-        let anticipos = JSON.parse(localStorage.getItem('anticipos')) || [];
-        anticipos.push({ id: Date.now(), monto, fecha });
-        localStorage.setItem('anticipos', JSON.stringify(anticipos));
-        montoInput.value = '';
-        montoInput.dataset.cleanValue = '';
-        addAnticipoModal.style.display = 'none';
-        actualizarCalculoRetiro();
-        showToast("Anticipo registrado con éxito.");
+        if (monto <= 0 || !fecha) { showToast('Datos inválidos.', 'error'); return; }
+        const userData = getUserData();
+        userData.anticipos.push({ id: Date.now(), monto, fecha });
+        saveUserData(userData);
+        document.getElementById('addAnticipoMontoInput').value = '';
+        document.getElementById('addAnticipoModal').style.display = 'none';
+        actualizarCalculoRetiro(); showToast("Anticipo registrado.");
     });
-    
-    function openEditAnticipoModal(anticipo) {
-        currentEditAnticipoId = anticipo.id;
-        const montoInput = document.getElementById('editAnticipoMontoInput');
-        const fechaInput = document.getElementById('editAnticipoFechaInput');
-        montoInput.value = formatNumberWithPoints(anticipo.monto);
-        montoInput.dataset.cleanValue = anticipo.monto;
-        fechaInput.value = anticipo.fecha;
-        editAnticipoModal.style.display = 'flex';
-    }
-    
-    document.getElementById('cancelEditAnticipoBtn').addEventListener('click', () => editAnticipoModal.style.display = 'none');
     document.getElementById('saveEditAnticipoBtn').addEventListener('click', () => {
-        const montoInput = document.getElementById('editAnticipoMontoInput');
-        const newMonto = parseFloat(montoInput.dataset.cleanValue) || 0;
+        const newMonto = parseFloat(document.getElementById('editAnticipoMontoInput').dataset.cleanValue) || 0;
         const newFecha = document.getElementById('editAnticipoFechaInput').value;
-        if (newMonto <= 0 || !newFecha) {
-            showToast('Ingresa un monto y fecha válidos.', 'error');
-            return;
-        }
-
-        let anticipos = JSON.parse(localStorage.getItem('anticipos')) || [];
-        const anticipoIndex = anticipos.findIndex(a => a.id === currentEditAnticipoId);
-        
-        if (anticipoIndex > -1) {
-            anticipos[anticipoIndex].monto = newMonto;
-            anticipos[anticipoIndex].fecha = newFecha;
-            localStorage.setItem('anticipos', JSON.stringify(anticipos));
-            editAnticipoModal.style.display = 'none';
+        if (newMonto <= 0 || !newFecha) { showToast('Datos inválidos.', 'error'); return; }
+        const userData = getUserData();
+        const idx = userData.anticipos.findIndex(a => a.id === currentEditAnticipoId);
+        if (idx > -1) {
+            userData.anticipos[idx].monto = newMonto; userData.anticipos[idx].fecha = newFecha;
+            saveUserData(userData);
+            document.getElementById('editAnticipoModal').style.display = 'none';
             currentEditAnticipoId = null;
-            actualizarCalculoRetiro();
-            showToast("Anticipo actualizado.");
+            actualizarCalculoRetiro(); showToast("Anticipo actualizado.");
         }
     });
-
-    document.getElementById('registrarDivisorBtn').addEventListener('click', () => {
-        document.getElementById('divisorFechaInput').value = getTodayDateString();
-        divisorModal.style.display = 'flex';
-    });
-    document.getElementById('cancelDivisorBtn').addEventListener('click', () => divisorModal.style.display = 'none');
     document.getElementById('saveDivisorBtn').addEventListener('click', () => {
-        const divisorInput = document.getElementById('divisorInput');
-        const divisor = parseFloat(divisorInput.dataset.cleanValue) || 0;
-        if (divisor <= 0) {
-            showToast('Ingresa un divisor válido.', 'error');
-            return;
-        }
-        localStorage.setItem('divisor', divisor);
-        divisorInput.value = '';
-        divisorInput.dataset.cleanValue = '';
-        divisorModal.style.display = 'none';
-        actualizarCalculoRetiro();
-        showToast("Divisor guardado con éxito.");
+        const divisor = parseFloat(document.getElementById('divisorInput').dataset.cleanValue) || 0;
+        if (divisor <= 0) { showToast('Divisor inválido.', 'error'); return; }
+        const userData = getUserData(); userData.divisor = divisor; saveUserData(userData);
+        document.getElementById('divisorInput').value = '';
+        document.getElementById('divisorModal').style.display = 'none';
+        actualizarCalculoPlanta(); showToast("Divisor general guardado.");
+    });
+    document.getElementById('saveDivisorPTBtn').addEventListener('click', () => {
+        const divisor = parseFloat(document.getElementById('divisorPTInput').dataset.cleanValue) || 1;
+        if (divisor <= 0) { showToast('Divisor inválido.', 'error'); return; }
+        const userData = getUserData(); userData.divisorPartTime = divisor; saveUserData(userData);
+        document.getElementById('divisorPTModal').style.display = 'none';
+        actualizarCalculoPartTime(); showToast("Divisor personal guardado.");
     });
 
-    // =======================================================
-    //                 INICIALIZACIÓN DE APP Y SERVICE WORKER
-    // =======================================================
+    // APP INITIALIZATION
     function initApp() {
         if (!loggedInUser) return;
-        
-        cargarYMostrarMontos();
-        actualizarCalculoRetiro();
-
+        if (loggedInUser.tipo === 'Planta') {
+            document.getElementById('vistaPlanta').style.display = 'block'; document.getElementById('vistaPartTime').style.display = 'none';
+        } else {
+            document.getElementById('vistaPlanta').style.display = 'none'; document.getElementById('vistaPartTime').style.display = 'block';
+            renderCalendar(document.getElementById('calendar-container'));
+        }
+        cargarYMostrarMontos(); actualizarCalculoRetiro();
         document.getElementById('fecha').value = getTodayDateString();
         document.getElementById('importarDesdeSheetsBtn').addEventListener('click', importarDesdeSheets);
-
-        setupNumericInputFormatting(document.getElementById('monto'));
-        setupNumericInputFormatting(document.getElementById('addAnticipoMontoInput'));
-        setupNumericInputFormatting(document.getElementById('editAnticipoMontoInput'));
-        setupNumericInputFormatting(document.getElementById('divisorInput'));
-        
-        // Importación automática al cargar
+        ['monto', 'addAnticipoMontoInput', 'editAnticipoMontoInput', 'divisorInput', 'divisorPTInput'].forEach(id => setupNumericInputFormatting(document.getElementById(id)));
         importarDesdeSheets();
     }
-
-    // Register Service Worker
-    if ('serviceWorker' in navigator) {
-        window.addEventListener('load', () => {
-            navigator.serviceWorker.register('service-worker.js')
-                .then(registration => {
-                    console.log('ServiceWorker registration successful with scope: ', registration.scope);
-                })
-                .catch(err => {
-                    console.log('ServiceWorker registration failed: ', err);
-                });
-        });
-    }
-
+    if ('serviceWorker' in navigator) { window.addEventListener('load', () => { navigator.serviceWorker.register('service-worker.js').then(reg => console.log('SW registered.')).catch(err => console.log('SW registration failed: ', err)); }); }
+    
     checkLogin();
 });
 </script>
