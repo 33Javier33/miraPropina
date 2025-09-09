@@ -380,7 +380,7 @@
                 <div class="note">
                     <strong>Si ya Tienes una Cuenta (Ingreso):</strong>
                     <ul>
-                        <li>Usa el "Acceso Rápido" para rellenar tus datos o ingrésalos manualmente.</li>
+                        <li>Usa el "Acceso Rápido" para rellenar tus datos o ingrésalos manually.</li>
                         <li>Escribe tu contraseña y presiona "Ingresar o Registrar".</li>
                     </ul>
                 </div>
@@ -741,7 +741,13 @@ document.addEventListener('DOMContentLoaded', () => {
                 e.preventDefault();
                 const targetId = e.target.dataset.target;
                 document.querySelectorAll('#main-content > section.content-panel').forEach(panel => panel.classList.remove('active'));
-                document.getElementById(targetId).classList.add('active');
+                const targetPanel = document.getElementById(targetId);
+                if (targetPanel) {
+                    targetPanel.classList.add('active');
+                    if (targetId === 'montosSection') {
+                        cargarYMostrarMontos();
+                    }
+                }
                 document.querySelectorAll('.menu-link').forEach(l => l.classList.remove('active-link'));
                 e.target.classList.add('active-link');
                 if(targetId === 'datosUsuarioSection') populateUserDataSection();
@@ -764,15 +770,13 @@ document.addEventListener('DOMContentLoaded', () => {
     function displayRecentLogins() {
         const recentLogins = JSON.parse(localStorage.getItem('recentLogins')) || [];
         const container = document.getElementById('quickAccessUsers');
-        const section = document.getElementById('quickAccessSection');
-        container.innerHTML = ''; // Clear previous entries
+        container.innerHTML = ''; 
         if (recentLogins.length > 0) {
-            section.style.display = 'block';
+            container.parentElement.style.display = 'block';
             recentLogins.forEach(user => {
                 const userDiv = document.createElement('div');
                 userDiv.className = 'quick-access-user';
                 userDiv.dataset.userId = user.id;
-                // Add the delete button inside the user tile's HTML
                 userDiv.innerHTML = `
                     <button class="delete-user-btn" data-user-id="${user.id}">&times;</button>
                     <div class="quick-access-avatar">${user.nombre.charAt(0).toUpperCase()}</div>
@@ -780,7 +784,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 container.appendChild(userDiv);
             });
         } else {
-            section.style.display = 'none';
+            container.parentElement.style.display = 'none';
         }
     }
 
@@ -791,25 +795,21 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const confirmation = confirm(`¿Estás seguro de que quieres eliminar a ${userToDelete.nombre} ${userToDelete.apellido}? Se borrarán todos sus datos de forma permanente.`);
         if (confirmation) {
-            // Delete user profile and data
             delete appData.usuarios[userIdToDelete];
             delete appData.userData[userIdToDelete];
             saveAppData(appData);
-
-            // Delete from recent logins
             let recentLogins = JSON.parse(localStorage.getItem('recentLogins')) || [];
             recentLogins = recentLogins.filter(u => u.id !== userIdToDelete);
             localStorage.setItem('recentLogins', JSON.stringify(recentLogins));
-
             showToast('Usuario eliminado con éxito.');
-            displayRecentLogins(); // Refresh the view
+            displayRecentLogins(); 
         }
     }
 
     document.getElementById('quickAccessUsers').addEventListener('click', (e) => {
         const deleteButton = e.target.closest('.delete-user-btn');
         if (deleteButton) {
-            e.stopPropagation(); // Prevent the tile click event from firing
+            e.stopPropagation(); 
             const userId = deleteButton.dataset.userId;
             deleteUser(userId);
             return;
@@ -1068,11 +1068,24 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // AMOUNTS MANAGEMENT
     function cargarYMostrarMontos() {
-        const montosPorFecha = getUserData().montosPorFecha;
+        const userData = getUserData();
+        const montosPorFecha = userData.montosPorFecha;
+        const diasTrabajados = userData.diasTrabajados || [];
+        const isPartTime = loggedInUser && loggedInUser.tipo === 'Part Time';
+        
         const contenedor = document.getElementById('tarjetasMontos');
         contenedor.innerHTML = '';
-        const fechasOrdenadas = Object.keys(montosPorFecha).sort((a, b) => b.localeCompare(a));
+        
+        let fechasAMostrar = Object.keys(montosPorFecha);
+
+        if (isPartTime) {
+            fechasAMostrar = fechasAMostrar.filter(fecha => diasTrabajados.includes(fecha));
+        }
+
+        const fechasOrdenadas = fechasAMostrar.sort((a, b) => b.localeCompare(a));
+        
         let totalGeneral = 0;
+        
         fechasOrdenadas.forEach(fecha => {
             const montos = montosPorFecha[fecha];
             let totalFecha = montos.reduce((sum, m) => sum + parseFloat(m.monto), 0);
@@ -1211,6 +1224,7 @@ document.addEventListener('DOMContentLoaded', () => {
             saveUserData(userData);
             e.target.classList.toggle('marked');
             actualizarCalculoPartTime();
+            cargarYMostrarMontos(); // Refresh the amounts view
         }
     });
 
