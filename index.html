@@ -1336,7 +1336,20 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    ['cancelAddAnticipoBtn', 'cancelEditAnticipoBtn', 'cancelDivisorBtn', 'cancelDivisorPTBtn'].forEach(id => { document.getElementById(id).addEventListener('click', () => { document.getElementById(id.replace('cancel', '').replace('Btn', 'Modal')).style.display = 'none'; }); });
+    // Explicit Modal Cancel Button Listeners
+    document.getElementById('cancelAddAnticipoBtn').addEventListener('click', () => {
+        document.getElementById('addAnticipoModal').style.display = 'none';
+    });
+    document.getElementById('cancelEditAnticipoBtn').addEventListener('click', () => {
+        document.getElementById('editAnticipoModal').style.display = 'none';
+    });
+    document.getElementById('cancelDivisorBtn').addEventListener('click', () => {
+        document.getElementById('divisorModal').style.display = 'none';
+    });
+    document.getElementById('cancelDivisorPTBtn').addEventListener('click', () => {
+        document.getElementById('divisorPTModal').style.display = 'none';
+    });
+
     document.getElementById('saveAddAnticipoBtn').addEventListener('click', () => {
         const monto = parseFloat(document.getElementById('addAnticipoMontoInput').dataset.cleanValue) || 0;
         const fecha = document.getElementById('addAnticipoFechaInput').value;
