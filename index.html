@@ -191,10 +191,43 @@
     
     /* --- INICIO: ESTILOS ACCESO RÁPIDO Y RECUPERACIÓN --- */
     .quick-access-container { display: flex; justify-content: center; gap: 15px; flex-wrap: wrap; margin-top: 10px; }
-    .quick-access-user { display: flex; flex-direction: column; align-items: center; gap: 8px; cursor: pointer; background-color: #f9f9f9; padding: 10px; border-radius: 8px; border: 1px solid #ddd; transition: all 0.2s ease; min-width: 80px; }
+    .quick-access-user { 
+        position: relative; /* Added for positioning context */
+        display: flex; flex-direction: column; align-items: center; gap: 8px; cursor: pointer; 
+        background-color: #f9f9f9; padding: 10px; border-radius: 8px; border: 1px solid #ddd; 
+        transition: all 0.2s ease; min-width: 80px; 
+    }
     .quick-access-user:hover { transform: translateY(-3px); box-shadow: 0 4px 8px rgba(0,0,0,0.1); border-color: var(--primary-color); }
     .quick-access-avatar { width: 50px; height: 50px; border-radius: 50%; background-color: var(--secondary-color); color: white; display: flex; justify-content: center; align-items: center; font-size: 1.8em; font-weight: bold; }
     .quick-access-name { font-size: 0.9em; font-weight: 500; }
+    .delete-user-btn {
+        position: absolute;
+        top: -5px;
+        right: -5px;
+        width: 24px;
+        height: 24px;
+        background-color: #ddd;
+        color: #555;
+        border: 2px solid var(--bg-white);
+        border-radius: 50%;
+        font-size: 14px;
+        font-weight: bold;
+        cursor: pointer;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        line-height: 1;
+        opacity: 0.7;
+        transition: all 0.2s ease;
+        padding: 0;
+        flex-grow: 0; /* Override button default */
+    }
+    .delete-user-btn:hover {
+        background-color: var(--danger-color);
+        color: white;
+        transform: scale(1.1);
+        opacity: 1;
+    }
     .forgot-password-link { text-align: center; display: block; margin-top: 15px; color: var(--primary-color); text-decoration: none; font-size: 0.9em; }
     .forgot-password-link:hover { text-decoration: underline; }
     #recoveryResult { padding: 10px; border-radius: 6px; display: none; margin-top: 15px; font-weight: bold; word-break: break-word; }
@@ -732,34 +765,72 @@ document.addEventListener('DOMContentLoaded', () => {
         const recentLogins = JSON.parse(localStorage.getItem('recentLogins')) || [];
         const container = document.getElementById('quickAccessUsers');
         const section = document.getElementById('quickAccessSection');
-        container.innerHTML = '';
+        container.innerHTML = ''; // Clear previous entries
         if (recentLogins.length > 0) {
             section.style.display = 'block';
             recentLogins.forEach(user => {
                 const userDiv = document.createElement('div');
                 userDiv.className = 'quick-access-user';
                 userDiv.dataset.userId = user.id;
-                userDiv.innerHTML = `<div class="quick-access-avatar">${user.nombre.charAt(0).toUpperCase()}</div><div class="quick-access-name">${user.nombre}</div>`;
-                userDiv.addEventListener('click', (e) => {
-                    const userId = e.currentTarget.dataset.userId;
-                    const fullUser = getAppData().usuarios[userId];
-                    if (fullUser) {
-                        document.getElementById('loginNombre').value = fullUser.nombre;
-                        document.getElementById('loginApellido').value = fullUser.apellido;
-                        document.getElementById('loginTipoContrato').value = fullUser.tipo;
-                        document.getElementById('loginSeccion').value = fullUser.seccion;
-                        document.getElementById('loginAnio').value = fullUser.anio;
-                        document.getElementById('loginPuntos').value = fullUser.puntos;
-                        document.getElementById('loginPassword').value = ''; 
-                        document.getElementById('loginPassword').focus();   
-                    }
-                });
+                // Add the delete button inside the user tile's HTML
+                userDiv.innerHTML = `
+                    <button class="delete-user-btn" data-user-id="${user.id}">&times;</button>
+                    <div class="quick-access-avatar">${user.nombre.charAt(0).toUpperCase()}</div>
+                    <div class="quick-access-name">${user.nombre}</div>`;
                 container.appendChild(userDiv);
             });
         } else {
             section.style.display = 'none';
         }
     }
+
+    function deleteUser(userIdToDelete) {
+        const appData = getAppData();
+        const userToDelete = appData.usuarios[userIdToDelete];
+        if (!userToDelete) return;
+
+        const confirmation = confirm(`¿Estás seguro de que quieres eliminar a ${userToDelete.nombre} ${userToDelete.apellido}? Se borrarán todos sus datos de forma permanente.`);
+        if (confirmation) {
+            // Delete user profile and data
+            delete appData.usuarios[userIdToDelete];
+            delete appData.userData[userIdToDelete];
+            saveAppData(appData);
+
+            // Delete from recent logins
+            let recentLogins = JSON.parse(localStorage.getItem('recentLogins')) || [];
+            recentLogins = recentLogins.filter(u => u.id !== userIdToDelete);
+            localStorage.setItem('recentLogins', JSON.stringify(recentLogins));
+
+            showToast('Usuario eliminado con éxito.');
+            displayRecentLogins(); // Refresh the view
+        }
+    }
+
+    document.getElementById('quickAccessUsers').addEventListener('click', (e) => {
+        const deleteButton = e.target.closest('.delete-user-btn');
+        if (deleteButton) {
+            e.stopPropagation(); // Prevent the tile click event from firing
+            const userId = deleteButton.dataset.userId;
+            deleteUser(userId);
+            return;
+        }
+
+        const userTile = e.target.closest('.quick-access-user');
+        if (userTile) {
+            const userId = userTile.dataset.userId;
+            const fullUser = getAppData().usuarios[userId];
+            if (fullUser) {
+                document.getElementById('loginNombre').value = fullUser.nombre;
+                document.getElementById('loginApellido').value = fullUser.apellido;
+                document.getElementById('loginTipoContrato').value = fullUser.tipo;
+                document.getElementById('loginSeccion').value = fullUser.seccion;
+                document.getElementById('loginAnio').value = fullUser.anio;
+                document.getElementById('loginPuntos').value = fullUser.puntos;
+                document.getElementById('loginPassword').value = ''; 
+                document.getElementById('loginPassword').focus();   
+            }
+        }
+    });
 
     function addRecentLogin(user) {
         let recentLogins = JSON.parse(localStorage.getItem('recentLogins')) || [];
@@ -790,7 +861,6 @@ document.addEventListener('DOMContentLoaded', () => {
             menuToggle.style.display = 'flex';
             document.getElementById('userInfo').textContent = `${user.nombre} ${user.apellido}`;
             
-            // Setup help for logged-in user
             if(helpTitle) helpTitle.textContent = 'Guía de Uso';
             if(helpContentLogin) helpContentLogin.classList.remove('active-help');
             if(helpContentMain) helpContentMain.classList.add('active-help');
@@ -802,7 +872,6 @@ document.addEventListener('DOMContentLoaded', () => {
             mainContent.style.display = 'none'; 
             menuToggle.style.display = 'none';
 
-            // Setup help for login screen
             if(helpTitle) helpTitle.textContent = 'Ayuda de Acceso';
             if(helpContentMain) helpContentMain.classList.remove('active-help');
             if(helpContentLogin) helpContentLogin.classList.add('active-help');
