@@ -5,9 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Registro Personal de Montos</title>
   
-  <!-- PWA Manifest Link -->
   <link rel="manifest" href="manifest.json">
-  <!-- Theme Color for PWA -->
   <meta name="theme-color" content="#007bff"/>
 
   <style>
@@ -88,7 +86,7 @@
         margin-bottom: 20px;
         flex-wrap: wrap;
         gap: 10px;
-        padding-left: 50px; /* Space for the hamburger menu */
+        padding-left: 50px;
     }
      @media (min-width: 992px) {
         .app-header {
@@ -102,7 +100,6 @@
     .user-info-cluster {
         text-align: right;
     }
-
 
     /* --- INICIO: ESTILOS NOTIFICACIÓN TOAST --- */
     #toast-container { position: fixed; top: 20px; right: 20px; z-index: 2000; display: flex; flex-direction: column; align-items: flex-end; gap: 10px; }
@@ -201,6 +198,106 @@
     #changePasswordBtn:hover { background-color: #e0a800; }
     /* --- FIN: ESTILOS DATOS DE USUARIO --- */
 
+    /* --- INICIO: ESTILOS DE AYUDA FLOTANTE --- */
+    .help-button {
+        position: fixed;
+        top: 15px;
+        right: 15px;
+        width: 40px;
+        height: 40px;
+        background-color: var(--info-color);
+        color: white;
+        border: none;
+        border-radius: 50%;
+        font-size: 1.5em;
+        font-weight: bold;
+        cursor: pointer;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+        z-index: 1002;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+    .help-panel {
+        position: fixed;
+        top: 0;
+        right: 0;
+        width: 350px;
+        height: 100%;
+        background-color: var(--bg-white);
+        box-shadow: -5px 0 15px rgba(0,0,0,0.1);
+        transform: translateX(100%);
+        transition: transform 0.3s ease-in-out;
+        z-index: 1010;
+        display: flex;
+        flex-direction: column;
+    }
+    .help-panel.open {
+        transform: translateX(0);
+    }
+    .help-header {
+        padding: 15px 20px;
+        border-bottom: 1px solid #eee;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+    .help-header h2 {
+        margin: 0;
+        font-size: 1.5em;
+        border: none;
+        padding: 0;
+    }
+    .close-help-btn {
+        background: none;
+        border: none;
+        font-size: 1.8em;
+        cursor: pointer;
+        padding: 0 5px;
+        color: #888;
+    }
+    .help-content {
+        padding: 20px;
+        overflow-y: auto;
+        flex-grow: 1;
+    }
+    .help-content h3 {
+        text-align: left;
+        margin-top: 20px;
+        border-bottom: 2px solid var(--primary-color);
+        padding-bottom: 5px;
+        font-size: 1.2em;
+    }
+    .help-content p, .help-content li {
+        line-height: 1.6;
+        font-size: 0.95em;
+    }
+    .help-content .note {
+        background-color: #eef7ff;
+        border-left: 4px solid var(--primary-color);
+        padding: 15px;
+        margin: 15px 0;
+        border-radius: 4px;
+        font-size: 0.9em;
+    }
+    .help-content .formula {
+        text-align: center;
+        font-size: 1em;
+        margin: 10px 0;
+        padding: 10px;
+        background-color: #f0f2f5;
+        border-radius: 4px;
+        font-weight: bold;
+    }
+    @media (max-width: 480px) {
+        .help-panel {
+            width: 100%;
+        }
+    }
+    .help-content-section { display: none; }
+    .help-content-section.active-help { display: block; }
+    /* --- FIN: ESTILOS DE AYUDA FLOTANTE --- */
+
   </style>
 </head>
 <body>
@@ -211,10 +308,93 @@
     <button id="menuToggle" class="menu-toggle" style="display: none;">
         <span></span><span></span><span></span>
     </button>
+    
+    <button id="help-btn" class="help-button">?</button>
+    <div id="help-panel" class="help-panel">
+        <div class="help-header">
+            <h2 id="help-title">Ayuda</h2>
+            <button id="close-help-btn" class="close-help-btn">&times;</button>
+        </div>
+        <div class="help-content">
+            <div id="help-content-login" class="help-content-section">
+                <h3>¿Cómo Empezar?</h3>
+                <p>Bienvenido/a al registro personal. Aquí te explicamos cómo acceder.</p>
+                <div class="note">
+                    <strong>Si es tu Primera Vez (Registro):</strong>
+                    <ol>
+                        <li>Completa <strong>todos</strong> los campos del formulario (nombre, tipo de contrato, puntos, etc.).</li>
+                        <li>Crea una contraseña segura.</li>
+                        <li>Presiona "Ingresar o Registrar". Tu cuenta se creará y se te pedirá un número de teléfono para protegerla.</li>
+                    </ol>
+                </div>
+                <div class="note">
+                    <strong>Si ya Tienes una Cuenta (Ingreso):</strong>
+                    <ul>
+                        <li>Usa el "Acceso Rápido" para rellenar tus datos o ingrésalos manualmente.</li>
+                        <li>Escribe tu contraseña y presiona "Ingresar o Registrar".</li>
+                    </ul>
+                </div>
+                 <div class="note">
+                    <strong>¿Olvidaste tu Contraseña?</strong>
+                    <p>Haz clic en el enlace "¿Olvidaste tu contraseña?", ingresa el número de teléfono que registraste y sigue los pasos para crear una nueva.</p>
+                </div>
+            </div>
 
+            <div id="help-content-main" class="help-content-section">
+                <p>Esta guía te ayudará a entender cómo funciona la aplicación y a sacar el máximo provecho de sus herramientas para calcular tu retiro de propina.</p>
+
+                <h3>1. Conceptos Clave</h3>
+                <p>Para entender los cálculos, primero debes conocer estos términos:</p>
+                <ul>
+                    <li><strong>Puntos:</strong> Son los puntos que tienes asignados personalmente. Los registras al iniciar sesión y los puedes ver en "Mis Datos".</li>
+                    <li><strong>Total Recaudado:</strong> Es la suma de todos los montos de propina del mes. La app lo obtiene de la sección "Montos por Noche".</li>
+                    <li><strong>Divisor:</strong> Es un número clave que representa el total de puntos que participan en la repartición.
+                        <ul>
+                            <li><strong>Para Planta:</strong> Es un "Divisor General" que se registra para todo el personal.</li>
+                            <li><strong>Para Part-Time:</strong> Es un "Divisor Personal" que puedes editar.</li>
+                        </ul>
+                    </li>
+                    <li><strong>Anticipos:</strong> Es cualquier dinero que hayas retirado por adelantado. Estos montos se restan de tu total final.</li>
+                </ul>
+
+                <h3>2. Cómo se Calcula tu Retiro (Personal de Planta)</h3>
+                <p>El cálculo para el personal de Planta se basa en una fórmula general para todo el equipo.</p>
+                <div class="note">
+                    <p><strong>Paso A: Calcular el Valor por Punto</strong><br>La app toma el "Total Recaudado" del mes y lo divide por el "Divisor General" que se haya registrado.</p>
+                    <div class="formula">Valor por Punto = Total Recaudado / Divisor General</div>
+
+                    <p><strong>Paso B: Calcular tu Subtotal</strong><br>Luego, multiplica ese "Valor por Punto" por la cantidad de puntos que tienes asignados ("Mis Puntos").</p>
+                    <div class="formula">Subtotal = Valor por Punto × Mis Puntos</div>
+
+                    <p><strong>Paso C: Calcular el Total Final</strong><br>Finalmente, a tu subtotal se le restan todos los "Anticipos" que hayas registrado durante el mes.</p>
+                    <div class="formula">Total a Retirar = Subtotal - Total Anticipos</div>
+                </div>
+
+                <h3>3. Cómo se Calcula tu Retiro (Personal Part-Time)</h3>
+                <p>Si eres Part-Time, el cálculo es más personalizado y se basa en los días que trabajaste.</p>
+                <div class="note">
+                    <p><strong>Paso A: Marcar tus Días y Calcular tu Pozo</strong><br>En el calendario, debes marcar todos los días que trabajaste. La app sumará las propinas de <strong>solo esos días</strong> para crear tu "Pozo Individual".</p>
+
+                    <p><strong>Paso B: Calcular el Valor por Punto</strong><br>La app divide tu "Pozo Individual" por tu "Divisor Personal".</p>
+                    <div class="formula">Valor por Punto = Pozo Individual / Divisor Personal</div>
+
+                    <p><strong>Paso C y D: Calcular Subtotal y Total Final</strong><br>Los pasos siguientes son iguales a los del personal de Planta: el "Valor por Punto" se multiplica por "Mis Puntos" y luego se restan tus "Anticipos".</p>
+                </div>
+
+                <h3>4. Acciones Principales</h3>
+                <ul>
+                    <li><strong>Registrar Divisor:</strong> Un botón para que el personal de Planta ingrese el divisor general del mes.</li>
+                    <li><strong>Registrar Anticipo:</strong> Usa este botón cada vez que retires dinero por adelantado.</li>
+                    <li><strong>Reiniciar Mes:</strong> ¡CUIDADO! Esta opción borra todos los montos y anticipos. Úsala solo al comenzar un nuevo período de cálculo.</li>
+                    <li><strong>Importar desde Sheets:</strong> Sincroniza los montos de propina directamente desde un archivo de Google Sheets para mantener todo actualizado.</li>
+                </ul>
+            </div>
+        </div>
+    </div>
     <div id="login-container">
       <section id="loginSection">
         <h2>Ingresar a tu Registro</h2>
+        
         <section id="quickAccessSection" style="display: none; padding: 10px; box-shadow: none;">
             <h4 style="text-align: center; margin:0 0 15px 0; font-size: 1em; color: #555;">Acceso Rápido</h4>
             <div id="quickAccessUsers" class="quick-access-container">
@@ -255,7 +435,6 @@
       
       <section id="retirosPropinaSection" class="content-panel active">
           <h2 id="titulo-retiro">Retiro de Propina</h2>
-          <!-- Vista para Planta -->
           <div id="vistaPlanta" style="display: none;">
               <div class="retiro-container">
                   <div class="calculation-item"><strong>Mis Puntos:</strong> <span id="puntosUsuarioDisplayPlanta">0</span></div>
@@ -273,7 +452,6 @@
                   </div>
               </div>
           </div>
-          <!-- Vista para Part Time -->
           <div id="vistaPartTime" style="display: none;">
               <div class="part-time-layout">
                   <div class="calendar-section">
@@ -301,7 +479,6 @@
                   </div>
               </div>
           </div>
-          <!-- Acciones Generales -->
           <div class="retiro-actions">
               <button id="registrarDivisorBtn">Registrar Divisor General (Planta)</button>
               <button id="registrarAnticipoBtn">Registrar Anticipo</button>
@@ -309,7 +486,6 @@
           </div>
       </section>
 
-      <!-- SECCIÓN DE MONTOS MODIFICADA -->
       <section id="montosSection" class="content-panel">
         <h2>Montos por Noche</h2>
         <button id="importarDesdeSheetsBtn" style="width: 100%; margin-bottom: 15px;">Importar desde Sheets</button>
@@ -317,7 +493,6 @@
         <div id="tarjetasMontos"></div>
       </section>
 
-      <!-- NUEVA SECCIÓN: DATOS DEL USUARIO -->
       <section id="datosUsuarioSection" class="content-panel">
           <h2>Mis Datos</h2>
           <div class="user-data-container">
@@ -340,16 +515,14 @@
           </div>
           <button id="changePasswordBtn">Cambiar Contraseña</button>
       </section>
-    </div>
-
-</div> 
+    </div> 
+</div>
 
 <footer>
     CarlosPN Interactive®
 </footer>
 
 <div id="toast-container"></div>
-<!-- MODALES -->
 <div id="addAnticipoModal" class="modal-backdrop" style="display: none;">
     <div class="modal-content">
         <div class="modal-header"><h4>Registrar Anticipo</h4></div>
@@ -407,7 +580,6 @@
     </div>
 </div>
 
-<!-- MODAL PARA PEDIR TELÉFONO -->
 <div id="phoneModal" class="modal-backdrop" style="display: none;">
     <div class="modal-content">
         <div class="modal-header"><h4>¡Bienvenido(a)!</h4></div>
@@ -421,7 +593,6 @@
         </div>
     </div>
 </div>
-<!-- MODAL PARA CAMBIAR CONTRASEÑA (DESDE LOGIN) -->
 <div id="forgotPasswordModal" class="modal-backdrop" style="display: none;">
     <div class="modal-content">
         <div class="modal-header"><h4>Cambiar Contraseña</h4></div>
@@ -445,7 +616,6 @@
         </div>
     </div>
 </div>
-<!-- MODAL PARA CAMBIAR CONTRASEÑA (LOGUEADO) -->
 <div id="changePasswordModal" class="modal-backdrop" style="display: none;">
     <div class="modal-content">
         <div class="modal-header"><h4>Actualizar Contraseña</h4></div>
@@ -508,26 +678,28 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // MENU & NAVIGATION
     const setupMenu = () => {
-        const sections = document.querySelectorAll('#main-content > section.content-panel');
         sideMenu.innerHTML = '<div class="menu-header">Menú</div>';
-        const orderedSections = Array.from(sections).sort((a, b) => {
-            if (a.id === 'retirosPropinaSection') return -1;
-            if (b.id === 'retirosPropinaSection') return 1;
-            return 0;
-        });
+        const orderedSections = [
+            {id: 'retirosPropinaSection', title: 'Retiro de Propina'},
+            {id: 'montosSection', title: 'Montos por Noche'},
+            {id: 'datosUsuarioSection', title: 'Mis Datos'}
+        ];
 
-        orderedSections.forEach(section => {
-            const title = section.querySelector('h2').textContent;
-            const link = document.createElement('a');
-            link.href = '#'; link.textContent = title; link.className = 'menu-link'; link.dataset.target = section.id;
-            if (section.classList.contains('active')) link.classList.add('active-link');
-            sideMenu.appendChild(link);
+        orderedSections.forEach(sectionInfo => {
+            const section = document.getElementById(sectionInfo.id);
+            if(section) {
+                const link = document.createElement('a');
+                link.href = '#'; link.textContent = sectionInfo.title; link.className = 'menu-link'; link.dataset.target = section.id;
+                if (section.classList.contains('active')) link.classList.add('active-link');
+                sideMenu.appendChild(link);
+            }
         });
+        
         sideMenu.addEventListener('click', (e) => {
             if (e.target.classList.contains('menu-link')) {
                 e.preventDefault();
                 const targetId = e.target.dataset.target;
-                sections.forEach(panel => panel.classList.remove('active'));
+                document.querySelectorAll('#main-content > section.content-panel').forEach(panel => panel.classList.remove('active'));
                 document.getElementById(targetId).classList.add('active');
                 document.querySelectorAll('.menu-link').forEach(l => l.classList.remove('active-link'));
                 e.target.classList.add('active-link');
@@ -537,6 +709,15 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     };
     menuToggle.addEventListener('click', () => { sideMenu.classList.toggle('open'); menuToggle.classList.toggle('active'); });
+
+    // --- HELP PANEL LOGIC ---
+    const helpBtn = document.getElementById('help-btn');
+    const helpPanel = document.getElementById('help-panel');
+    const closeHelpBtn = document.getElementById('close-help-btn');
+    if (helpBtn && helpPanel && closeHelpBtn) {
+        helpBtn.addEventListener('click', () => helpPanel.classList.add('open'));
+        closeHelpBtn.addEventListener('click', () => helpPanel.classList.remove('open'));
+    }
 
     // --- LOGIN & SESSION FUNCTIONS ---
     function displayRecentLogins() {
@@ -588,13 +769,36 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function checkLogin() {
         const user = JSON.parse(localStorage.getItem('loggedInUser'));
+        const helpTitle = document.getElementById('help-title');
+        const helpContentLogin = document.getElementById('help-content-login');
+        const helpContentMain = document.getElementById('help-content-main');
+        
+        if (helpBtn) helpBtn.style.display = 'flex'; 
+
         if (user && user.id) {
             loggedInUser = user;
-            loginContainer.style.display = 'none'; mainContent.style.display = 'block'; menuToggle.style.display = 'flex';
+            loginContainer.style.display = 'none'; 
+            mainContent.style.display = 'block'; 
+            menuToggle.style.display = 'flex';
             document.getElementById('userInfo').textContent = `${user.nombre} ${user.apellido}`;
-            setupMenu(); initApp();
+            
+            // Setup help for logged-in user
+            if(helpTitle) helpTitle.textContent = 'Guía de Uso';
+            if(helpContentLogin) helpContentLogin.classList.remove('active-help');
+            if(helpContentMain) helpContentMain.classList.add('active-help');
+
+            setupMenu(); 
+            initApp();
         } else {
-            loginContainer.style.display = 'block'; mainContent.style.display = 'none'; menuToggle.style.display = 'none';
+            loginContainer.style.display = 'block'; 
+            mainContent.style.display = 'none'; 
+            menuToggle.style.display = 'none';
+
+            // Setup help for login screen
+            if(helpTitle) helpTitle.textContent = 'Ayuda de Acceso';
+            if(helpContentMain) helpContentMain.classList.remove('active-help');
+            if(helpContentLogin) helpContentLogin.classList.add('active-help');
+            
             displayRecentLogins();
         }
     }
@@ -992,12 +1196,10 @@ document.addEventListener('DOMContentLoaded', () => {
         ['addAnticipoMontoInput', 'editAnticipoMontoInput', 'divisorInput', 'divisorPTInput'].forEach(id => setupNumericInputFormatting(document.getElementById(id)));
         importarDesdeSheets();
     }
-    if ('serviceWorker' in navigator) { window.addEventListener('load', () => { navigator.serviceWorker.register('service-worker.js').then(reg => console.log('SW registered.')).catch(err => console.log('SW registration failed: ', err)); }); }
+    if ('serviceWorker' in navigator) { window.addEventListener('load', () => { navigator.service-worker.register('service-worker.js').then(reg => console.log('SW registered.')).catch(err => console.log('SW registration failed: ', err)); }); }
     
     checkLogin();
 });
 </script>
 </body>
 </html>
-
-
