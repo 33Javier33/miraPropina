@@ -8,6 +8,8 @@
   <link rel="manifest" href="manifest.json">
   <meta name="theme-color" content="#007bff"/>
 
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css">
+
   <style>
     :root {
         --menu-width: 250px;
@@ -18,16 +20,34 @@
         --error-color: #dc3545;
         --info-color: #17a2b8;
         --edit-color: #ffc107;
-        --text-dark: #222;
-        --bg-light: #f0f2f5;
-        --bg-white: #fff;
+        
+        /* Light Theme */
+        --bg-main: #f0f2f5;
+        --bg-content: #ffffff;
+        --bg-accent: #eef7ff;
+        --text-primary: #222;
+        --text-secondary: #555;
+        --border-color: #ddd;
+        --shadow-color: rgba(0,0,0,0.05);
     }
+
+    body.dark-mode {
+        /* Dark Theme */
+        --bg-main: #121212;
+        --bg-content: #1e1e1e;
+        --bg-accent: #2a2a3a;
+        --text-primary: #e0e0e0;
+        --text-secondary: #b0b0b0;
+        --border-color: #444;
+        --shadow-color: rgba(0,0,0,0.2);
+    }
+
     body {
         font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
-        background-color: var(--bg-light);
+        background-color: var(--bg-main);
         margin: 0;
-        color: var(--text-dark);
-        transition: margin-left 0.3s ease;
+        color: var(--text-primary);
+        transition: margin-left 0.3s ease, background-color 0.3s, color 0.3s;
     }
     
     /* --- INICIO: ESTILOS MENÚ HAMBURGUESA --- */
@@ -101,23 +121,6 @@
         text-align: right;
     }
 
-    /* --- INICIO: AYUDA LOGIN --- */
-    .login-help {
-        background-color: #eef7ff;
-        border: 1px solid #bde0ff;
-        border-radius: 8px;
-        padding: 15px;
-        margin-bottom: 20px;
-        font-size: 0.95em;
-        line-height: 1.5;
-    }
-    .login-help ul {
-        padding-left: 20px;
-        margin: 10px 0 0 0;
-    }
-    /* --- FIN: AYUDA LOGIN --- */
-
-
     /* --- INICIO: ESTILOS NOTIFICACIÓN TOAST --- */
     #toast-container { position: fixed; top: 20px; right: 20px; z-index: 2000; display: flex; flex-direction: column; align-items: flex-end; gap: 10px; }
     .toast { background-color: var(--success-color); color: white; padding: 15px 20px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); font-size: 1em; opacity: 0; transform: translateX(100%); transition: all 0.4s ease; }
@@ -126,11 +129,11 @@
     /* --- FIN: ESTILOS NOTIFICACIÓN TOAST --- */
 
     h1 { text-align: center; margin-bottom: 20px; font-size: 2em; }
-    section { margin-bottom: 30px; background: var(--bg-white); padding: 20px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
-    h2 { margin-top: 0; margin-bottom: 15px; font-size: 1.7em; border-bottom: 2px solid var(--bg-light); padding-bottom: 10px; }
+    section { margin-bottom: 30px; background: var(--bg-content); padding: 20px; border-radius: 8px; box-shadow: 0 2px 8px var(--shadow-color); }
+    h2 { margin-top: 0; margin-bottom: 15px; font-size: 1.7em; border-bottom: 2px solid var(--bg-main); padding-bottom: 10px; }
     #totalDiario { font-weight: bold; font-size: 1.5em; margin: 15px 0; color: var(--primary-color); text-align: center; }
     form { display: flex; flex-wrap: wrap; gap: 10px; }
-    input, select, button { padding: 12px; border: 1px solid #ccc; border-radius: 6px; font-size: 1em; }
+    input, select, button { padding: 12px; border: 1px solid var(--border-color); border-radius: 6px; font-size: 1em; background-color: var(--bg-content); color: var(--text-primary); }
     input:focus { border-color: var(--secondary-color); outline: none; }
     button { background-color: var(--secondary-color); color: #fff; border: none; font-weight: bold; cursor: pointer; flex-grow: 1; }
     button:hover { background-color: #388E3C; }
@@ -143,28 +146,28 @@
     .logout-button { background-color: var(--danger-color); font-weight: normal; padding: 8px 12px; font-size: 0.9em; flex-grow: 0; }
     .logout-button:hover { background-color: #c82333; }
     #tarjetasMontos { display: flex; flex-direction: column; gap: 10px; margin-top: 20px; }
-    .tarjeta { background-color: #fdfdfd; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); padding: 15px; border-left: 4px solid var(--primary-color); }
+    .tarjeta { background-color: var(--bg-content); border-radius: 12px; box-shadow: 0 4px 12px var(--shadow-color); padding: 15px; border-left: 4px solid var(--primary-color); }
     .tarjeta h3 { margin: 0 0 8px 0; font-size: 1.1em; cursor: pointer; display: flex; justify-content: space-between; }
     .tarjeta h3 .total-in-header { font-weight: bold; color: var(--primary-color); }
     .tarjeta h3::after { content: '▼'; transition: transform 0.2s ease-in-out; }
     .tarjeta.collapsed h3::after { transform: rotate(-90deg); }
     .tarjeta.collapsed .montos-list { display: none; }
     .montos-list { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 8px; margin-top: 10px; }
-    .monto-item { background-color: #f9f9f9; padding: 8px; border-radius: 6px; font-size: 0.9em; display: flex; justify-content: space-between; align-items: center; }
+    .monto-item { background-color: var(--bg-main); padding: 8px; border-radius: 6px; font-size: 0.9em; display: flex; justify-content: space-between; align-items: center; }
     .delete-button { background: none; border: none; font-size: 1.2em; color: var(--danger-color); cursor: pointer; }
     
     /* ESTILOS DE RETIRO */
-    .retiro-container, .retiro-container-pt { background-color: #eef7ff; padding: 20px; border-radius: 8px; border: 1px solid #bde0ff; }
+    .retiro-container, .retiro-container-pt { background-color: var(--bg-accent); padding: 20px; border-radius: 8px; border: 1px solid var(--border-color); }
     .calculation-item { margin-bottom: 12px; font-size: 1.1em; display: flex; justify-content: space-between; align-items: center; }
-    .calculation-item strong { color: var(--text-dark); }
-    .final-calculation { border-top: 2px solid #ddd; padding-top: 15px; margin-top: 15px; }
+    .calculation-item strong { color: var(--text-primary); }
+    .final-calculation { border-top: 2px solid var(--border-color); padding-top: 15px; margin-top: 15px; }
     .total-result { font-size: 1.8em; font-weight: bold; color: var(--primary-color); }
     .retiro-actions { display: flex; gap: 10px; margin-top: 20px; flex-wrap: wrap; }
-    .anticipos-list-container { margin-top: 10px; max-height: 160px; overflow-y: auto; border: 1px solid #ddd; border-radius: 6px; padding: 10px; background-color: #fff; }
-    .anticipo-item { display: flex; justify-content: space-between; align-items: center; padding: 8px 5px; border-bottom: 1px solid #eee; font-size: 0.95em; }
+    .anticipos-list-container { margin-top: 10px; max-height: 160px; overflow-y: auto; border: 1px solid var(--border-color); border-radius: 6px; padding: 10px; background-color: var(--bg-content); }
+    .anticipo-item { display: flex; justify-content: space-between; align-items: center; padding: 8px 5px; border-bottom: 1px solid var(--border-color); font-size: 0.95em; }
     .anticipo-item:last-child { border-bottom: none; }
     .anticipo-item .actions { display: flex; gap: 8px; }
-    .anticipo-item-btn { background: none; border: none; cursor: pointer; font-size: 1.2em; padding: 0 5px; }
+    .anticipo-item-btn { background: none; border: none; cursor: pointer; font-size: 1.2em; padding: 0 5px; color: var(--text-secondary); }
     .delete-anticipo-btn { color: var(--danger-color); }
     .edit-anticipo-btn { color: var(--edit-color); }
     
@@ -173,17 +176,17 @@
     .calendar-section { flex: 1; min-width: 300px; }
     .calculation-section-pt { flex: 1; min-width: 300px; }
     .calendar-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; font-weight: bold; }
-    .calendar-header button { padding: 5px 10px; background-color: #eee; color: #333; border: 1px solid #ccc; border-radius: 4px; cursor: pointer; flex: 0; }
+    .calendar-header button { padding: 5px 10px; background-color: var(--bg-accent); color: var(--text-primary); border: 1px solid var(--border-color); border-radius: 4px; cursor: pointer; flex: 0; }
     .calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 5px; text-align: center; }
-    .day-name { font-weight: bold; color: #777; padding-bottom: 5px; }
-    .day { padding: 8px; border-radius: 4px; background-color: #fff; cursor: pointer; border: 1px solid #eee; }
-    .day:hover { background-color: #e0e0e0; }
+    .day-name { font-weight: bold; color: var(--text-secondary); padding-bottom: 5px; }
+    .day { padding: 8px; border-radius: 4px; background-color: var(--bg-content); cursor: pointer; border: 1px solid var(--border-color); }
+    .day:hover { background-color: var(--bg-accent); }
     .day.marked { background-color: var(--success-color); color: #fff; font-weight: bold; }
     .day.empty { background-color: transparent; border: none; cursor: default; }
 
     /* ESTILOS DE MODALES */
     .modal-backdrop { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.6); display: flex; justify-content: center; align-items: center; z-index: 1000; }
-    .modal-content { background-color: var(--bg-white); padding: 25px; border-radius: 8px; box-shadow: 0 5px 15px rgba(0,0,0,0.3); width: 90%; max-width: 400px; }
+    .modal-content { background-color: var(--bg-content); padding: 25px; border-radius: 8px; box-shadow: 0 5px 15px rgba(0,0,0,0.3); width: 90%; max-width: 400px; }
     .modal-header h4 { margin: 0 0 15px 0; font-size: 1.3em; }
     .modal-body label { display: block; margin-bottom: 5px; font-weight: bold; }
     .modal-body input { width: 100%; box-sizing: border-box; margin-bottom: 10px; padding: 10px; }
@@ -192,12 +195,12 @@
     /* --- INICIO: ESTILOS ACCESO RÁPIDO Y RECUPERACIÓN --- */
     .quick-access-container { display: flex; justify-content: center; gap: 15px; flex-wrap: wrap; margin-top: 10px; }
     .quick-access-user { 
-        position: relative; /* Added for positioning context */
+        position: relative;
         display: flex; flex-direction: column; align-items: center; gap: 8px; cursor: pointer; 
-        background-color: #f9f9f9; padding: 10px; border-radius: 8px; border: 1px solid #ddd; 
+        background-color: var(--bg-main); padding: 10px; border-radius: 8px; border: 1px solid var(--border-color); 
         transition: all 0.2s ease; min-width: 80px; 
     }
-    .quick-access-user:hover { transform: translateY(-3px); box-shadow: 0 4px 8px rgba(0,0,0,0.1); border-color: var(--primary-color); }
+    .quick-access-user:hover { transform: translateY(-3px); box-shadow: 0 4px 8px var(--shadow-color); border-color: var(--primary-color); }
     .quick-access-avatar { width: 50px; height: 50px; border-radius: 50%; background-color: var(--secondary-color); color: white; display: flex; justify-content: center; align-items: center; font-size: 1.8em; font-weight: bold; }
     .quick-access-name { font-size: 0.9em; font-weight: 500; }
     .delete-user-btn {
@@ -208,7 +211,7 @@
         height: 24px;
         background-color: #ddd;
         color: #555;
-        border: 2px solid var(--bg-white);
+        border: 2px solid var(--bg-content);
         border-radius: 50%;
         font-size: 14px;
         font-weight: bold;
@@ -220,7 +223,7 @@
         opacity: 0.7;
         transition: all 0.2s ease;
         padding: 0;
-        flex-grow: 0; /* Override button default */
+        flex-grow: 0;
     }
     .delete-user-btn:hover {
         background-color: var(--danger-color);
@@ -236,13 +239,13 @@
     /* --- FIN: ESTILOS ACCESO RÁPIDO Y RECUPERACIÓN --- */
 
     /* --- INICIO: ESTILOS FOOTER --- */
-    footer { text-align: center; padding: 20px; margin-top: 30px; color: #777; font-size: 0.9em; border-top: 1px solid #e0e0e0; }
+    footer { text-align: center; padding: 20px; margin-top: 30px; color: #777; font-size: 0.9em; border-top: 1px solid var(--border-color); }
     /* --- FIN: ESTILOS FOOTER --- */
 
     /* --- INICIO: ESTILOS DATOS DE USUARIO --- */
     .user-data-container { display: grid; grid-template-columns: 1fr 1fr; gap: 15px 20px; }
-    .data-item { background-color: #f9f9f9; padding: 15px; border-radius: 8px; border: 1px solid #eee; }
-    .data-item-label { font-weight: bold; color: #555; display: block; margin-bottom: 5px; font-size: 0.9em; }
+    .data-item { background-color: var(--bg-main); padding: 15px; border-radius: 8px; border: 1px solid var(--border-color); }
+    .data-item-label { font-weight: bold; color: var(--text-secondary); display: block; margin-bottom: 5px; font-size: 0.9em; }
     .data-item-value { font-size: 1.2em; color: var(--primary-color); }
     #changePasswordBtn { width: 100%; margin-top: 20px; background-color: var(--edit-color); color: #212529; }
     #changePasswordBtn:hover { background-color: #e0a800; }
@@ -274,8 +277,8 @@
         right: 0;
         width: 350px;
         height: 100%;
-        background-color: var(--bg-white);
-        box-shadow: -5px 0 15px rgba(0,0,0,0.1);
+        background-color: var(--bg-content);
+        box-shadow: -5px 0 15px var(--shadow-color);
         transform: translateX(100%);
         transition: transform 0.3s ease-in-out;
         z-index: 1010;
@@ -287,7 +290,7 @@
     }
     .help-header {
         padding: 15px 20px;
-        border-bottom: 1px solid #eee;
+        border-bottom: 1px solid var(--border-color);
         display: flex;
         justify-content: space-between;
         align-items: center;
@@ -304,7 +307,7 @@
         font-size: 1.8em;
         cursor: pointer;
         padding: 0 5px;
-        color: #888;
+        color: var(--text-secondary);
     }
     .help-content {
         padding: 20px;
@@ -323,7 +326,7 @@
         font-size: 0.95em;
     }
     .help-content .note {
-        background-color: #eef7ff;
+        background-color: var(--bg-accent);
         border-left: 4px solid var(--primary-color);
         padding: 15px;
         margin: 15px 0;
@@ -335,7 +338,7 @@
         font-size: 1em;
         margin: 10px 0;
         padding: 10px;
-        background-color: #f0f2f5;
+        background-color: var(--bg-main);
         border-radius: 4px;
         font-weight: bold;
     }
@@ -348,6 +351,36 @@
     .help-content-section.active-help { display: block; }
     /* --- FIN: ESTILOS DE AYUDA FLOTANTE --- */
 
+    /* --- INICIO: ESTILOS BOTONES FLOTANTES (FAB) --- */
+    .fab-container {
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        z-index: 1000;
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
+    }
+    .fab {
+        width: 50px;
+        height: 50px;
+        background-color: var(--secondary-color);
+        color: white;
+        border: none;
+        border-radius: 50%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        font-size: 1.5em;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        cursor: pointer;
+        transition: transform 0.2s ease, background-color 0.2s;
+    }
+    .fab:hover {
+        transform: scale(1.1);
+        background-color: #388E3C;
+    }
+    /* --- FIN: ESTILOS BOTONES FLOTANTES (FAB) --- */
   </style>
 </head>
 <body>
@@ -380,7 +413,7 @@
                 <div class="note">
                     <strong>Si ya Tienes una Cuenta (Ingreso):</strong>
                     <ul>
-                        <li>Usa el "Acceso Rápido" para rellenar tus datos o ingrésalos manually.</li>
+                        <li>Usa el "Acceso Rápido" para rellenar tus datos o ingrésalos manualmente.</li>
                         <li>Escribe tu contraseña y presiona "Ingresar o Registrar".</li>
                     </ul>
                 </div>
@@ -557,6 +590,12 @@
           <button id="changePasswordBtn">Cambiar Contraseña</button>
       </section>
     </div> 
+</div>
+
+<div class="fab-container">
+    <button id="theme-toggle" class="fab" title="Cambiar Tema">
+        <i class="fas fa-moon"></i>
+    </button>
 </div>
 
 <footer>
@@ -765,6 +804,29 @@ document.addEventListener('DOMContentLoaded', () => {
         helpBtn.addEventListener('click', () => helpPanel.classList.add('open'));
         closeHelpBtn.addEventListener('click', () => helpPanel.classList.remove('open'));
     }
+
+    // --- THEME TOGGLE LOGIC ---
+    const themeToggle = document.getElementById('theme-toggle');
+    const themeIcon = themeToggle.querySelector('i');
+
+    function applyTheme(theme) {
+        if (theme === 'dark') {
+            document.body.classList.add('dark-mode');
+            themeIcon.classList.remove('fa-moon');
+            themeIcon.classList.add('fa-sun');
+        } else {
+            document.body.classList.remove('dark-mode');
+            themeIcon.classList.remove('fa-sun');
+            themeIcon.classList.add('fa-moon');
+        }
+    }
+    
+    themeToggle.addEventListener('click', () => {
+        const isDarkMode = document.body.classList.contains('dark-mode');
+        const newTheme = isDarkMode ? 'light' : 'dark';
+        localStorage.setItem('theme', newTheme);
+        applyTheme(newTheme);
+    });
 
     // --- LOGIN & SESSION FUNCTIONS ---
     function displayRecentLogins() {
@@ -1224,7 +1286,7 @@ document.addEventListener('DOMContentLoaded', () => {
             saveUserData(userData);
             e.target.classList.toggle('marked');
             actualizarCalculoPartTime();
-            cargarYMostrarMontos(); // Refresh the amounts view
+            cargarYMostrarMontos(); 
         }
     });
 
@@ -1289,6 +1351,10 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     if ('serviceWorker' in navigator) { window.addEventListener('load', () => { navigator.service-worker.register('service-worker.js').then(reg => console.log('SW registered.')).catch(err => console.log('SW registration failed: ', err)); }); }
     
+    // Initial theme setup
+    const savedTheme = localStorage.getItem('theme') || 'light';
+    applyTheme(savedTheme);
+
     checkLogin();
 });
 </script>
