@@ -586,7 +586,7 @@
 
       <section id="montosSection" class="content-panel">
         <h2>Montos por Noche</h2>
-        <button id="importarDesdeSheetsBtn" style="width: 100%; margin-bottom: 15px;">Importar desde Sheets</button>
+        <button id="importarDesdeSheetsBtn" style="width: 100%; margin-bottom: 15px;">Sincronizar con Sheets</button>
         <div id="totalDiario">Total recaudado: $0</div>
         <div id="tarjetasMontos"></div>
       </section>
@@ -1139,38 +1139,34 @@ document.addEventListener('DOMContentLoaded', () => {
     async function importarDesdeSheets() {
         if (!loggedInUser) return;
         const btn = document.getElementById('importarDesdeSheetsBtn');
-        btn.textContent = 'Importando...'; btn.disabled = true;
+        btn.textContent = 'Sincronizando...'; btn.disabled = true;
         try {
             const response = await fetch(`${SCRIPT_URL_RECAUDACION}?action=get`);
             if (!response.ok) throw new Error(`Error de red: ${response.statusText}`);
             const result = await response.json();
             if (result.status !== 'success' || !result.data) throw new Error(result.message || 'La respuesta no fue exitosa.');
             
-            const userData = getUserData();
-            let montosActuales = userData.montosPorFecha || {};
-            let registrosNuevos = 0;
+            const nuevosMontosDesdeSheet = {};
             result.data.forEach(dato => {
                 const { fecha, tipo, monto } = dato;
-                if (!montosActuales[fecha]) montosActuales[fecha] = [];
-                const existe = montosActuales[fecha].some(m => m.area === tipo && parseFloat(m.monto) === parseFloat(monto));
-                if (!existe) {
-                    montosActuales[fecha].push({ area: tipo, monto: parseFloat(monto) });
-                    registrosNuevos++;
+                if (!nuevosMontosDesdeSheet[fecha]) {
+                    nuevosMontosDesdeSheet[fecha] = [];
                 }
+                nuevosMontosDesdeSheet[fecha].push({ area: tipo, monto: parseFloat(monto) });
             });
-            if (registrosNuevos > 0) {
-                userData.montosPorFecha = montosActuales;
-                saveUserData(userData);
-                cargarYMostrarMontos();
-                showToast(`${registrosNuevos} nuevo(s) registro(s) importado(s).`);
-            } else {
-                showToast("No se encontraron registros nuevos para importar.");
-            }
+
+            const userData = getUserData();
+            userData.montosPorFecha = nuevosMontosDesdeSheet;
+            saveUserData(userData);
+            
+            cargarYMostrarMontos();
+            showToast("Datos sincronizados con Google Sheets.");
+
         } catch (error) {
-            showToast('Error al importar desde Sheets: ' + error.message, 'error');
+            showToast('Error al sincronizar: ' + error.message, 'error');
             console.error("Error detallado:", error);
         } finally {
-            btn.textContent = 'Importar desde Sheets'; btn.disabled = false;
+            btn.textContent = 'Sincronizar con Sheets'; btn.disabled = false;
         }
     }
 
@@ -1336,7 +1332,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // Explicit Modal Cancel Button Listeners
     document.getElementById('cancelAddAnticipoBtn').addEventListener('click', () => {
         document.getElementById('addAnticipoModal').style.display = 'none';
     });
