@@ -192,6 +192,27 @@
     .modal-body input { width: 100%; box-sizing: border-box; margin-bottom: 10px; padding: 10px; }
     .modal-footer { display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px; }
     
+    /* --- INICIO: ESTILOS VER CONTRASEÑA --- */
+    .password-wrapper {
+        position: relative;
+        width: 100%;
+        flex-grow: 1; /* Make it take up form space */
+    }
+    .password-wrapper input {
+        width: 100%;
+        box-sizing: border-box; /* Important for padding */
+        padding-right: 40px; /* Space for the icon */
+    }
+    .password-toggle-icon {
+        position: absolute;
+        top: 50%;
+        right: 15px;
+        transform: translateY(-50%);
+        cursor: pointer;
+        color: var(--text-secondary);
+    }
+    /* --- FIN: ESTILOS VER CONTRASEÑA --- */
+
     /* --- INICIO: ESTILOS ACCESO RÁPIDO Y RECUPERACIÓN --- */
     .quick-access-container { display: flex; justify-content: center; gap: 15px; flex-wrap: wrap; margin-top: 10px; }
     .quick-access-user { 
@@ -491,7 +512,10 @@
           </select>
           <input type="number" id="loginAnio" placeholder="Año de ingreso" required />
           <input type="number" id="loginPuntos" placeholder="Cantidad de Puntos" required />
-          <input type="password" id="loginPassword" placeholder="Contraseña" required />
+          <div class="password-wrapper">
+            <input type="password" id="loginPassword" placeholder="Contraseña" required />
+            <i class="fas fa-eye password-toggle-icon"></i>
+          </div>
           <button type="submit">Ingresar o Registrar</button>
           <a href="#" id="forgotPasswordLink" class="forgot-password-link">¿Olvidaste tu contraseña?</a>
         </form>
@@ -686,7 +710,10 @@
             <div id="newPasswordContainer" style="display: none;">
                 <p>Verificación exitosa. Ahora puedes establecer tu nueva contraseña.</p>
                 <label for="newPasswordInput">Nueva Contraseña:</label>
-                <input type="password" id="newPasswordInput" required />
+                <div class="password-wrapper">
+                    <input type="password" id="newPasswordInput" required />
+                    <i class="fas fa-eye password-toggle-icon"></i>
+                </div>
             </div>
         </div>
         <div class="modal-footer">
@@ -701,7 +728,10 @@
         <div class="modal-header"><h4>Actualizar Contraseña</h4></div>
         <div class="modal-body">
              <label for="newPasswordLoggedInInput">Ingresa tu nueva contraseña:</label>
-             <input type="password" id="newPasswordLoggedInInput" required />
+             <div class="password-wrapper">
+                <input type="password" id="newPasswordLoggedInInput" required />
+                <i class="fas fa-eye password-toggle-icon"></i>
+             </div>
         </div>
         <div class="modal-footer">
             <button class="reset-button" id="cancelChangePasswordBtn">Cancelar</button>
@@ -826,6 +856,22 @@ document.addEventListener('DOMContentLoaded', () => {
         const newTheme = isDarkMode ? 'light' : 'dark';
         localStorage.setItem('theme', newTheme);
         applyTheme(newTheme);
+    });
+
+    // --- PASSWORD TOGGLE LOGIC ---
+    document.querySelectorAll('.password-toggle-icon').forEach(icon => {
+        icon.addEventListener('click', () => {
+            const passwordInput = icon.previousElementSibling;
+            if (passwordInput.type === 'password') {
+                passwordInput.type = 'text';
+                icon.classList.remove('fa-eye');
+                icon.classList.add('fa-eye-slash');
+            } else {
+                passwordInput.type = 'password';
+                icon.classList.remove('fa-eye-slash');
+                icon.classList.add('fa-eye');
+            }
+        });
     });
 
     // --- LOGIN & SESSION FUNCTIONS ---
