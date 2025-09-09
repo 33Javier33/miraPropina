@@ -101,6 +101,23 @@
         text-align: right;
     }
 
+    /* --- INICIO: AYUDA LOGIN --- */
+    .login-help {
+        background-color: #eef7ff;
+        border: 1px solid #bde0ff;
+        border-radius: 8px;
+        padding: 15px;
+        margin-bottom: 20px;
+        font-size: 0.95em;
+        line-height: 1.5;
+    }
+    .login-help ul {
+        padding-left: 20px;
+        margin: 10px 0 0 0;
+    }
+    /* --- FIN: AYUDA LOGIN --- */
+
+
     /* --- INICIO: ESTILOS NOTIFICACIÓN TOAST --- */
     #toast-container { position: fixed; top: 20px; right: 20px; z-index: 2000; display: flex; flex-direction: column; align-items: flex-end; gap: 10px; }
     .toast { background-color: var(--success-color); color: white; padding: 15px 20px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); font-size: 1em; opacity: 0; transform: translateX(100%); transition: all 0.4s ease; }
@@ -341,53 +358,44 @@
             </div>
 
             <div id="help-content-main" class="help-content-section">
-                <p>Esta guía te ayudará a entender cómo funciona la aplicación y a sacar el máximo provecho de sus herramientas para calcular tu retiro de propina.</p>
-
-                <h3>1. Conceptos Clave</h3>
-                <p>Para entender los cálculos, primero debes conocer estos términos:</p>
+                <h3>Explicación de las Secciones</h3>
+                <p>La aplicación se divide en varias partes clave para que organices tu información:</p>
                 <ul>
-                    <li><strong>Puntos:</strong> Son los puntos que tienes asignados personalmente. Los registras al iniciar sesión y los puedes ver en "Mis Datos".</li>
-                    <li><strong>Total Recaudado:</strong> Es la suma de todos los montos de propina del mes. La app lo obtiene de la sección "Montos por Noche".</li>
-                    <li><strong>Divisor:</strong> Es un número clave que representa el total de puntos que participan en la repartición.
-                        <ul>
-                            <li><strong>Para Planta:</strong> Es un "Divisor General" que se registra para todo el personal.</li>
-                            <li><strong>Para Part-Time:</strong> Es un "Divisor Personal" que puedes editar.</li>
-                        </ul>
-                    </li>
-                    <li><strong>Anticipos:</strong> Es cualquier dinero que hayas retirado por adelantado. Estos montos se restan de tu total final.</li>
+                    <li><strong>Retiro de Propina:</strong> Es tu pantalla principal. Aquí ves el resultado final de todos los cálculos según tu tipo de contrato (Planta o Part-Time). Es el resumen que te dice cuánto debes retirar.</li>
+                    <li><strong>Montos por Noche:</strong> En esta sección puedes ver el desglose de todas las propinas recaudadas cada día del mes. Los datos se importan automáticamente y aquí puedes revisarlos en detalle.</li>
+                    <li><strong>Mis Datos:</strong> Aquí puedes verificar que tu información personal sea correcta, como tu nombre, tipo de contrato y, lo más importante, la <strong>cantidad de puntos</strong> que tienes asignados. También puedes cambiar tu contraseña desde aquí.</li>
                 </ul>
 
-                <h3>2. Cómo se Calcula tu Retiro (Personal de Planta)</h3>
-                <p>El cálculo para el personal de Planta se basa en una fórmula general para todo el equipo.</p>
+                <h3>Conceptos Clave del Cálculo</h3>
+                <p>Para entender los cálculos, primero debes conocer estos términos:</p>
+                <ul>
+                    <li><strong>Puntos:</strong> Son los puntos que tienes asignados personalmente.</li>
+                    <li><strong>Total Recaudado:</strong> Es la suma de todos los montos de propina del mes.</li>
+                    <li><strong>Divisor:</strong> Es el total de puntos que participan en la repartición (General para Planta, Personal para Part-Time).</li>
+                    <li><strong>Anticipos:</strong> Dinero que retiraste por adelantado y que se descuenta del total.</li>
+                </ul>
+
+                <h3>Detalle de los Cálculos (Personal de Planta)</h3>
                 <div class="note">
-                    <p><strong>Paso A: Calcular el Valor por Punto</strong><br>La app toma el "Total Recaudado" del mes y lo divide por el "Divisor General" que se haya registrado.</p>
+                    <p><strong>Paso A: Calcular el Valor por Punto</strong><br>La app toma el "Total Recaudado" del mes y lo divide por el "Divisor General".</p>
                     <div class="formula">Valor por Punto = Total Recaudado / Divisor General</div>
 
-                    <p><strong>Paso B: Calcular tu Subtotal</strong><br>Luego, multiplica ese "Valor por Punto" por la cantidad de puntos que tienes asignados ("Mis Puntos").</p>
+                    <p><strong>Paso B: Calcular tu Subtotal</strong><br>Luego, multiplica ese "Valor por Punto" por "Mis Puntos".</p>
                     <div class="formula">Subtotal = Valor por Punto × Mis Puntos</div>
 
-                    <p><strong>Paso C: Calcular el Total Final</strong><br>Finalmente, a tu subtotal se le restan todos los "Anticipos" que hayas registrado durante el mes.</p>
+                    <p><strong>Paso C: Calcular el Total Final</strong><br>Finalmente, a tu subtotal se le restan los "Anticipos".</p>
                     <div class="formula">Total a Retirar = Subtotal - Total Anticipos</div>
                 </div>
 
-                <h3>3. Cómo se Calcula tu Retiro (Personal Part-Time)</h3>
-                <p>Si eres Part-Time, el cálculo es más personalizado y se basa en los días que trabajaste.</p>
+                <h3>Detalle de los Cálculos (Personal Part-Time)</h3>
                 <div class="note">
-                    <p><strong>Paso A: Marcar tus Días y Calcular tu Pozo</strong><br>En el calendario, debes marcar todos los días que trabajaste. La app sumará las propinas de <strong>solo esos días</strong> para crear tu "Pozo Individual".</p>
+                    <p><strong>Paso A: Marcar Días y Calcular Pozo</strong><br>En el calendario, debes marcar los días que trabajaste para que la app sume las propinas de <strong>solo esos días</strong> en tu "Pozo Individual".</p>
 
                     <p><strong>Paso B: Calcular el Valor por Punto</strong><br>La app divide tu "Pozo Individual" por tu "Divisor Personal".</p>
                     <div class="formula">Valor por Punto = Pozo Individual / Divisor Personal</div>
 
-                    <p><strong>Paso C y D: Calcular Subtotal y Total Final</strong><br>Los pasos siguientes son iguales a los del personal de Planta: el "Valor por Punto" se multiplica por "Mis Puntos" y luego se restan tus "Anticipos".</p>
+                    <p><strong>Paso C y D: Calcular Subtotal y Total Final</strong><br>Finalmente, el "Valor por Punto" se multiplica por "Mis Puntos" y se restan tus "Anticipos".</p>
                 </div>
-
-                <h3>4. Acciones Principales</h3>
-                <ul>
-                    <li><strong>Registrar Divisor:</strong> Un botón para que el personal de Planta ingrese el divisor general del mes.</li>
-                    <li><strong>Registrar Anticipo:</strong> Usa este botón cada vez que retires dinero por adelantado.</li>
-                    <li><strong>Reiniciar Mes:</strong> ¡CUIDADO! Esta opción borra todos los montos y anticipos. Úsala solo al comenzar un nuevo período de cálculo.</li>
-                    <li><strong>Importar desde Sheets:</strong> Sincroniza los montos de propina directamente desde un archivo de Google Sheets para mantener todo actualizado.</li>
-                </ul>
             </div>
         </div>
     </div>
