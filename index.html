@@ -225,41 +225,54 @@
     .help-content-section { display: none; }
     .help-content-section.active-help { display: block; }
 
-    .fab-container { position: fixed; bottom: 20px; right: 20px; z-index: 1000; display: flex; flex-direction: column; gap: 15px; }
-    .fab { width: 50px; height: 50px; background-color: var(--secondary-color); color: white; border: none; border-radius: 50%; display: flex; justify-content: center; align-items: center; font-size: 1.5em; box-shadow: 0 4px 12px rgba(0,0,0,0.15); cursor: pointer; transition: transform 0.2s ease, background-color 0.2s; }
-    .fab:hover { transform: scale(1.1); background-color: #388E3C; }
+    .fab-container { position: fixed; bottom: 20px; right: 20px; z-index: 1000; display: flex; flex-direction: column; align-items: center; gap: 15px; }
+    .fab { width: 50px; height: 50px; background-color: var(--secondary-color); color: white; border: none; border-radius: 50%; display: flex; justify-content: center; align-items: center; font-size: 1.5em; box-shadow: 0 4px 12px rgba(0,0,0,0.15); cursor: pointer; transition: transform 0.2s ease, background-color 0.2s; position: relative; }
+    .fab:hover { transform: scale(1.1); }
     
-    /* --- INICIO CAMBIO: Estilos para el punto de notificación --- */
-    .notification-dot {
-        position: absolute;
-        top: -4px;
-        right: -4px;
-        width: 15px;
-        height: 15px;
+    #notification-fab {
         background-color: var(--danger-color);
-        border-radius: 50%;
-        border: 2px solid var(--bg-content);
-        z-index: 1001;
-        display: none; /* Oculto por defecto */
-        pointer-events: none;
-    }
-    .notification-dot.visible {
-        display: block;
-    }
-    .notification-dot.blinking {
         animation: blink 1.5s infinite ease-in-out;
+    }
+    #notification-fab:hover {
+        background-color: #c82333;
     }
     @keyframes blink {
         0%, 100% { transform: scale(1); opacity: 1; }
-        50% { transform: scale(1.3); opacity: 0.7; }
+        50% { transform: scale(1.1); opacity: 0.8; }
     }
-    /* El contenedor del FAB ahora necesita ser relativo para posicionar el punto */
-    .fab-wrapper {
-        position: relative;
+    #note-notification-count {
+        position: absolute;
+        top: -5px;
+        right: -5px;
+        background-color: var(--primary-color);
+        color: white;
+        width: 22px;
+        height: 22px;
+        border-radius: 50%;
+        font-size: 12px;
+        font-weight: bold;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        border: 2px solid var(--bg-content);
+    }
+    
+    /* --- INICIO CAMBIO: Estilos para el indicador de carga --- */
+    .loading-indicator {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        padding: 40px;
+        gap: 10px;
+        color: var(--text-secondary);
+        font-size: 1.1em;
+        animation: fadeIn 0.5s;
+    }
+    .loading-indicator i {
+        font-size: 1.5em;
     }
     /* --- FIN CAMBIO --- */
-    
-    /* --- ESTILOS NOTAS --- */
+
     #admin-notes-container { display: flex; flex-direction: column; gap: 15px; max-height: 50vh; overflow-y: auto; padding: 10px; border: 1px solid var(--border-color); border-radius: 8px; margin-bottom: 20px;}
     .note-card { background-color: var(--bg-accent); border-radius: 8px; padding: 15px; border-left: 5px solid var(--primary-color); max-width: 80%; }
     .note-header { font-size: 0.85em; color: var(--text-secondary); border-bottom: 1px solid var(--border-color); padding-bottom: 8px; margin-bottom: 10px; }
@@ -505,16 +518,15 @@
     </div> 
 </div>
 
-<!-- INICIO CAMBIO: Envoltura para el FAB y el punto de notificación -->
 <div class="fab-container">
-    <div class="fab-wrapper">
-        <div id="notification-dot" class="notification-dot"></div>
-        <button id="theme-toggle" class="fab" title="Cambiar Tema">
-            <i class="fas fa-moon"></i>
-        </button>
-    </div>
+    <button id="notification-fab" class="fab" title="Nuevas Notas" style="display: none;">
+        <i class="fas fa-envelope-open-text"></i>
+        <span id="note-notification-count"></span>
+    </button>
+    <button id="theme-toggle" class="fab" title="Cambiar Tema">
+        <i class="fas fa-moon"></i>
+    </button>
 </div>
-<!-- FIN CAMBIO -->
 
 
 <footer>
@@ -652,7 +664,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let pendingLoginUser = null; 
     let userToChangePasswordId = null; 
     let notesInterval = null; 
-    let allFetchedNotes = []; // Almacena todas las notas para acceso rápido
+    let allFetchedNotes = [];
 
     // --- Funciones de gestión de datos (localStorage) ---
     function getAppData() { return JSON.parse(localStorage.getItem('appData')) || { usuarios: {}, userData: {} }; }
@@ -714,7 +726,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 const targetId = e.target.dataset.target;
 
                 if (targetId === 'notasSection') {
-                    markNotesAsRead(); // Marcar como leído al entrar a la sección
+                    markNotesAsRead();
                 }
 
                 document.querySelectorAll('#main-content > section.content-panel').forEach(panel => panel.classList.remove('active'));
@@ -1278,53 +1290,70 @@ document.addEventListener('DOMContentLoaded', () => {
             return { status: 'error', message: error.message };
         }
     }
-
+    
     function checkForUnread(notes) {
         if (!loggedInUser) return;
-        const notificationDot = document.getElementById('notification-dot');
-        if (notes && notes.length > 0) {
-            const sortedNotes = [...notes].sort((a,b) => new Date(a.fecha) - new Date(b.fecha));
-            const lastNoteTimestamp = new Date(sortedNotes[sortedNotes.length - 1].fecha).getTime();
-            const lastReadTimestamp = parseInt(localStorage.getItem(`lastReadTimestamp_${loggedInUser.id}`), 10) || 0;
+        
+        const notificationFab = document.getElementById('notification-fab');
+        const notificationCount = document.getElementById('note-notification-count');
+        
+        const lastReadTimestamp = parseInt(localStorage.getItem(`lastReadTimestamp_${loggedInUser.id}`), 10) || 0;
+        
+        const unreadAdminNotes = notes.filter(note => 
+            note.autor.toLowerCase() === 'admin' && 
+            new Date(note.fecha).getTime() > lastReadTimestamp
+        );
+        
+        const unreadCount = unreadAdminNotes.length;
 
-            if (lastNoteTimestamp > lastReadTimestamp) {
-                notificationDot.classList.add('visible', 'blinking');
-            } else {
-                notificationDot.classList.remove('visible', 'blinking');
-            }
+        if (unreadCount > 0) {
+            notificationCount.textContent = unreadCount;
+            notificationFab.style.display = 'flex';
         } else {
-            notificationDot.classList.remove('visible', 'blinking');
+            notificationFab.style.display = 'none';
         }
     }
 
     function markNotesAsRead() {
-        if (!loggedInUser || allFetchedNotes.length === 0) return;
-        const sortedNotes = [...allFetchedNotes].sort((a,b) => new Date(a.fecha) - new Date(b.fecha));
-        const lastNoteTimestamp = new Date(sortedNotes[sortedNotes.length - 1].fecha).getTime();
-        localStorage.setItem(`lastReadTimestamp_${loggedInUser.id}`, lastNoteTimestamp);
-        
-        document.getElementById('notification-dot').classList.remove('visible', 'blinking');
+        if (!loggedInUser) return;
+        const adminNotes = allFetchedNotes.filter(note => note.autor.toLowerCase() === 'admin');
+        if (adminNotes.length === 0) return;
+        const latestAdminNoteTimestamp = Math.max(...adminNotes.map(note => new Date(note.fecha).getTime()));
+        localStorage.setItem(`lastReadTimestamp_${loggedInUser.id}`, latestAdminNoteTimestamp);
+        document.getElementById('notification-fab').style.display = 'none';
     }
 
+    // --- INICIO CAMBIO: Función cargarNotas actualizada con indicador ---
     async function cargarNotas() {
         if(!loggedInUser) return;
         const container = document.getElementById('admin-notes-container');
+        const isInitialLoad = !container.querySelector('.note-card');
+        
+        if (isInitialLoad) {
+            container.innerHTML = `
+                <div class="loading-indicator">
+                    <i class="fas fa-spinner fa-spin"></i>
+                    <span>Cargando mensajes...</span>
+                </div>`;
+        }
+
         const response = await fetchFromNotasScript({ action: 'getNotes' });
+
         if (response.status === 'success' && response.data) {
             allFetchedNotes = response.data;
             renderizarNotas(allFetchedNotes);
             checkForUnread(allFetchedNotes);
         } else {
-             if (container.innerHTML.includes('Cargando')) {
+            if (isInitialLoad) {
                 container.innerHTML = '<p>No se pudieron cargar las notas.</p>';
             }
             checkForUnread(allFetchedNotes);
         }
     }
+    // --- FIN CAMBIO ---
 
     function renderizarNotas(notes) {
         const container = document.getElementById('admin-notes-container');
-        const shouldScroll = container.scrollTop + container.clientHeight >= container.scrollHeight - 20;
         container.innerHTML = '';
         
         if (notes.length === 0) {
@@ -1350,9 +1379,7 @@ document.addEventListener('DOMContentLoaded', () => {
             container.appendChild(noteCard);
         });
 
-        if (shouldScroll) {
-            container.scrollTop = container.scrollHeight;
-        }
+        container.scrollTop = container.scrollHeight;
     }
 
     async function enviarRespuesta() {
@@ -1374,6 +1401,15 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
+    document.getElementById('notification-fab').addEventListener('click', () => {
+        document.querySelectorAll('#main-content > section.content-panel').forEach(panel => panel.classList.remove('active'));
+        document.getElementById('notasSection').classList.add('active');
+        document.querySelectorAll('.menu-link').forEach(l => l.classList.remove('active-link'));
+        document.querySelector('.menu-link[data-target="notasSection"]').classList.add('active-link');
+        markNotesAsRead();
+        cargarNotas();
+    });
+
     // --- Inicialización de la aplicación ---
     function initApp() {
         if (!loggedInUser) return;
@@ -1391,7 +1427,7 @@ document.addEventListener('DOMContentLoaded', () => {
         ['addAnticipoMontoInput', 'editAnticipoMontoInput', 'divisorInput', 'divisorPTInput'].forEach(id => setupNumericInputFormatting(document.getElementById(id)));
         importarDesdeSheets();
         
-        cargarNotas(); // Carga inicial de notas para ver si hay notificaciones pendientes
+        cargarNotas(); 
         if (notesInterval) clearInterval(notesInterval);
         notesInterval = setInterval(cargarNotas, 15000);
     }
