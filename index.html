@@ -230,11 +230,24 @@
     .fab:hover { transform: scale(1.1); background-color: #388E3C; }
     
     /* --- ESTILOS NOTAS --- */
-    #admin-notes-container { display: flex; flex-direction: column; gap: 15px; max-height: 50vh; overflow-y: auto; padding: 5px; border: 1px solid var(--border-color); border-radius: 8px; margin-bottom: 20px;}
-    .note-card { background-color: var(--bg-accent); border-radius: 8px; padding: 15px; border-left: 5px solid var(--primary-color); }
+    #admin-notes-container { display: flex; flex-direction: column; gap: 15px; max-height: 50vh; overflow-y: auto; padding: 10px; border: 1px solid var(--border-color); border-radius: 8px; margin-bottom: 20px;}
+    .note-card { background-color: var(--bg-accent); border-radius: 8px; padding: 15px; border-left: 5px solid var(--primary-color); max-width: 80%; }
     .note-header { font-size: 0.85em; color: var(--text-secondary); border-bottom: 1px solid var(--border-color); padding-bottom: 8px; margin-bottom: 10px; }
     .note-header .author { font-weight: bold; color: var(--primary-color); text-transform: capitalize; }
     .note-body { font-size: 1em; line-height: 1.5; white-space: pre-wrap; word-wrap: break-word; }
+    
+    /* --- INICIO CAMBIO: Estilo para las notas del usuario --- */
+    .note-card.user-note {
+        align-self: flex-end; /* Alinear a la derecha */
+        border-left: none;
+        border-right: 5px solid var(--secondary-color);
+        background-color: #e8f5e9; /* Un verde claro para distinguir */
+    }
+    body.dark-mode .note-card.user-note {
+        background-color: #2a3b2b; /* Un verde oscuro para el modo oscuro */
+    }
+    /* --- FIN CAMBIO --- */
+    
     #responseForm textarea { width: 100%; box-sizing: border-box; resize: vertical; min-height: 80px; }
     #sendResponseBtn { width: 100%; }
 
@@ -455,7 +468,7 @@
       <section id="notasSection" class="content-panel">
           <h2>Comunicación con Administración</h2>
           <div id="admin-notes-container">
-              <!-- Las notas del admin se cargarán aquí -->
+              <!-- Las notas se cargarán aquí -->
           </div>
           <form id="responseForm" style="margin-top: 20px;">
               <textarea id="responseMessage" placeholder="Escribe tu respuesta o consulta aquí..." rows="4"></textarea>
@@ -605,6 +618,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let currentEditAnticipoId = null;
     let pendingLoginUser = null; 
     let userToChangePasswordId = null; 
+    let notesInterval = null; // --- INICIO CAMBIO: Variable para el intervalo de actualización de notas
 
     function getAppData() { return JSON.parse(localStorage.getItem('appData')) || { usuarios: {}, userData: {} }; }
     function saveAppData(data) { localStorage.setItem('appData', JSON.stringify(data)); }
@@ -666,7 +680,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (targetPanel) {
                     targetPanel.classList.add('active');
                     if (targetId === 'montosSection') cargarYMostrarMontos();
-                    if (targetId === 'notasSection') cargarNotasAdmin();
+                    if (targetId === 'notasSection') cargarNotas(); // --- CAMBIO: Llamar a la nueva función de carga
                     if (targetId === 'datosUsuarioSection') populateUserDataSection();
                 }
                 document.querySelectorAll('.menu-link').forEach(l => l.classList.remove('active-link'));
@@ -864,7 +878,11 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
     
-    document.getElementById('logoutBtn').addEventListener('click', () => { localStorage.removeItem('loggedInUser'); location.reload(); });
+    document.getElementById('logoutBtn').addEventListener('click', () => { 
+        if (notesInterval) clearInterval(notesInterval); // --- CAMBIO: Limpiar el intervalo al cerrar sesión
+        localStorage.removeItem('loggedInUser'); 
+        location.reload(); 
+    });
     
     document.getElementById('savePhoneBtn').addEventListener('click', () => {
         const phoneInput = document.getElementById('phoneInput');
@@ -1195,7 +1213,8 @@ document.addEventListener('DOMContentLoaded', () => {
             if (!response.ok) throw new Error(`Error de red: ${response.statusText}`);
             return await response.json();
         } catch (error) {
-            showToast('Error al conectar con el servidor de notas.', 'error');
+            console.error('Error al conectar con el servidor de notas.', error);
+            // No mostramos toast en cada fetch para no molestar al usuario en segundo plano
             return { status: 'error', message: error.message };
         }
     }
@@ -1217,28 +1236,45 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    async function cargarNotasAdmin() {
+    // --- INICIO CAMBIO: Función modificada para cargar todas las notas (admin y usuario) ---
+    async function cargarNotas() {
+        if(!loggedInUser) return;
         const container = document.getElementById('admin-notes-container');
-        container.innerHTML = '<p>Cargando notas...</p>';
         const response = await fetchFromNotasScript({ action: 'getNotes' });
         if (response.status === 'success' && response.data) {
-            const adminNotes = response.data.filter(note => note.autor === 'admin').sort((a,b) => new Date(b.fecha) - new Date(a.fecha));
-            renderizarNotasAdmin(adminNotes);
+            // Ya no filtramos, solo ordenamos por fecha.
+            const allNotes = response.data.sort((a,b) => new Date(a.fecha) - new Date(b.fecha));
+            renderizarNotas(allNotes);
         } else {
-            container.innerHTML = '<p>No se pudieron cargar las notas.</p>';
+             if (container.innerHTML.includes('Cargando')) {
+                container.innerHTML = '<p>No se pudieron cargar las notas.</p>';
+            }
         }
     }
+    // --- FIN CAMBIO ---
 
-    function renderizarNotasAdmin(notes) {
+    // --- INICIO CAMBIO: Función modificada para renderizar todas las notas y distinguir las del usuario ---
+    function renderizarNotas(notes) {
         const container = document.getElementById('admin-notes-container');
+        const shouldScroll = container.scrollTop + container.clientHeight === container.scrollHeight;
         container.innerHTML = '';
+        
         if (notes.length === 0) {
-            container.innerHTML = '<p>No hay mensajes del administrador.</p>';
+            container.innerHTML = '<p>No hay mensajes. ¡Sé el primero en escribir!</p>';
             return;
         }
+
+        const currentUserFullName = `${loggedInUser.nombre} ${loggedInUser.apellido}`;
+
         notes.forEach(note => {
             const noteCard = document.createElement('div');
             noteCard.className = 'note-card';
+            
+            // Si el autor de la nota es el usuario actual, añade una clase especial
+            if (note.autor === currentUserFullName) {
+                noteCard.classList.add('user-note');
+            }
+
             noteCard.innerHTML = `
                 <div class="note-header">
                     De: <span class="author">${note.autor}</span> el ${formatNoteDate(note.fecha)}
@@ -1247,7 +1283,13 @@ document.addEventListener('DOMContentLoaded', () => {
             `;
             container.appendChild(noteCard);
         });
+
+        // Auto-scroll hacia abajo para ver el último mensaje
+        if (shouldScroll || container.children.length > 0) {
+            container.scrollTop = container.scrollHeight;
+        }
     }
+    // --- FIN CAMBIO ---
 
     async function enviarRespuesta() {
         if (!loggedInUser) return;
@@ -1262,6 +1304,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (response.status === 'success') {
             showToast('Respuesta enviada con éxito.');
             messageInput.value = '';
+            cargarNotas(); // --- CAMBIO: Actualizar las notas inmediatamente después de enviar
         } else {
             showToast('No se pudo enviar la respuesta.', 'error');
         }
@@ -1283,6 +1326,11 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('sendResponseBtn').addEventListener('click', enviarRespuesta);
         ['addAnticipoMontoInput', 'editAnticipoMontoInput', 'divisorInput', 'divisorPTInput'].forEach(id => setupNumericInputFormatting(document.getElementById(id)));
         importarDesdeSheets();
+        
+        // --- INICIO CAMBIO: Iniciar la actualización automática de notas cada 15 segundos ---
+        if (notesInterval) clearInterval(notesInterval); // Limpiar cualquier intervalo anterior
+        notesInterval = setInterval(cargarNotas, 15000);
+        // --- FIN CAMBIO ---
     }
     if ('serviceWorker' in navigator) { window.addEventListener('load', () => { navigator.serviceWorker.register('service-worker.js').then(reg => console.log('SW registered.')).catch(err => console.log('SW registration failed: ', err)); }); }
     
@@ -1293,5 +1341,4 @@ document.addEventListener('DOMContentLoaded', () => {
 </script>
 </body>
 </html>
-
 
