@@ -20,6 +20,7 @@
         --error-color: #dc3545;
         --info-color: #17a2b8;
         --edit-color: #ffc107;
+        --ai-color: #6f42c1; /* AI Assistant Color */
         
         /* Light Theme */
         --bg-main: #f0f2f5;
@@ -29,6 +30,8 @@
         --text-secondary: #555;
         --border-color: #ddd;
         --shadow-color: rgba(0,0,0,0.05);
+        --ai-chat-bg: #f7f7f7;
+        --user-chat-bg: var(--primary-color);
     }
 
     body.dark-mode {
@@ -40,6 +43,8 @@
         --text-secondary: #b0b0b0;
         --border-color: #444;
         --shadow-color: rgba(0,0,0,0.2);
+        --ai-chat-bg: #2c2c2c;
+        --user-chat-bg: #0056b3;
     }
 
     body {
@@ -259,6 +264,12 @@
         align-items: center;
         border: 2px solid var(--bg-content);
     }
+    #ai-assistant-fab {
+        background-color: var(--ai-color);
+    }
+    #ai-assistant-fab:hover {
+        background-color: #5a32a3;
+    }
     
     .loading-indicator {
         display: flex;
@@ -292,6 +303,74 @@
     
     #responseForm textarea { width: 100%; box-sizing: border-box; resize: vertical; min-height: 80px; }
     #sendResponseBtn { width: 100%; }
+
+    /* AI Assistant Modal Styles */
+    #aiAssistantModal .modal-content {
+        max-width: 600px;
+        height: 70vh;
+        display: flex;
+        flex-direction: column;
+    }
+    #chat-container {
+        flex-grow: 1;
+        overflow-y: auto;
+        padding: 10px;
+        background-color: var(--bg-main);
+        border-radius: 8px;
+        margin-bottom: 15px;
+        display: flex;
+        flex-direction: column;
+    }
+    .chat-message {
+        padding: 10px 15px;
+        border-radius: 18px;
+        margin-bottom: 10px;
+        max-width: 80%;
+        line-height: 1.5;
+    }
+    .chat-message.user {
+        background-color: var(--user-chat-bg);
+        color: white;
+        align-self: flex-end;
+        margin-left: auto;
+        border-bottom-right-radius: 4px;
+    }
+    .chat-message.ai {
+        background-color: var(--ai-chat-bg);
+        color: var(--text-primary);
+        align-self: flex-start;
+        border-bottom-left-radius: 4px;
+        white-space: pre-wrap; /* Preserve line breaks from AI */
+    }
+    .chat-message.thinking {
+        display: flex;
+        align-items: center;
+        gap: 5px;
+    }
+    .chat-message.thinking .dot {
+        width: 8px; height: 8px;
+        background-color: var(--text-secondary);
+        border-radius: 50%;
+        animation: typing 1.4s infinite ease-in-out both;
+    }
+    .chat-message.thinking .dot:nth-child(2) { animation-delay: 0.2s; }
+    .chat-message.thinking .dot:nth-child(3) { animation-delay: 0.4s; }
+    @keyframes typing {
+        0%, 80%, 100% { transform: scale(0); }
+        40% { transform: scale(1.0); }
+    }
+    #ai-input-form {
+        display: flex;
+        gap: 10px;
+    }
+    #ai-input-field {
+        flex-grow: 1;
+    }
+    #ai-input-form button {
+        flex-grow: 0;
+        padding: 12px 20px;
+        background-color: var(--ai-color);
+    }
 
   </style>
 </head>
@@ -533,6 +612,12 @@
 </div>
 
 <div class="fab-container">
+    <button id="ai-settings-fab" class="fab" title="Configurar IA">
+        <i class="fas fa-key"></i>
+    </button>
+    <button id="ai-assistant-fab" class="fab" title="Asistente de IA">
+        <i class="fas fa-brain"></i>
+    </button>
     <button id="notification-fab" class="fab" title="Nuevas Notas" style="display: none;">
         <i class="fas fa-envelope-open-text"></i>
         <span id="note-notification-count"></span>
@@ -548,6 +633,8 @@
 </footer>
 
 <div id="toast-container"></div>
+
+<!-- All Modals -->
 <div id="addAnticipoModal" class="modal-backdrop" style="display: none;">
     <div class="modal-content">
         <div class="modal-header"><h4>Registrar Anticipo</h4></div>
@@ -675,6 +762,24 @@
     </div>
 </div>
 
+<div id="aiAssistantModal" class="modal-backdrop" style="display: none;">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h4><i class="fas fa-brain" style="color: var(--ai-color); margin-right: 10px;"></i>Asistente de IA</h4>
+        </div>
+        <div id="chat-container">
+            <div class="chat-message ai">Hola, soy tu asistente. ¿Cómo puedo ayudarte a entender la aplicación?</div>
+        </div>
+        <form id="ai-input-form">
+            <input type="text" id="ai-input-field" placeholder="Escribe tu pregunta aquí..." autocomplete="off">
+            <button type="submit"><i class="fas fa-paper-plane"></i></button>
+        </form>
+         <div class="modal-footer" style="justify-content: center; margin-top: 10px;">
+            <button class="reset-button" id="closeAiAssistantBtn">Cerrar</button>
+        </div>
+    </div>
+</div>
+
 
 <script>
 document.addEventListener('DOMContentLoaded', () => {
@@ -694,6 +799,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let notesInterval = null; 
     let sheetsInterval = null;
     let allFetchedNotes = [];
+    let isAiThinking = false;
 
     // --- Funciones de gestión de datos (localStorage) ---
     function getAppData() { return JSON.parse(localStorage.getItem('appData')) || { usuarios: {}, userData: {} }; }
@@ -1089,22 +1195,15 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
-        // 1. Actualizar el objeto de usuario en memoria
         loggedInUser.puntos = newPuntos;
-        
-        // 2. Actualizar el objeto de usuario en el almacenamiento principal
         const appData = getAppData();
         appData.usuarios[loggedInUser.id].puntos = newPuntos;
-        
-        // 3. Guardar los cambios en localStorage
         saveAppData(appData);
         localStorage.setItem('loggedInUser', JSON.stringify(loggedInUser));
 
-        // 4. Actualizar la UI
         populateUserDataSection();
         actualizarCalculoRetiro();
         
-        // 5. Cerrar el modal y notificar
         document.getElementById('editPuntosModal').style.display = 'none';
         showToast('Cantidad de puntos actualizada correctamente.');
     });
@@ -1499,6 +1598,142 @@ document.addEventListener('DOMContentLoaded', () => {
         cargarNotas();
     });
 
+    // --- Lógica del Asistente de IA ---
+    const aiAssistantFab = document.getElementById('ai-assistant-fab');
+    const aiAssistantModal = document.getElementById('aiAssistantModal');
+    const closeAiAssistantBtn = document.getElementById('closeAiAssistantBtn');
+    const aiInputForm = document.getElementById('ai-input-form');
+    const aiInputField = document.getElementById('ai-input-field');
+    const chatContainer = document.getElementById('chat-container');
+
+    const SYSTEM_PROMPT = `
+        Eres un asistente de IA amigable y servicial, integrado en una aplicación web para que el personal de un casino calcule sus propinas. Tu única función es responder preguntas sobre cómo funciona la aplicación, basándote exclusivamente en la información que te proporciono a continuación. Debes responder siempre en español.
+
+        **Descripción General de la Aplicación:**
+        La aplicación permite a los empleados registrarse, ver las propinas recaudadas diariamente, calcular su retiro mensual según su tipo de contrato y comunicarse con la administración.
+
+        **Secciones de la Aplicación:**
+        1.  **Login y Registro:**
+            -   Para registrarse, el usuario debe llenar todos los campos (nombre, apellido, tipo de contrato, sección, año de ingreso, puntos) y crear una contraseña.
+            -   Para iniciar sesión, puede usar el "Acceso Rápido" o ingresar sus datos y contraseña.
+            -   Se requiere un número de teléfono para la recuperación de contraseña.
+        2.  **Retiro de Propina (Pantalla Principal):**
+            -   Muestra el cálculo final de lo que el usuario debe retirar.
+            -   El cálculo es diferente para personal de "Planta" y "Part-Time".
+        3.  **Montos por Noche:**
+            -   Muestra un desglose de todas las propinas recaudadas cada día del mes.
+            -   Los datos se sincronizan desde un Google Sheet. El usuario puede forzar una sincronización.
+        4.  **Mis Datos:**
+            -   Muestra la información personal del usuario: nombre, contrato, año y puntos.
+            -   **Importante:** El usuario PUEDE editar su cantidad de puntos asignados desde esta sección. Hay un botón con un lápiz para hacerlo.
+            -   El usuario también puede cambiar su contraseña desde aquí.
+        5.  **Notas Admin:**
+            -   Es un chat para comunicarse con la administración.
+            -   Muestra notificaciones con un ícono parpadeante cuando hay mensajes nuevos.
+
+        **Detalles de los Cálculos:**
+        -   **Personal de Planta:**
+            1.  **Valor por Punto** = (Total Recaudado del mes) / (Divisor General registrado).
+            2.  **Subtotal** = (Valor por Punto) x (Mis Puntos).
+            3.  **Total a Retirar** = (Subtotal) - (Total de Anticipos).
+        -   **Personal Part-Time:**
+            1.  El usuario debe marcar en un calendario los días que trabajó.
+            2.  **Pozo Individual** = Suma de las propinas de SOLO los días marcados.
+            3.  **Valor por Punto** = (Pozo Individual) / (Divisor Personal).
+            4.  **Subtotal** = (Valor por Punto) x (Mis Puntos).
+            5.  **Total a Retirar** = (Subtotal) - (Total de Anticipos).
+
+        **Reglas de Interacción:**
+        -   Si te preguntan algo que no está relacionado con la aplicación (ej: el clima, historia, etc.), responde amablemente que solo puedes ayudar con preguntas sobre el funcionamiento de esta app.
+        -   Sé claro, conciso y utiliza un lenguaje sencillo.
+        -   Usa negritas para resaltar conceptos clave como **Puntos**, **Divisor General** o **Pozo Individual**.
+    `;
+
+    aiAssistantFab.addEventListener('click', () => {
+        aiAssistantModal.style.display = 'flex';
+    });
+    closeAiAssistantBtn.addEventListener('click', () => {
+        aiAssistantModal.style.display = 'none';
+    });
+
+    aiInputForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+        handleAiQuery();
+    });
+
+    async function handleAiQuery() {
+        if (isAiThinking) return;
+        const userQuery = aiInputField.value.trim();
+        if (!userQuery) return;
+
+        const apiKey = 'AIzaSyAwaiImE4mA9gzxcbA9HUpIgJGG7jsPnQY'; // Clave API integrada
+
+        isAiThinking = true;
+        addMessageToChat(userQuery, 'user');
+        aiInputField.value = '';
+        addMessageToChat('...', 'ai', true); // Thinking indicator
+
+        try {
+            const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=${apiKey}`;
+            const payload = {
+                contents: [{ parts: [{ text: userQuery }] }],
+                systemInstruction: { parts: [{ text: SYSTEM_PROMPT }] },
+            };
+            
+            const response = await fetch(apiUrl, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+
+            const result = await response.json();
+
+            if (!response.ok) {
+                 const errorText = result?.error?.message || `Error: ${response.statusText}`;
+                 throw new Error(errorText);
+            }
+
+            const aiResponse = result.candidates?.[0]?.content?.parts?.[0]?.text || "No pude procesar tu solicitud en este momento.";
+            
+            updateLastAiMessage(aiResponse);
+
+        } catch (error) {
+            console.error("AI Assistant Error:", error);
+            let errorMessage = "Lo siento, ocurrió un error. Por favor, intenta de nuevo más tarde.";
+            if (error.message.includes("API key not valid")) {
+                errorMessage = "La clave API configurada no es válida. Por favor, avisa al administrador.";
+            }
+            updateLastAiMessage(errorMessage);
+        } finally {
+            isAiThinking = false;
+        }
+    }
+
+    function addMessageToChat(text, type, isThinking = false) {
+        const messageDiv = document.createElement('div');
+        messageDiv.className = `chat-message ${type}`;
+        
+        if (isThinking) {
+            messageDiv.classList.add('thinking');
+            messageDiv.innerHTML = `<span class="dot"></span><span class="dot"></span><span class="dot"></span>`;
+        } else {
+            messageDiv.textContent = text;
+        }
+        
+        chatContainer.appendChild(messageDiv);
+        chatContainer.scrollTop = chatContainer.scrollHeight;
+    }
+
+    function updateLastAiMessage(text) {
+        const thinkingMessage = chatContainer.querySelector('.chat-message.thinking');
+        if (thinkingMessage) {
+            thinkingMessage.classList.remove('thinking');
+            thinkingMessage.innerHTML = ''; // Clear dots
+            thinkingMessage.textContent = text;
+        }
+        chatContainer.scrollTop = chatContainer.scrollHeight;
+    }
+
     // --- Inicialización de la aplicación ---
     function initApp() {
         if (!loggedInUser) return;
@@ -1539,3 +1774,5 @@ document.addEventListener('DOMContentLoaded', () => {
 </script>
 </body>
 </html>
+
+
