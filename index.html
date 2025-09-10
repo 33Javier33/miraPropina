@@ -50,7 +50,6 @@
         transition: margin-left 0.3s ease, background-color 0.3s, color 0.3s;
     }
     
-    /* --- INICIO: ESTILOS MENÚ HAMBURGUESA --- */
     .menu-toggle {
         position: fixed;
         top: 15px;
@@ -96,9 +95,7 @@
         .menu-toggle { display: none; }
         .side-menu { transform: translateX(0); }
     }
-    /* --- FIN: ESTILOS MENÚ HAMBURGUESA --- */
     
-    /* Header Styles */
     .app-header {
         display: flex;
         justify-content: space-between;
@@ -121,20 +118,18 @@
         text-align: right;
     }
 
-    /* --- INICIO: ESTILOS NOTIFICACIÓN TOAST --- */
     #toast-container { position: fixed; top: 20px; right: 20px; z-index: 2000; display: flex; flex-direction: column; align-items: flex-end; gap: 10px; }
     .toast { background-color: var(--success-color); color: white; padding: 15px 20px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); font-size: 1em; opacity: 0; transform: translateX(100%); transition: all 0.4s ease; }
     .toast.show { opacity: 1; transform: translateX(0); }
     .toast.error { background-color: var(--error-color); }
-    /* --- FIN: ESTILOS NOTIFICACIÓN TOAST --- */
 
     h1 { text-align: center; margin-bottom: 20px; font-size: 2em; }
     section { margin-bottom: 30px; background: var(--bg-content); padding: 20px; border-radius: 8px; box-shadow: 0 2px 8px var(--shadow-color); }
     h2 { margin-top: 0; margin-bottom: 15px; font-size: 1.7em; border-bottom: 2px solid var(--bg-main); padding-bottom: 10px; }
     #totalDiario { font-weight: bold; font-size: 1.5em; margin: 15px 0; color: var(--primary-color); text-align: center; }
     form { display: flex; flex-wrap: wrap; gap: 10px; }
-    input, select, button { padding: 12px; border: 1px solid var(--border-color); border-radius: 6px; font-size: 1em; background-color: var(--bg-content); color: var(--text-primary); }
-    input:focus { border-color: var(--secondary-color); outline: none; }
+    input, select, button, textarea { padding: 12px; border: 1px solid var(--border-color); border-radius: 6px; font-size: 1em; background-color: var(--bg-content); color: var(--text-primary); }
+    input:focus, textarea:focus { border-color: var(--secondary-color); outline: none; }
     button { background-color: var(--secondary-color); color: #fff; border: none; font-weight: bold; cursor: pointer; flex-grow: 1; }
     button:hover { background-color: #388E3C; }
     .reset-button { background-color: var(--danger-color); }
@@ -156,7 +151,6 @@
     .monto-item { background-color: var(--bg-main); padding: 8px; border-radius: 6px; font-size: 0.9em; display: flex; justify-content: space-between; align-items: center; }
     .delete-button { background: none; border: none; font-size: 1.2em; color: var(--danger-color); cursor: pointer; }
     
-    /* ESTILOS DE RETIRO */
     .retiro-container, .retiro-container-pt { background-color: var(--bg-accent); padding: 20px; border-radius: 8px; border: 1px solid var(--border-color); }
     .calculation-item { margin-bottom: 12px; font-size: 1.1em; display: flex; justify-content: space-between; align-items: center; }
     .calculation-item strong { color: var(--text-primary); }
@@ -171,7 +165,6 @@
     .delete-anticipo-btn { color: var(--danger-color); }
     .edit-anticipo-btn { color: var(--edit-color); }
     
-    /* ESTILOS PART-TIME */
     .part-time-layout { display: flex; flex-wrap: wrap; gap: 20px; }
     .calendar-section { flex: 1; min-width: 300px; }
     .calculation-section-pt { flex: 1; min-width: 300px; }
@@ -184,7 +177,6 @@
     .day.marked { background-color: var(--success-color); color: #fff; font-weight: bold; }
     .day.empty { background-color: transparent; border: none; cursor: default; }
 
-    /* ESTILOS DE MODALES */
     .modal-backdrop { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.6); display: flex; justify-content: center; align-items: center; z-index: 1000; }
     .modal-content { background-color: var(--bg-content); padding: 25px; border-radius: 8px; box-shadow: 0 5px 15px rgba(0,0,0,0.3); width: 90%; max-width: 400px; }
     .modal-header h4 { margin: 0 0 15px 0; font-size: 1.3em; }
@@ -192,216 +184,60 @@
     .modal-body input { width: 100%; box-sizing: border-box; margin-bottom: 10px; padding: 10px; }
     .modal-footer { display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px; }
     
-    /* --- INICIO: ESTILOS VER CONTRASEÑA --- */
-    .password-wrapper {
-        position: relative;
-        width: 100%;
-        flex-grow: 1; /* Make it take up form space */
-    }
-    .password-wrapper input {
-        width: 100%;
-        box-sizing: border-box; /* Important for padding */
-        padding-right: 40px; /* Space for the icon */
-    }
-    .password-toggle-icon {
-        position: absolute;
-        top: 50%;
-        right: 15px;
-        transform: translateY(-50%);
-        cursor: pointer;
-        color: var(--text-secondary);
-    }
-    /* --- FIN: ESTILOS VER CONTRASEÑA --- */
+    .password-wrapper { position: relative; width: 100%; flex-grow: 1; }
+    .password-wrapper input { width: 100%; box-sizing: border-box; padding-right: 40px; }
+    .password-toggle-icon { position: absolute; top: 50%; right: 15px; transform: translateY(-50%); cursor: pointer; color: var(--text-secondary); }
 
-    /* --- INICIO: ESTILOS ACCESO RÁPIDO Y RECUPERACIÓN --- */
     .quick-access-container { display: flex; justify-content: center; gap: 15px; flex-wrap: wrap; margin-top: 10px; }
-    .quick-access-user { 
-        position: relative;
-        display: flex; flex-direction: column; align-items: center; gap: 8px; cursor: pointer; 
-        background-color: var(--bg-main); padding: 10px; border-radius: 8px; border: 1px solid var(--border-color); 
-        transition: all 0.2s ease; min-width: 80px; 
-    }
+    .quick-access-user { position: relative; display: flex; flex-direction: column; align-items: center; gap: 8px; cursor: pointer; background-color: var(--bg-main); padding: 10px; border-radius: 8px; border: 1px solid var(--border-color); transition: all 0.2s ease; min-width: 80px; }
     .quick-access-user:hover { transform: translateY(-3px); box-shadow: 0 4px 8px var(--shadow-color); border-color: var(--primary-color); }
     .quick-access-avatar { width: 50px; height: 50px; border-radius: 50%; background-color: var(--secondary-color); color: white; display: flex; justify-content: center; align-items: center; font-size: 1.8em; font-weight: bold; }
     .quick-access-name { font-size: 0.9em; font-weight: 500; }
-    .delete-user-btn {
-        position: absolute;
-        top: -5px;
-        right: -5px;
-        width: 24px;
-        height: 24px;
-        background-color: #ddd;
-        color: #555;
-        border: 2px solid var(--bg-content);
-        border-radius: 50%;
-        font-size: 14px;
-        font-weight: bold;
-        cursor: pointer;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        line-height: 1;
-        opacity: 0.7;
-        transition: all 0.2s ease;
-        padding: 0;
-        flex-grow: 0;
-    }
-    .delete-user-btn:hover {
-        background-color: var(--danger-color);
-        color: white;
-        transform: scale(1.1);
-        opacity: 1;
-    }
+    .delete-user-btn { position: absolute; top: -5px; right: -5px; width: 24px; height: 24px; background-color: #ddd; color: #555; border: 2px solid var(--bg-content); border-radius: 50%; font-size: 14px; font-weight: bold; cursor: pointer; display: flex; justify-content: center; align-items: center; line-height: 1; opacity: 0.7; transition: all 0.2s ease; padding: 0; flex-grow: 0; }
+    .delete-user-btn:hover { background-color: var(--danger-color); color: white; transform: scale(1.1); opacity: 1; }
     .forgot-password-link { text-align: center; display: block; margin-top: 15px; color: var(--primary-color); text-decoration: none; font-size: 0.9em; }
     .forgot-password-link:hover { text-decoration: underline; }
     #recoveryResult { padding: 10px; border-radius: 6px; display: none; margin-top: 15px; font-weight: bold; word-break: break-word; }
     #recoveryResult.success { background-color: #e8f5e9; color: #2e7d32; display: block; }
     #recoveryResult.error { background-color: #ffebee; color: #c62828; display: block; }
-    /* --- FIN: ESTILOS ACCESO RÁPIDO Y RECUPERACIÓN --- */
 
-    /* --- INICIO: ESTILOS FOOTER --- */
     footer { text-align: center; padding: 20px; margin-top: 30px; color: #777; font-size: 0.9em; border-top: 1px solid var(--border-color); }
-    /* --- FIN: ESTILOS FOOTER --- */
 
-    /* --- INICIO: ESTILOS DATOS DE USUARIO --- */
     .user-data-container { display: grid; grid-template-columns: 1fr 1fr; gap: 15px 20px; }
     .data-item { background-color: var(--bg-main); padding: 15px; border-radius: 8px; border: 1px solid var(--border-color); }
     .data-item-label { font-weight: bold; color: var(--text-secondary); display: block; margin-bottom: 5px; font-size: 0.9em; }
     .data-item-value { font-size: 1.2em; color: var(--primary-color); }
     #changePasswordBtn { width: 100%; margin-top: 20px; background-color: var(--edit-color); color: #212529; }
     #changePasswordBtn:hover { background-color: #e0a800; }
-    /* --- FIN: ESTILOS DATOS DE USUARIO --- */
 
-    /* --- INICIO: ESTILOS DE AYUDA FLOTANTE --- */
-    .help-button {
-        position: fixed;
-        top: 15px;
-        right: 15px;
-        width: 40px;
-        height: 40px;
-        background-color: var(--info-color);
-        color: white;
-        border: none;
-        border-radius: 50%;
-        font-size: 1.5em;
-        font-weight: bold;
-        cursor: pointer;
-        box-shadow: 0 4px 10px rgba(0,0,0,0.15);
-        z-index: 1002;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-    }
-    .help-panel {
-        position: fixed;
-        top: 0;
-        right: 0;
-        width: 350px;
-        height: 100%;
-        background-color: var(--bg-content);
-        box-shadow: -5px 0 15px var(--shadow-color);
-        transform: translateX(100%);
-        transition: transform 0.3s ease-in-out;
-        z-index: 1010;
-        display: flex;
-        flex-direction: column;
-    }
-    .help-panel.open {
-        transform: translateX(0);
-    }
-    .help-header {
-        padding: 15px 20px;
-        border-bottom: 1px solid var(--border-color);
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-    }
-    .help-header h2 {
-        margin: 0;
-        font-size: 1.5em;
-        border: none;
-        padding: 0;
-    }
-    .close-help-btn {
-        background: none;
-        border: none;
-        font-size: 1.8em;
-        cursor: pointer;
-        padding: 0 5px;
-        color: var(--text-secondary);
-    }
-    .help-content {
-        padding: 20px;
-        overflow-y: auto;
-        flex-grow: 1;
-    }
-    .help-content h3 {
-        text-align: left;
-        margin-top: 20px;
-        border-bottom: 2px solid var(--primary-color);
-        padding-bottom: 5px;
-        font-size: 1.2em;
-    }
-    .help-content p, .help-content li {
-        line-height: 1.6;
-        font-size: 0.95em;
-    }
-    .help-content .note {
-        background-color: var(--bg-accent);
-        border-left: 4px solid var(--primary-color);
-        padding: 15px;
-        margin: 15px 0;
-        border-radius: 4px;
-        font-size: 0.9em;
-    }
-    .help-content .formula {
-        text-align: center;
-        font-size: 1em;
-        margin: 10px 0;
-        padding: 10px;
-        background-color: var(--bg-main);
-        border-radius: 4px;
-        font-weight: bold;
-    }
-    @media (max-width: 480px) {
-        .help-panel {
-            width: 100%;
-        }
-    }
+    .help-button { position: fixed; top: 15px; right: 15px; width: 40px; height: 40px; background-color: var(--info-color); color: white; border: none; border-radius: 50%; font-size: 1.5em; font-weight: bold; cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.15); z-index: 1002; display: flex; justify-content: center; align-items: center; }
+    .help-panel { position: fixed; top: 0; right: 0; width: 350px; height: 100%; background-color: var(--bg-content); box-shadow: -5px 0 15px var(--shadow-color); transform: translateX(100%); transition: transform 0.3s ease-in-out; z-index: 1010; display: flex; flex-direction: column; }
+    .help-panel.open { transform: translateX(0); }
+    .help-header { padding: 15px 20px; border-bottom: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center; }
+    .help-header h2 { margin: 0; font-size: 1.5em; border: none; padding: 0; }
+    .close-help-btn { background: none; border: none; font-size: 1.8em; cursor: pointer; padding: 0 5px; color: var(--text-secondary); }
+    .help-content { padding: 20px; overflow-y: auto; flex-grow: 1; }
+    .help-content h3 { text-align: left; margin-top: 20px; border-bottom: 2px solid var(--primary-color); padding-bottom: 5px; font-size: 1.2em; }
+    .help-content p, .help-content li { line-height: 1.6; font-size: 0.95em; }
+    .help-content .note { background-color: var(--bg-accent); border-left: 4px solid var(--primary-color); padding: 15px; margin: 15px 0; border-radius: 4px; font-size: 0.9em; }
+    .help-content .formula { text-align: center; font-size: 1em; margin: 10px 0; padding: 10px; background-color: var(--bg-main); border-radius: 4px; font-weight: bold; }
+    @media (max-width: 480px) { .help-panel { width: 100%; } }
     .help-content-section { display: none; }
     .help-content-section.active-help { display: block; }
-    /* --- FIN: ESTILOS DE AYUDA FLOTANTE --- */
 
-    /* --- INICIO: ESTILOS BOTONES FLOTANTES (FAB) --- */
-    .fab-container {
-        position: fixed;
-        bottom: 20px;
-        right: 20px;
-        z-index: 1000;
-        display: flex;
-        flex-direction: column;
-        gap: 15px;
-    }
-    .fab {
-        width: 50px;
-        height: 50px;
-        background-color: var(--secondary-color);
-        color: white;
-        border: none;
-        border-radius: 50%;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        font-size: 1.5em;
-        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-        cursor: pointer;
-        transition: transform 0.2s ease, background-color 0.2s;
-    }
-    .fab:hover {
-        transform: scale(1.1);
-        background-color: #388E3C;
-    }
-    /* --- FIN: ESTILOS BOTONES FLOTANTES (FAB) --- */
+    .fab-container { position: fixed; bottom: 20px; right: 20px; z-index: 1000; display: flex; flex-direction: column; gap: 15px; }
+    .fab { width: 50px; height: 50px; background-color: var(--secondary-color); color: white; border: none; border-radius: 50%; display: flex; justify-content: center; align-items: center; font-size: 1.5em; box-shadow: 0 4px 12px rgba(0,0,0,0.15); cursor: pointer; transition: transform 0.2s ease, background-color 0.2s; }
+    .fab:hover { transform: scale(1.1); background-color: #388E3C; }
+    
+    /* --- ESTILOS NOTAS --- */
+    #admin-notes-container { display: flex; flex-direction: column; gap: 15px; max-height: 50vh; overflow-y: auto; padding: 5px; border: 1px solid var(--border-color); border-radius: 8px; margin-bottom: 20px;}
+    .note-card { background-color: var(--bg-accent); border-radius: 8px; padding: 15px; border-left: 5px solid var(--primary-color); }
+    .note-header { font-size: 0.85em; color: var(--text-secondary); border-bottom: 1px solid var(--border-color); padding-bottom: 8px; margin-bottom: 10px; }
+    .note-header .author { font-weight: bold; color: var(--primary-color); text-transform: capitalize; }
+    .note-body { font-size: 1em; line-height: 1.5; white-space: pre-wrap; word-wrap: break-word; }
+    #responseForm textarea { width: 100%; box-sizing: border-box; resize: vertical; min-height: 80px; }
+    #sendResponseBtn { width: 100%; }
+
   </style>
 </head>
 <body>
@@ -434,7 +270,7 @@
                 <div class="note">
                     <strong>Si ya Tienes una Cuenta (Ingreso):</strong>
                     <ul>
-                        <li>Usa el "Acceso Rápido" para rellenar tus datos o ingrésalos manualmente.</li>
+                        <li>Usa el "Acceso Rápido" para rellenar tus datos o ingrésalos manually.</li>
                         <li>Escribe tu contraseña y presiona "Ingresar o Registrar".</li>
                     </ul>
                 </div>
@@ -451,6 +287,7 @@
                     <li><strong>Retiro de Propina:</strong> Es tu pantalla principal. Aquí ves el resultado final de todos los cálculos según tu tipo de contrato (Planta o Part-Time). Es el resumen que te dice cuánto debes retirar.</li>
                     <li><strong>Montos por Noche:</strong> En esta sección puedes ver el desglose de todas las propinas recaudadas cada día del mes. Los datos se importan automáticamente y aquí puedes revisarlos en detalle.</li>
                     <li><strong>Mis Datos:</strong> Aquí puedes verificar que tu información personal sea correcta, como tu nombre, tipo de contrato y, lo más importante, la <strong>cantidad de puntos</strong> que tienes asignados. También puedes cambiar tu contraseña desde aquí.</li>
+                    <li><strong>Notas Admin:</strong> Un canal de comunicación directo para ver los mensajes del administrador y enviar respuestas.</li>
                 </ul>
 
                 <h3>Conceptos Clave del Cálculo</h3>
@@ -613,6 +450,19 @@
           </div>
           <button id="changePasswordBtn">Cambiar Contraseña</button>
       </section>
+      
+      <!-- INICIO: SECCIÓN DE NOTAS -->
+      <section id="notasSection" class="content-panel">
+          <h2>Comunicación con Administración</h2>
+          <div id="admin-notes-container">
+              <!-- Las notas del admin se cargarán aquí -->
+          </div>
+          <form id="responseForm" style="margin-top: 20px;">
+              <textarea id="responseMessage" placeholder="Escribe tu respuesta o consulta aquí..." rows="4"></textarea>
+              <button type="button" id="sendResponseBtn">Enviar Respuesta</button>
+          </form>
+      </section>
+      <!-- FIN: SECCIÓN DE NOTAS -->
     </div> 
 </div>
 
@@ -743,6 +593,9 @@
 
 <script>
 document.addEventListener('DOMContentLoaded', () => {
+    // URL del script de la app de recaudación para las NOTAS
+    const SCRIPT_URL_NOTAS = 'https://script.google.com/macros/s/AKfycbwhKQTp9kER_H87XLekd3d69u5PK5ZpfpGzKdAtYcfKM0qTUuF5apPvB2UNYSyS2-FR/exec';
+    // URL del script de la app de recaudación para los MONTOS
     const SCRIPT_URL_RECAUDACION = 'https://script.google.com/macros/s/AKfycbxna9EH5LZPTPCPws58pGro6qCrZ8_zNwvUkUHS28BYfd8CsAcD1MRcqlITbDm4lTk/exec'; 
     const loginContainer = document.getElementById('login-container');
     const mainContent = document.getElementById('main-content');
@@ -753,7 +606,6 @@ document.addEventListener('DOMContentLoaded', () => {
     let pendingLoginUser = null; 
     let userToChangePasswordId = null; 
 
-    // --- DATA MANAGEMENT ---
     function getAppData() { return JSON.parse(localStorage.getItem('appData')) || { usuarios: {}, userData: {} }; }
     function saveAppData(data) { localStorage.setItem('appData', JSON.stringify(data)); }
     function getUserData() {
@@ -772,7 +624,6 @@ document.addEventListener('DOMContentLoaded', () => {
         saveAppData(appData);
     }
     
-    // UTILITIES
     function showToast(message, type = 'success') {
         const toastContainer = document.getElementById('toast-container');
         const toast = document.createElement('div');
@@ -785,14 +636,15 @@ document.addEventListener('DOMContentLoaded', () => {
     function formatDate(dateString) { if (!dateString) return ''; const [year, month, day] = dateString.split('-'); return `${day}/${month}/${year}`; }
     function getTodayDateString() { return new Date().toISOString().split('T')[0]; }
     function setupNumericInputFormatting(el) { if(el) el.addEventListener('input', e => { let v = e.target.value.replace(/\./g, ''); e.target.dataset.cleanValue = (isNaN(v) || v === '') ? '' : v; e.target.value = (isNaN(v) || v === '') ? '' : formatNumberWithPoints(parseInt(v, 10)); }); }
+    function formatNoteDate(isoString) { if (!isoString) return 'Fecha desconocida'; const date = new Date(isoString); return date.toLocaleString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' }); }
 
-    // MENU & NAVIGATION
     const setupMenu = () => {
         sideMenu.innerHTML = '<div class="menu-header">Menú</div>';
         const orderedSections = [
             {id: 'retirosPropinaSection', title: 'Retiro de Propina'},
             {id: 'montosSection', title: 'Montos por Noche'},
-            {id: 'datosUsuarioSection', title: 'Mis Datos'}
+            {id: 'datosUsuarioSection', title: 'Mis Datos'},
+            {id: 'notasSection', title: 'Notas Admin'}
         ];
 
         orderedSections.forEach(sectionInfo => {
@@ -813,20 +665,18 @@ document.addEventListener('DOMContentLoaded', () => {
                 const targetPanel = document.getElementById(targetId);
                 if (targetPanel) {
                     targetPanel.classList.add('active');
-                    if (targetId === 'montosSection') {
-                        cargarYMostrarMontos();
-                    }
+                    if (targetId === 'montosSection') cargarYMostrarMontos();
+                    if (targetId === 'notasSection') cargarNotasAdmin();
+                    if (targetId === 'datosUsuarioSection') populateUserDataSection();
                 }
                 document.querySelectorAll('.menu-link').forEach(l => l.classList.remove('active-link'));
                 e.target.classList.add('active-link');
-                if(targetId === 'datosUsuarioSection') populateUserDataSection();
                 if (window.innerWidth < 992) { sideMenu.classList.remove('open'); menuToggle.classList.remove('active'); }
             }
         });
     };
     menuToggle.addEventListener('click', () => { sideMenu.classList.toggle('open'); menuToggle.classList.toggle('active'); });
 
-    // --- HELP PANEL LOGIC ---
     const helpBtn = document.getElementById('help-btn');
     const helpPanel = document.getElementById('help-panel');
     const closeHelpBtn = document.getElementById('close-help-btn');
@@ -835,10 +685,8 @@ document.addEventListener('DOMContentLoaded', () => {
         closeHelpBtn.addEventListener('click', () => helpPanel.classList.remove('open'));
     }
 
-    // --- THEME TOGGLE LOGIC ---
     const themeToggle = document.getElementById('theme-toggle');
     const themeIcon = themeToggle.querySelector('i');
-
     function applyTheme(theme) {
         if (theme === 'dark') {
             document.body.classList.add('dark-mode');
@@ -850,7 +698,6 @@ document.addEventListener('DOMContentLoaded', () => {
             themeIcon.classList.add('fa-moon');
         }
     }
-    
     themeToggle.addEventListener('click', () => {
         const isDarkMode = document.body.classList.contains('dark-mode');
         const newTheme = isDarkMode ? 'light' : 'dark';
@@ -858,23 +705,14 @@ document.addEventListener('DOMContentLoaded', () => {
         applyTheme(newTheme);
     });
 
-    // --- PASSWORD TOGGLE LOGIC ---
     document.querySelectorAll('.password-toggle-icon').forEach(icon => {
         icon.addEventListener('click', () => {
             const passwordInput = icon.previousElementSibling;
-            if (passwordInput.type === 'password') {
-                passwordInput.type = 'text';
-                icon.classList.remove('fa-eye');
-                icon.classList.add('fa-eye-slash');
-            } else {
-                passwordInput.type = 'password';
-                icon.classList.remove('fa-eye-slash');
-                icon.classList.add('fa-eye');
-            }
+            passwordInput.type = (passwordInput.type === 'password') ? 'text' : 'password';
+            icon.classList.toggle('fa-eye'); icon.classList.toggle('fa-eye-slash');
         });
     });
 
-    // --- LOGIN & SESSION FUNCTIONS ---
     function displayRecentLogins() {
         const recentLogins = JSON.parse(localStorage.getItem('recentLogins')) || [];
         const container = document.getElementById('quickAccessUsers');
@@ -885,10 +723,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 const userDiv = document.createElement('div');
                 userDiv.className = 'quick-access-user';
                 userDiv.dataset.userId = user.id;
-                userDiv.innerHTML = `
-                    <button class="delete-user-btn" data-user-id="${user.id}">&times;</button>
-                    <div class="quick-access-avatar">${user.nombre.charAt(0).toUpperCase()}</div>
-                    <div class="quick-access-name">${user.nombre}</div>`;
+                userDiv.innerHTML = `<button class="delete-user-btn" data-user-id="${user.id}">&times;</button><div class="quick-access-avatar">${user.nombre.charAt(0).toUpperCase()}</div><div class="quick-access-name">${user.nombre}</div>`;
                 container.appendChild(userDiv);
             });
         } else {
@@ -918,8 +753,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const deleteButton = e.target.closest('.delete-user-btn');
         if (deleteButton) {
             e.stopPropagation(); 
-            const userId = deleteButton.dataset.userId;
-            deleteUser(userId);
+            deleteUser(deleteButton.dataset.userId);
             return;
         }
 
@@ -928,12 +762,10 @@ document.addEventListener('DOMContentLoaded', () => {
             const userId = userTile.dataset.userId;
             const fullUser = getAppData().usuarios[userId];
             if (fullUser) {
-                document.getElementById('loginNombre').value = fullUser.nombre;
-                document.getElementById('loginApellido').value = fullUser.apellido;
-                document.getElementById('loginTipoContrato').value = fullUser.tipo;
-                document.getElementById('loginSeccion').value = fullUser.seccion;
-                document.getElementById('loginAnio').value = fullUser.anio;
-                document.getElementById('loginPuntos').value = fullUser.puntos;
+                Object.keys(fullUser).forEach(key => {
+                    const input = document.getElementById(`login${key.charAt(0).toUpperCase() + key.slice(1)}`);
+                    if(input) input.value = fullUser[key];
+                });
                 document.getElementById('loginPassword').value = ''; 
                 document.getElementById('loginPassword').focus();   
             }
@@ -1034,7 +866,6 @@ document.addEventListener('DOMContentLoaded', () => {
     
     document.getElementById('logoutBtn').addEventListener('click', () => { localStorage.removeItem('loggedInUser'); location.reload(); });
     
-    // --- PASSWORD & PHONE MODAL LOGIC ---
     document.getElementById('savePhoneBtn').addEventListener('click', () => {
         const phoneInput = document.getElementById('phoneInput');
         const phone = phoneInput.value.trim();
@@ -1075,10 +906,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const phone = document.getElementById('recoverPhoneInput').value.trim();
         const resultDiv = document.getElementById('recoveryResult');
         if (!phone) { showToast("Ingresa un número de teléfono.", "error"); return; }
-
-        const allUsers = Object.values(getAppData().usuarios);
-        const foundUser = allUsers.find(user => user.telefono === phone);
-
+        const foundUser = Object.values(getAppData().usuarios).find(user => user.telefono === phone);
         if (foundUser) {
             userToChangePasswordId = foundUser.id;
             const modal = document.getElementById('forgotPasswordModal');
@@ -1087,9 +915,7 @@ document.addEventListener('DOMContentLoaded', () => {
             modal.querySelector('#verifyPhoneBtn').style.display = 'none';
             modal.querySelector('#saveNewPasswordBtn').style.display = 'inline-block';
         } else {
-            resultDiv.textContent = 'No se encontró ninguna cuenta con ese número.';
-            resultDiv.className = 'error';
-            resultDiv.style.display = 'block';
+            resultDiv.textContent = 'No se encontró ninguna cuenta con ese número.'; resultDiv.className = 'error'; resultDiv.style.display = 'block';
         }
     });
     
@@ -1106,7 +932,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // --- LOGIC FOR USER DATA SECTION ---
     function populateUserDataSection() {
         if (!loggedInUser) return;
         document.getElementById('userDataNombre').textContent = `${loggedInUser.nombre} ${loggedInUser.apellido}`;
@@ -1119,7 +944,6 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('newPasswordLoggedInInput').value = '';
         document.getElementById('changePasswordModal').style.display = 'flex';
     });
-
     document.getElementById('cancelChangePasswordBtn').addEventListener('click', () => {
         document.getElementById('changePasswordModal').style.display = 'none';
     });
@@ -1134,8 +958,6 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('changePasswordModal').style.display = 'none';
     });
 
-
-    // DATA IMPORT
     async function importarDesdeSheets() {
         if (!loggedInUser) return;
         const btn = document.getElementById('importarDesdeSheetsBtn');
@@ -1149,19 +971,14 @@ document.addEventListener('DOMContentLoaded', () => {
             const nuevosMontosDesdeSheet = {};
             result.data.forEach(dato => {
                 const { fecha, tipo, monto } = dato;
-                if (!nuevosMontosDesdeSheet[fecha]) {
-                    nuevosMontosDesdeSheet[fecha] = [];
-                }
+                if (!nuevosMontosDesdeSheet[fecha]) nuevosMontosDesdeSheet[fecha] = [];
                 nuevosMontosDesdeSheet[fecha].push({ area: tipo, monto: parseFloat(monto) });
             });
-
             const userData = getUserData();
             userData.montosPorFecha = nuevosMontosDesdeSheet;
             saveUserData(userData);
-            
             cargarYMostrarMontos();
             showToast("Datos sincronizados con Google Sheets.");
-
         } catch (error) {
             showToast('Error al sincronizar: ' + error.message, 'error');
             console.error("Error detallado:", error);
@@ -1170,7 +987,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // AMOUNTS MANAGEMENT
     function cargarYMostrarMontos() {
         const userData = getUserData();
         const montosPorFecha = userData.montosPorFecha;
@@ -1181,15 +997,10 @@ document.addEventListener('DOMContentLoaded', () => {
         contenedor.innerHTML = '';
         
         let fechasAMostrar = Object.keys(montosPorFecha);
-
-        if (isPartTime) {
-            fechasAMostrar = fechasAMostrar.filter(fecha => diasTrabajados.includes(fecha));
-        }
-
+        if (isPartTime) fechasAMostrar = fechasAMostrar.filter(fecha => diasTrabajados.includes(fecha));
         const fechasOrdenadas = fechasAMostrar.sort((a, b) => b.localeCompare(a));
         
         let totalGeneral = 0;
-        
         fechasOrdenadas.forEach(fecha => {
             const montos = montosPorFecha[fecha];
             let totalFecha = montos.reduce((sum, m) => sum + parseFloat(m.monto), 0);
@@ -1214,7 +1025,6 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
     
-    // CALCULATION LOGIC
     function actualizarCalculoRetiro() { if (!loggedInUser) return; loggedInUser.tipo === 'Planta' ? actualizarCalculoPlanta() : actualizarCalculoPartTime(); }
     function actualizarCalculoPlanta() {
         const userData = getUserData();
@@ -1261,7 +1071,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // CALENDAR LOGIC
     function renderCalendar(container) {
         let date = new Date();
         const render = () => {
@@ -1282,7 +1091,6 @@ document.addEventListener('DOMContentLoaded', () => {
         render();
     }
     
-    // MODAL & ACTIONS LOGIC
     document.getElementById('main-content').addEventListener('click', e => {
         const targetBtn = e.target.closest('button');
         if (targetBtn) {
@@ -1332,18 +1140,10 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    document.getElementById('cancelAddAnticipoBtn').addEventListener('click', () => {
-        document.getElementById('addAnticipoModal').style.display = 'none';
-    });
-    document.getElementById('cancelEditAnticipoBtn').addEventListener('click', () => {
-        document.getElementById('editAnticipoModal').style.display = 'none';
-    });
-    document.getElementById('cancelDivisorBtn').addEventListener('click', () => {
-        document.getElementById('divisorModal').style.display = 'none';
-    });
-    document.getElementById('cancelDivisorPTBtn').addEventListener('click', () => {
-        document.getElementById('divisorPTModal').style.display = 'none';
-    });
+    document.getElementById('cancelAddAnticipoBtn').addEventListener('click', () => { document.getElementById('addAnticipoModal').style.display = 'none'; });
+    document.getElementById('cancelEditAnticipoBtn').addEventListener('click', () => { document.getElementById('editAnticipoModal').style.display = 'none'; });
+    document.getElementById('cancelDivisorBtn').addEventListener('click', () => { document.getElementById('divisorModal').style.display = 'none'; });
+    document.getElementById('cancelDivisorPTBtn').addEventListener('click', () => { document.getElementById('divisorPTModal').style.display = 'none'; });
 
     document.getElementById('saveAddAnticipoBtn').addEventListener('click', () => {
         const monto = parseFloat(document.getElementById('addAnticipoMontoInput').dataset.cleanValue) || 0;
@@ -1386,31 +1186,112 @@ document.addEventListener('DOMContentLoaded', () => {
         actualizarCalculoPartTime(); showToast("Divisor personal guardado.");
     });
 
-    // APP INITIALIZATION
+    // --- NOTAS LOGIC ---
+    async function fetchFromNotasScript(params) {
+        const url = new URL(SCRIPT_URL_NOTAS);
+        Object.keys(params).forEach(key => url.searchParams.append(key, params[key]));
+        try {
+            const response = await fetch(url);
+            if (!response.ok) throw new Error(`Error de red: ${response.statusText}`);
+            return await response.json();
+        } catch (error) {
+            showToast('Error al conectar con el servidor de notas.', 'error');
+            return { status: 'error', message: error.message };
+        }
+    }
+
+    async function postToNotasScript(params, data) {
+        const url = new URL(SCRIPT_URL_NOTAS);
+        Object.keys(params).forEach(key => url.searchParams.append(key, params[key]));
+        try {
+            const response = await fetch(url, {
+                method: 'POST',
+                headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                body: JSON.stringify(data),
+            });
+            if (!response.ok) throw new Error(`Error de red: ${response.statusText}`);
+            return await response.json();
+        } catch (error) {
+            showToast('Error al enviar nota al servidor.', 'error');
+            return { status: 'error', message: error.message };
+        }
+    }
+
+    async function cargarNotasAdmin() {
+        const container = document.getElementById('admin-notes-container');
+        container.innerHTML = '<p>Cargando notas...</p>';
+        const response = await fetchFromNotasScript({ action: 'getNotes' });
+        if (response.status === 'success' && response.data) {
+            const adminNotes = response.data.filter(note => note.autor === 'admin').sort((a,b) => new Date(b.fecha) - new Date(a.fecha));
+            renderizarNotasAdmin(adminNotes);
+        } else {
+            container.innerHTML = '<p>No se pudieron cargar las notas.</p>';
+        }
+    }
+
+    function renderizarNotasAdmin(notes) {
+        const container = document.getElementById('admin-notes-container');
+        container.innerHTML = '';
+        if (notes.length === 0) {
+            container.innerHTML = '<p>No hay mensajes del administrador.</p>';
+            return;
+        }
+        notes.forEach(note => {
+            const noteCard = document.createElement('div');
+            noteCard.className = 'note-card';
+            noteCard.innerHTML = `
+                <div class="note-header">
+                    De: <span class="author">${note.autor}</span> el ${formatNoteDate(note.fecha)}
+                </div>
+                <div class="note-body">${note.mensaje}</div>
+            `;
+            container.appendChild(noteCard);
+        });
+    }
+
+    async function enviarRespuesta() {
+        if (!loggedInUser) return;
+        const messageInput = document.getElementById('responseMessage');
+        const message = messageInput.value.trim();
+        if (!message) {
+            showToast('Escribe un mensaje para enviar.', 'error');
+            return;
+        }
+        const authorName = `${loggedInUser.nombre} ${loggedInUser.apellido}`;
+        const response = await postToNotasScript({ action: 'addNote' }, { autor: authorName, mensaje: message });
+        if (response.status === 'success') {
+            showToast('Respuesta enviada con éxito.');
+            messageInput.value = '';
+        } else {
+            showToast('No se pudo enviar la respuesta.', 'error');
+        }
+    }
+
+    // --- APP INITIALIZATION ---
     function initApp() {
         if (!loggedInUser) return;
-        
         document.getElementById('titulo-retiro').textContent = `Retiro de Propina (${loggedInUser.tipo})`;
-        
         if (loggedInUser.tipo === 'Planta') {
             document.getElementById('vistaPlanta').style.display = 'block'; document.getElementById('vistaPartTime').style.display = 'none';
         } else {
             document.getElementById('vistaPlanta').style.display = 'none'; document.getElementById('vistaPartTime').style.display = 'block';
             renderCalendar(document.getElementById('calendar-container'));
         }
-        cargarYMostrarMontos(); actualizarCalculoRetiro();
+        cargarYMostrarMontos();
+        actualizarCalculoRetiro();
         document.getElementById('importarDesdeSheetsBtn').addEventListener('click', importarDesdeSheets);
+        document.getElementById('sendResponseBtn').addEventListener('click', enviarRespuesta);
         ['addAnticipoMontoInput', 'editAnticipoMontoInput', 'divisorInput', 'divisorPTInput'].forEach(id => setupNumericInputFormatting(document.getElementById(id)));
         importarDesdeSheets();
     }
-    if ('serviceWorker' in navigator) { window.addEventListener('load', () => { navigator.service-worker.register('service-worker.js').then(reg => console.log('SW registered.')).catch(err => console.log('SW registration failed: ', err)); }); }
+    if ('serviceWorker' in navigator) { window.addEventListener('load', () => { navigator.serviceWorker.register('service-worker.js').then(reg => console.log('SW registered.')).catch(err => console.log('SW registration failed: ', err)); }); }
     
-    // Initial theme setup
     const savedTheme = localStorage.getItem('theme') || 'light';
     applyTheme(savedTheme);
-
     checkLogin();
 });
 </script>
 </body>
 </html>
+
+
