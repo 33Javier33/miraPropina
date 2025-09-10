@@ -662,7 +662,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let pendingLoginUser = null; 
     let userToChangePasswordId = null; 
     let notesInterval = null; 
-    let sheetsInterval = null; // <-- INICIO CAMBIO: Nueva variable para el intervalo de Sheets
+    let sheetsInterval = null;
     let allFetchedNotes = [];
 
     // --- Funciones de gestión de datos (localStorage) ---
@@ -932,14 +932,12 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
     
-    // --- INICIO CAMBIO: Limpiar ambos intervalos al cerrar sesión ---
     document.getElementById('logoutBtn').addEventListener('click', () => { 
         if (notesInterval) clearInterval(notesInterval);
         if (sheetsInterval) clearInterval(sheetsInterval);
         localStorage.removeItem('loggedInUser'); 
         location.reload(); 
     });
-    // --- FIN CAMBIO ---
     
     document.getElementById('savePhoneBtn').addEventListener('click', () => {
         const phoneInput = document.getElementById('phoneInput');
@@ -1034,7 +1032,6 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // --- Lógica de la aplicación (Montos, Cálculos, etc.) ---
-    // --- INICIO CAMBIO: Modificación de importarDesdeSheets para modo silencioso ---
     async function importarDesdeSheets(isSilent = false) {
         if (!loggedInUser) return;
         const btn = document.getElementById('importarDesdeSheetsBtn');
@@ -1065,7 +1062,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 showToast("Datos sincronizados con Google Sheets.");
             }
         } catch (error) {
-            showToast('Error al sincronizar: ' + error.message, 'error');
+            if (!isSilent) {
+                showToast('Error al sincronizar: ' + error.message, 'error');
+            }
             console.error("Error detallado:", error);
         } finally {
             if (!isSilent) {
@@ -1074,7 +1073,6 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }
     }
-    // --- FIN CAMBIO ---
 
     function cargarYMostrarMontos() {
         const userData = getUserData();
@@ -1435,9 +1433,8 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         cargarYMostrarMontos();
         actualizarCalculoRetiro();
-        // --- INICIO CAMBIO: Modificación del event listener del botón ---
+
         document.getElementById('importarDesdeSheetsBtn').addEventListener('click', () => importarDesdeSheets(false));
-        // --- FIN CAMBIO ---
         document.getElementById('sendResponseBtn').addEventListener('click', enviarRespuesta);
         ['addAnticipoMontoInput', 'editAnticipoMontoInput', 'divisorInput', 'divisorPTInput'].forEach(id => setupNumericInputFormatting(document.getElementById(id)));
         
@@ -1445,12 +1442,12 @@ document.addEventListener('DOMContentLoaded', () => {
         importarDesdeSheets(true); // Carga silenciosa al inicio
         cargarNotas(); 
         
-        // --- INICIO CAMBIO: Configuración de ambos intervalos ---
+        // --- INICIO CAMBIO: Corregir intervalo de Sheets ---
         if (notesInterval) clearInterval(notesInterval);
         notesInterval = setInterval(cargarNotas, 15000); // 15 segundos para notas
 
         if (sheetsInterval) clearInterval(sheetsInterval);
-        sheetsInterval = setInterval(() => importarDesdeSheets(true), 15 * 60 * 1000); // 15 minutos para Sheets
+        sheetsInterval = setInterval(() => importarDesdeSheets(true), 15000); // 15 segundos para Sheets
         // --- FIN CAMBIO ---
     }
 
