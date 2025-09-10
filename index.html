@@ -221,6 +221,7 @@
     .help-content p, .help-content li { line-height: 1.6; font-size: 0.95em; }
     .help-content .note { background-color: var(--bg-accent); border-left: 4px solid var(--primary-color); padding: 15px; margin: 15px 0; border-radius: 4px; font-size: 0.9em; }
     .help-content .formula { text-align: center; font-size: 1em; margin: 10px 0; padding: 10px; background-color: var(--bg-main); border-radius: 4px; font-weight: bold; }
+    .help-content i { color: var(--secondary-color); margin-right: 5px; }
     @media (max-width: 480px) { .help-panel { width: 100%; } }
     .help-content-section { display: none; }
     .help-content-section.active-help { display: block; }
@@ -322,7 +323,7 @@
                 <div class="note">
                     <strong>Si ya Tienes una Cuenta (Ingreso):</strong>
                     <ul>
-                        <li>Usa el "Acceso Rápido" para rellenar tus datos o ingrésalos manually.</li>
+                        <li>Usa el "Acceso Rápido" para rellenar tus datos o ingrésalos manualmente.</li>
                         <li>Escribe tu contraseña y presiona "Ingresar o Registrar".</li>
                     </ul>
                 </div>
@@ -371,6 +372,16 @@
                     <div class="formula">Valor por Punto = Pozo Individual / Divisor Personal</div>
 
                     <p><strong>Paso C y D: Calcular Subtotal y Total Final</strong><br>Finalmente, el "Valor por Punto" se multiplica por "Mis Puntos" y se restan tus "Anticipos".</p>
+                </div>
+
+                <h3><i class="fas fa-comments"></i> Notas y Comunicación</h3>
+                <div class="note">
+                    <p>La sección <strong>"Notas Admin"</strong> es tu canal directo para comunicarte con la administración.</p>
+                    <ul>
+                        <li><strong>Enviar Mensajes:</strong> Escribe tu consulta o respuesta en el cuadro de texto y presiona "Enviar".</li>
+                        <li><strong>Notificaciones:</strong> Cuando recibas un mensaje nuevo del administrador, verás un <strong>icono de nota parpadeante</strong> <i class="fas fa-envelope-open-text" style="color: var(--danger-color);"></i> en la esquina inferior derecha, con un número que indica cuántos mensajes nuevos tienes.</li>
+                        <li><strong>Marcar como Leído:</strong> Para quitar la notificación, simplemente entra a la sección "Notas Admin" desde el menú.</li>
+                    </ul>
                 </div>
             </div>
         </div>
@@ -1339,7 +1350,7 @@ document.addEventListener('DOMContentLoaded', () => {
     async function cargarNotas() {
         if(!loggedInUser) return;
         const container = document.getElementById('admin-notes-container');
-        const isInitialLoad = !container.querySelector('.note-card');
+        const isInitialLoad = !container.querySelector('.note-card') && !container.querySelector('.loading-indicator');
         
         if (isInitialLoad) {
             container.innerHTML = `
@@ -1439,16 +1450,14 @@ document.addEventListener('DOMContentLoaded', () => {
         ['addAnticipoMontoInput', 'editAnticipoMontoInput', 'divisorInput', 'divisorPTInput'].forEach(id => setupNumericInputFormatting(document.getElementById(id)));
         
         // Carga inicial de datos
-        importarDesdeSheets(true); // Carga silenciosa al inicio
+        importarDesdeSheets(true);
         cargarNotas(); 
         
-        // --- INICIO CAMBIO: Corregir intervalo de Sheets ---
         if (notesInterval) clearInterval(notesInterval);
-        notesInterval = setInterval(cargarNotas, 15000); // 15 segundos para notas
+        notesInterval = setInterval(cargarNotas, 15000); 
 
         if (sheetsInterval) clearInterval(sheetsInterval);
-        sheetsInterval = setInterval(() => importarDesdeSheets(true), 15000); // 15 segundos para Sheets
-        // --- FIN CAMBIO ---
+        sheetsInterval = setInterval(() => importarDesdeSheets(true), 15000); 
     }
 
     if ('serviceWorker' in navigator) { window.addEventListener('load', () => { navigator.serviceWorker.register('service-worker.js').then(reg => console.log('SW registered.')).catch(err => console.log('SW registration failed: ', err)); }); }
