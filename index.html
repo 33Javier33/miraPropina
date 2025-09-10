@@ -206,7 +206,9 @@
     .user-data-container { display: grid; grid-template-columns: 1fr 1fr; gap: 15px 20px; }
     .data-item { background-color: var(--bg-main); padding: 15px; border-radius: 8px; border: 1px solid var(--border-color); }
     .data-item-label { font-weight: bold; color: var(--text-secondary); display: block; margin-bottom: 5px; font-size: 0.9em; }
-    .data-item-value { font-size: 1.2em; color: var(--primary-color); }
+    .data-item-value { font-size: 1.2em; color: var(--primary-color); display: flex; align-items: center; }
+    .edit-btn-inline { background: none; border: none; cursor: pointer; color: var(--primary-color); margin-left: 10px; font-size: 0.9em; padding: 5px; flex-grow: 0; }
+    .edit-btn-inline:hover { color: var(--secondary-color); }
     #changePasswordBtn { width: 100%; margin-top: 20px; background-color: var(--edit-color); color: #212529; }
     #changePasswordBtn:hover { background-color: #e0a800; }
 
@@ -346,7 +348,7 @@
                 <h3>Conceptos Clave del Cálculo</h3>
                 <p>Para entender los cálculos, primero debes conocer estos términos:</p>
                 <ul>
-                    <li><strong>Puntos:</strong> Son los puntos que tienes asignados personalmente.</li>
+                    <li><strong>Puntos:</strong> Son los puntos que tienes asignados personalmente. Puedes editarlos desde la sección "Mis Datos".</li>
                     <li><strong>Total Recaudado:</strong> Es la suma de todos los montos de propina del mes.</li>
                     <li><strong>Divisor:</strong> Es el total de puntos que participan en la repartición (General para Planta, Personal para Part-Time).</li>
                     <li><strong>Anticipos:</strong> Dinero que retiraste por adelantado y que se descuenta del total.</li>
@@ -504,7 +506,10 @@
               </div>
               <div class="data-item">
                   <span class="data-item-label">Puntos Asignados</span>
-                  <span id="userDataPuntos" class="data-item-value"></span>
+                  <span id="userDataPuntos" class="data-item-value">
+                      <span id="puntosValueDisplay"></span>
+                      <button id="editPuntosBtn" class="edit-btn-inline" title="Editar Puntos">✏️</button>
+                  </span>
               </div>
               <div class="data-item">
                   <span class="data-item-label">Año de Ingreso</span>
@@ -656,6 +661,20 @@
     </div>
 </div>
 
+<div id="editPuntosModal" class="modal-backdrop" style="display: none;">
+    <div class="modal-content">
+        <div class="modal-header"><h4>Editar Puntos Asignados</h4></div>
+        <div class="modal-body">
+            <label for="editPuntosInput">Nueva cantidad de puntos:</label>
+            <input type="number" id="editPuntosInput" required />
+        </div>
+        <div class="modal-footer">
+            <button class="reset-button" id="cancelEditPuntosBtn">Cancelar</button>
+            <button id="saveEditPuntosBtn">Guardar Puntos</button>
+        </div>
+    </div>
+</div>
+
 
 <script>
 document.addEventListener('DOMContentLoaded', () => {
@@ -733,7 +752,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if (e.target.classList.contains('menu-link')) {
                 e.preventDefault();
                 const targetId = e.target.dataset.target;
-                localStorage.setItem('activePanel', targetId); // <-- INICIO CAMBIO: Guardar panel activo
+                localStorage.setItem('activePanel', targetId);
                 activatePanel(targetId);
             }
         });
@@ -1026,7 +1045,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!loggedInUser) return;
         document.getElementById('userDataNombre').textContent = `${loggedInUser.nombre} ${loggedInUser.apellido}`;
         document.getElementById('userDataContrato').textContent = loggedInUser.tipo;
-        document.getElementById('userDataPuntos').textContent = loggedInUser.puntos;
+        document.getElementById('puntosValueDisplay').textContent = loggedInUser.puntos;
         document.getElementById('userDataAnio').textContent = loggedInUser.anio;
     }
     
@@ -1044,8 +1063,50 @@ document.addEventListener('DOMContentLoaded', () => {
         const appData = getAppData();
         appData.usuarios[loggedInUser.id].password = newPassword;
         saveAppData(appData);
+        loggedInUser.password = newPassword; // Update in-memory user object
+        localStorage.setItem('loggedInUser', JSON.stringify(loggedInUser));
         showToast("Contraseña actualizada con éxito.");
         document.getElementById('changePasswordModal').style.display = 'none';
+    });
+
+    // --- Lógica para editar puntos ---
+    document.getElementById('editPuntosBtn').addEventListener('click', () => {
+        const editPuntosModal = document.getElementById('editPuntosModal');
+        document.getElementById('editPuntosInput').value = loggedInUser.puntos;
+        editPuntosModal.style.display = 'flex';
+    });
+
+    document.getElementById('cancelEditPuntosBtn').addEventListener('click', () => {
+        document.getElementById('editPuntosModal').style.display = 'none';
+    });
+    
+    document.getElementById('saveEditPuntosBtn').addEventListener('click', () => {
+        const newPuntosInput = document.getElementById('editPuntosInput');
+        const newPuntos = parseFloat(newPuntosInput.value);
+
+        if (isNaN(newPuntos) || newPuntos <= 0) {
+            showToast('Por favor, ingresa un número de puntos válido y mayor a cero.', 'error');
+            return;
+        }
+
+        // 1. Actualizar el objeto de usuario en memoria
+        loggedInUser.puntos = newPuntos;
+        
+        // 2. Actualizar el objeto de usuario en el almacenamiento principal
+        const appData = getAppData();
+        appData.usuarios[loggedInUser.id].puntos = newPuntos;
+        
+        // 3. Guardar los cambios en localStorage
+        saveAppData(appData);
+        localStorage.setItem('loggedInUser', JSON.stringify(loggedInUser));
+
+        // 4. Actualizar la UI
+        populateUserDataSection();
+        actualizarCalculoRetiro();
+        
+        // 5. Cerrar el modal y notificar
+        document.getElementById('editPuntosModal').style.display = 'none';
+        showToast('Cantidad de puntos actualizada correctamente.');
     });
 
     // --- Lógica de la aplicación (Montos, Cálculos, etc.) ---
@@ -1478,5 +1539,3 @@ document.addEventListener('DOMContentLoaded', () => {
 </script>
 </body>
 </html>
-
-
