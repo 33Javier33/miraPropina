@@ -229,6 +229,36 @@
     .fab { width: 50px; height: 50px; background-color: var(--secondary-color); color: white; border: none; border-radius: 50%; display: flex; justify-content: center; align-items: center; font-size: 1.5em; box-shadow: 0 4px 12px rgba(0,0,0,0.15); cursor: pointer; transition: transform 0.2s ease, background-color 0.2s; }
     .fab:hover { transform: scale(1.1); background-color: #388E3C; }
     
+    /* --- INICIO CAMBIO: Estilos para el punto de notificación --- */
+    .notification-dot {
+        position: absolute;
+        top: -4px;
+        right: -4px;
+        width: 15px;
+        height: 15px;
+        background-color: var(--danger-color);
+        border-radius: 50%;
+        border: 2px solid var(--bg-content);
+        z-index: 1001;
+        display: none; /* Oculto por defecto */
+        pointer-events: none;
+    }
+    .notification-dot.visible {
+        display: block;
+    }
+    .notification-dot.blinking {
+        animation: blink 1.5s infinite ease-in-out;
+    }
+    @keyframes blink {
+        0%, 100% { transform: scale(1); opacity: 1; }
+        50% { transform: scale(1.3); opacity: 0.7; }
+    }
+    /* El contenedor del FAB ahora necesita ser relativo para posicionar el punto */
+    .fab-wrapper {
+        position: relative;
+    }
+    /* --- FIN CAMBIO --- */
+    
     /* --- ESTILOS NOTAS --- */
     #admin-notes-container { display: flex; flex-direction: column; gap: 15px; max-height: 50vh; overflow-y: auto; padding: 10px; border: 1px solid var(--border-color); border-radius: 8px; margin-bottom: 20px;}
     .note-card { background-color: var(--bg-accent); border-radius: 8px; padding: 15px; border-left: 5px solid var(--primary-color); max-width: 80%; }
@@ -236,17 +266,15 @@
     .note-header .author { font-weight: bold; color: var(--primary-color); text-transform: capitalize; }
     .note-body { font-size: 1em; line-height: 1.5; white-space: pre-wrap; word-wrap: break-word; }
     
-    /* --- INICIO CAMBIO: Estilo para las notas del usuario --- */
     .note-card.user-note {
-        align-self: flex-end; /* Alinear a la derecha */
+        align-self: flex-end;
         border-left: none;
         border-right: 5px solid var(--secondary-color);
-        background-color: #e8f5e9; /* Un verde claro para distinguir */
+        background-color: #e8f5e9;
     }
     body.dark-mode .note-card.user-note {
-        background-color: #2a3b2b; /* Un verde oscuro para el modo oscuro */
+        background-color: #2a3b2b;
     }
-    /* --- FIN CAMBIO --- */
     
     #responseForm textarea { width: 100%; box-sizing: border-box; resize: vertical; min-height: 80px; }
     #sendResponseBtn { width: 100%; }
@@ -464,7 +492,6 @@
           <button id="changePasswordBtn">Cambiar Contraseña</button>
       </section>
       
-      <!-- INICIO: SECCIÓN DE NOTAS -->
       <section id="notasSection" class="content-panel">
           <h2>Comunicación con Administración</h2>
           <div id="admin-notes-container">
@@ -475,15 +502,20 @@
               <button type="button" id="sendResponseBtn">Enviar Respuesta</button>
           </form>
       </section>
-      <!-- FIN: SECCIÓN DE NOTAS -->
     </div> 
 </div>
 
+<!-- INICIO CAMBIO: Envoltura para el FAB y el punto de notificación -->
 <div class="fab-container">
-    <button id="theme-toggle" class="fab" title="Cambiar Tema">
-        <i class="fas fa-moon"></i>
-    </button>
+    <div class="fab-wrapper">
+        <div id="notification-dot" class="notification-dot"></div>
+        <button id="theme-toggle" class="fab" title="Cambiar Tema">
+            <i class="fas fa-moon"></i>
+        </button>
+    </div>
 </div>
+<!-- FIN CAMBIO -->
+
 
 <footer>
     CarlosPN Interactive®
@@ -606,10 +638,11 @@
 
 <script>
 document.addEventListener('DOMContentLoaded', () => {
-    // URL del script de la app de recaudación para las NOTAS
+    // --- URLs de los scripts ---
     const SCRIPT_URL_NOTAS = 'https://script.google.com/macros/s/AKfycbwhKQTp9kER_H87XLekd3d69u5PK5ZpfpGzKdAtYcfKM0qTUuF5apPvB2UNYSyS2-FR/exec';
-    // URL del script de la app de recaudación para los MONTOS
     const SCRIPT_URL_RECAUDACION = 'https://script.google.com/macros/s/AKfycbxna9EH5LZPTPCPws58pGro6qCrZ8_zNwvUkUHS28BYfd8CsAcD1MRcqlITbDm4lTk/exec'; 
+    
+    // --- Variables globales y de estado ---
     const loginContainer = document.getElementById('login-container');
     const mainContent = document.getElementById('main-content');
     const menuToggle = document.getElementById('menuToggle');
@@ -618,8 +651,10 @@ document.addEventListener('DOMContentLoaded', () => {
     let currentEditAnticipoId = null;
     let pendingLoginUser = null; 
     let userToChangePasswordId = null; 
-    let notesInterval = null; // --- INICIO CAMBIO: Variable para el intervalo de actualización de notas
+    let notesInterval = null; 
+    let allFetchedNotes = []; // Almacena todas las notas para acceso rápido
 
+    // --- Funciones de gestión de datos (localStorage) ---
     function getAppData() { return JSON.parse(localStorage.getItem('appData')) || { usuarios: {}, userData: {} }; }
     function saveAppData(data) { localStorage.setItem('appData', JSON.stringify(data)); }
     function getUserData() {
@@ -638,6 +673,7 @@ document.addEventListener('DOMContentLoaded', () => {
         saveAppData(appData);
     }
     
+    // --- Funciones de utilidad ---
     function showToast(message, type = 'success') {
         const toastContainer = document.getElementById('toast-container');
         const toast = document.createElement('div');
@@ -652,6 +688,7 @@ document.addEventListener('DOMContentLoaded', () => {
     function setupNumericInputFormatting(el) { if(el) el.addEventListener('input', e => { let v = e.target.value.replace(/\./g, ''); e.target.dataset.cleanValue = (isNaN(v) || v === '') ? '' : v; e.target.value = (isNaN(v) || v === '') ? '' : formatNumberWithPoints(parseInt(v, 10)); }); }
     function formatNoteDate(isoString) { if (!isoString) return 'Fecha desconocida'; const date = new Date(isoString); return date.toLocaleString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' }); }
 
+    // --- Lógica del menú y la interfaz principal ---
     const setupMenu = () => {
         sideMenu.innerHTML = '<div class="menu-header">Menú</div>';
         const orderedSections = [
@@ -675,12 +712,17 @@ document.addEventListener('DOMContentLoaded', () => {
             if (e.target.classList.contains('menu-link')) {
                 e.preventDefault();
                 const targetId = e.target.dataset.target;
+
+                if (targetId === 'notasSection') {
+                    markNotesAsRead(); // Marcar como leído al entrar a la sección
+                }
+
                 document.querySelectorAll('#main-content > section.content-panel').forEach(panel => panel.classList.remove('active'));
                 const targetPanel = document.getElementById(targetId);
                 if (targetPanel) {
                     targetPanel.classList.add('active');
                     if (targetId === 'montosSection') cargarYMostrarMontos();
-                    if (targetId === 'notasSection') cargarNotas(); // --- CAMBIO: Llamar a la nueva función de carga
+                    if (targetId === 'notasSection') cargarNotas();
                     if (targetId === 'datosUsuarioSection') populateUserDataSection();
                 }
                 document.querySelectorAll('.menu-link').forEach(l => l.classList.remove('active-link'));
@@ -727,6 +769,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
+    // --- Lógica de autenticación y sesión de usuario ---
     function displayRecentLogins() {
         const recentLogins = JSON.parse(localStorage.getItem('recentLogins')) || [];
         const container = document.getElementById('quickAccessUsers');
@@ -879,7 +922,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
     
     document.getElementById('logoutBtn').addEventListener('click', () => { 
-        if (notesInterval) clearInterval(notesInterval); // --- CAMBIO: Limpiar el intervalo al cerrar sesión
+        if (notesInterval) clearInterval(notesInterval);
         localStorage.removeItem('loggedInUser'); 
         location.reload(); 
     });
@@ -976,6 +1019,7 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('changePasswordModal').style.display = 'none';
     });
 
+    // --- Lógica de la aplicación (Montos, Cálculos, etc.) ---
     async function importarDesdeSheets() {
         if (!loggedInUser) return;
         const btn = document.getElementById('importarDesdeSheetsBtn');
@@ -1204,7 +1248,7 @@ document.addEventListener('DOMContentLoaded', () => {
         actualizarCalculoPartTime(); showToast("Divisor personal guardado.");
     });
 
-    // --- NOTAS LOGIC ---
+    // --- Lógica de notas, notificaciones y comunicación ---
     async function fetchFromNotasScript(params) {
         const url = new URL(SCRIPT_URL_NOTAS);
         Object.keys(params).forEach(key => url.searchParams.append(key, params[key]));
@@ -1214,7 +1258,6 @@ document.addEventListener('DOMContentLoaded', () => {
             return await response.json();
         } catch (error) {
             console.error('Error al conectar con el servidor de notas.', error);
-            // No mostramos toast en cada fetch para no molestar al usuario en segundo plano
             return { status: 'error', message: error.message };
         }
     }
@@ -1236,27 +1279,52 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // --- INICIO CAMBIO: Función modificada para cargar todas las notas (admin y usuario) ---
+    function checkForUnread(notes) {
+        if (!loggedInUser) return;
+        const notificationDot = document.getElementById('notification-dot');
+        if (notes && notes.length > 0) {
+            const sortedNotes = [...notes].sort((a,b) => new Date(a.fecha) - new Date(b.fecha));
+            const lastNoteTimestamp = new Date(sortedNotes[sortedNotes.length - 1].fecha).getTime();
+            const lastReadTimestamp = parseInt(localStorage.getItem(`lastReadTimestamp_${loggedInUser.id}`), 10) || 0;
+
+            if (lastNoteTimestamp > lastReadTimestamp) {
+                notificationDot.classList.add('visible', 'blinking');
+            } else {
+                notificationDot.classList.remove('visible', 'blinking');
+            }
+        } else {
+            notificationDot.classList.remove('visible', 'blinking');
+        }
+    }
+
+    function markNotesAsRead() {
+        if (!loggedInUser || allFetchedNotes.length === 0) return;
+        const sortedNotes = [...allFetchedNotes].sort((a,b) => new Date(a.fecha) - new Date(b.fecha));
+        const lastNoteTimestamp = new Date(sortedNotes[sortedNotes.length - 1].fecha).getTime();
+        localStorage.setItem(`lastReadTimestamp_${loggedInUser.id}`, lastNoteTimestamp);
+        
+        document.getElementById('notification-dot').classList.remove('visible', 'blinking');
+    }
+
     async function cargarNotas() {
         if(!loggedInUser) return;
         const container = document.getElementById('admin-notes-container');
         const response = await fetchFromNotasScript({ action: 'getNotes' });
         if (response.status === 'success' && response.data) {
-            // Ya no filtramos, solo ordenamos por fecha.
-            const allNotes = response.data.sort((a,b) => new Date(a.fecha) - new Date(b.fecha));
-            renderizarNotas(allNotes);
+            allFetchedNotes = response.data;
+            renderizarNotas(allFetchedNotes);
+            checkForUnread(allFetchedNotes);
         } else {
              if (container.innerHTML.includes('Cargando')) {
                 container.innerHTML = '<p>No se pudieron cargar las notas.</p>';
             }
+            checkForUnread(allFetchedNotes);
         }
     }
-    // --- FIN CAMBIO ---
 
-    // --- INICIO CAMBIO: Función modificada para renderizar todas las notas y distinguir las del usuario ---
     function renderizarNotas(notes) {
         const container = document.getElementById('admin-notes-container');
-        const shouldScroll = container.scrollTop + container.clientHeight === container.scrollHeight;
+        const shouldScroll = container.scrollTop + container.clientHeight >= container.scrollHeight - 20;
         container.innerHTML = '';
         
         if (notes.length === 0) {
@@ -1264,17 +1332,15 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
+        const sortedNotes = [...notes].sort((a,b) => new Date(a.fecha) - new Date(b.fecha));
         const currentUserFullName = `${loggedInUser.nombre} ${loggedInUser.apellido}`;
 
-        notes.forEach(note => {
+        sortedNotes.forEach(note => {
             const noteCard = document.createElement('div');
             noteCard.className = 'note-card';
-            
-            // Si el autor de la nota es el usuario actual, añade una clase especial
             if (note.autor === currentUserFullName) {
                 noteCard.classList.add('user-note');
             }
-
             noteCard.innerHTML = `
                 <div class="note-header">
                     De: <span class="author">${note.autor}</span> el ${formatNoteDate(note.fecha)}
@@ -1284,12 +1350,10 @@ document.addEventListener('DOMContentLoaded', () => {
             container.appendChild(noteCard);
         });
 
-        // Auto-scroll hacia abajo para ver el último mensaje
-        if (shouldScroll || container.children.length > 0) {
+        if (shouldScroll) {
             container.scrollTop = container.scrollHeight;
         }
     }
-    // --- FIN CAMBIO ---
 
     async function enviarRespuesta() {
         if (!loggedInUser) return;
@@ -1304,13 +1368,13 @@ document.addEventListener('DOMContentLoaded', () => {
         if (response.status === 'success') {
             showToast('Respuesta enviada con éxito.');
             messageInput.value = '';
-            cargarNotas(); // --- CAMBIO: Actualizar las notas inmediatamente después de enviar
+            cargarNotas();
         } else {
             showToast('No se pudo enviar la respuesta.', 'error');
         }
     }
 
-    // --- APP INITIALIZATION ---
+    // --- Inicialización de la aplicación ---
     function initApp() {
         if (!loggedInUser) return;
         document.getElementById('titulo-retiro').textContent = `Retiro de Propina (${loggedInUser.tipo})`;
@@ -1327,11 +1391,11 @@ document.addEventListener('DOMContentLoaded', () => {
         ['addAnticipoMontoInput', 'editAnticipoMontoInput', 'divisorInput', 'divisorPTInput'].forEach(id => setupNumericInputFormatting(document.getElementById(id)));
         importarDesdeSheets();
         
-        // --- INICIO CAMBIO: Iniciar la actualización automática de notas cada 15 segundos ---
-        if (notesInterval) clearInterval(notesInterval); // Limpiar cualquier intervalo anterior
+        cargarNotas(); // Carga inicial de notas para ver si hay notificaciones pendientes
+        if (notesInterval) clearInterval(notesInterval);
         notesInterval = setInterval(cargarNotas, 15000);
-        // --- FIN CAMBIO ---
     }
+
     if ('serviceWorker' in navigator) { window.addEventListener('load', () => { navigator.serviceWorker.register('service-worker.js').then(reg => console.log('SW registered.')).catch(err => console.log('SW registration failed: ', err)); }); }
     
     const savedTheme = localStorage.getItem('theme') || 'light';
@@ -1341,4 +1405,5 @@ document.addEventListener('DOMContentLoaded', () => {
 </script>
 </body>
 </html>
+
 
