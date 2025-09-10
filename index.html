@@ -431,7 +431,7 @@
         </div>
       </div>
       
-      <section id="retirosPropinaSection" class="content-panel active">
+      <section id="retirosPropinaSection" class="content-panel">
           <h2 id="titulo-retiro">Retiro de Propina</h2>
           <div id="vistaPlanta" style="display: none;">
               <div class="retiro-container">
@@ -725,7 +725,6 @@ document.addEventListener('DOMContentLoaded', () => {
             if(section) {
                 const link = document.createElement('a');
                 link.href = '#'; link.textContent = sectionInfo.title; link.className = 'menu-link'; link.dataset.target = section.id;
-                if (section.classList.contains('active')) link.classList.add('active-link');
                 sideMenu.appendChild(link);
             }
         });
@@ -734,25 +733,32 @@ document.addEventListener('DOMContentLoaded', () => {
             if (e.target.classList.contains('menu-link')) {
                 e.preventDefault();
                 const targetId = e.target.dataset.target;
-
-                if (targetId === 'notasSection') {
-                    markNotesAsRead();
-                }
-
-                document.querySelectorAll('#main-content > section.content-panel').forEach(panel => panel.classList.remove('active'));
-                const targetPanel = document.getElementById(targetId);
-                if (targetPanel) {
-                    targetPanel.classList.add('active');
-                    if (targetId === 'montosSection') cargarYMostrarMontos();
-                    if (targetId === 'notasSection') cargarNotas();
-                    if (targetId === 'datosUsuarioSection') populateUserDataSection();
-                }
-                document.querySelectorAll('.menu-link').forEach(l => l.classList.remove('active-link'));
-                e.target.classList.add('active-link');
-                if (window.innerWidth < 992) { sideMenu.classList.remove('open'); menuToggle.classList.remove('active'); }
+                localStorage.setItem('activePanel', targetId); // <-- INICIO CAMBIO: Guardar panel activo
+                activatePanel(targetId);
             }
         });
     };
+
+    function activatePanel(panelId) {
+        document.querySelectorAll('#main-content > section.content-panel').forEach(panel => panel.classList.remove('active'));
+        const targetPanel = document.getElementById(panelId);
+        if (targetPanel) {
+            targetPanel.classList.add('active');
+            if (panelId === 'montosSection') cargarYMostrarMontos();
+            if (panelId === 'notasSection') cargarNotas();
+            if (panelId === 'datosUsuarioSection') populateUserDataSection();
+        }
+
+        document.querySelectorAll('.menu-link').forEach(l => l.classList.remove('active-link'));
+        const activeLink = document.querySelector(`.menu-link[data-target="${panelId}"]`);
+        if(activeLink) activeLink.classList.add('active-link');
+
+        if (window.innerWidth < 992) { 
+            sideMenu.classList.remove('open'); 
+            menuToggle.classList.remove('active'); 
+        }
+    }
+
     menuToggle.addEventListener('click', () => { sideMenu.classList.toggle('open'); menuToggle.classList.toggle('active'); });
 
     const helpBtn = document.getElementById('help-btn');
@@ -1442,7 +1448,10 @@ document.addEventListener('DOMContentLoaded', () => {
             document.getElementById('vistaPlanta').style.display = 'none'; document.getElementById('vistaPartTime').style.display = 'block';
             renderCalendar(document.getElementById('calendar-container'));
         }
-        cargarYMostrarMontos();
+        
+        const savedPanelId = localStorage.getItem('activePanel') || 'retirosPropinaSection';
+        activatePanel(savedPanelId);
+
         actualizarCalculoRetiro();
 
         document.getElementById('importarDesdeSheetsBtn').addEventListener('click', () => importarDesdeSheets(false));
