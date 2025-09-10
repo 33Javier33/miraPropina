@@ -601,8 +601,7 @@
       <section id="notasSection" class="content-panel">
           <h2>Comunicación con Administración</h2>
           <div id="admin-notes-container">
-              <!-- Las notas se cargarán aquí -->
-          </div>
+              </div>
           <form id="responseForm" style="margin-top: 20px;">
               <textarea id="responseMessage" placeholder="Escribe tu respuesta o consulta aquí..." rows="4"></textarea>
               <button type="button" id="sendResponseBtn">Enviar Respuesta</button>
@@ -631,7 +630,6 @@
 
 <div id="toast-container"></div>
 
-<!-- All Modals -->
 <div id="addAnticipoModal" class="modal-backdrop" style="display: none;">
     <div class="modal-content">
         <div class="modal-header"><h4>Registrar Anticipo</h4></div>
@@ -1294,13 +1292,23 @@ document.addEventListener('DOMContentLoaded', () => {
         const div = userData.divisor || 0;
         const anticiposTotal = (userData.anticipos || []).reduce((s, a) => s + a.monto, 0);
         const vpp = div > 0 ? (total / div) : 0; const sub = vpp * p; const res = sub - anticiposTotal;
+        const resultadoFinalEl = document.getElementById('resultadoFinalPlanta');
+        
         document.getElementById('puntosUsuarioDisplayPlanta').textContent = p;
         document.getElementById('totalMontoDividirPlanta').textContent = `$${formatNumberWithPoints(total)}`;
         document.getElementById('divisorDisplayPlanta').textContent = div > 0 ? formatNumberWithPoints(div) : 'N/A';
         document.getElementById('valorPorPuntoDisplayPlanta').textContent = `$${formatNumberWithPoints(vpp)}`;
         document.getElementById('subtotalDisplayPlanta').textContent = `$${formatNumberWithPoints(sub)}`;
         document.getElementById('anticiposDisplayPlanta').textContent = `-$${formatNumberWithPoints(anticiposTotal)}`;
-        document.getElementById('resultadoFinalPlanta').textContent = `$${formatNumberWithPoints(res)}`;
+        
+        resultadoFinalEl.textContent = `$${formatNumberWithPoints(res)}`;
+        // Cambio de color si es negativo
+        if (res < 0) {
+            resultadoFinalEl.style.color = 'var(--danger-color)';
+        } else {
+            resultadoFinalEl.style.color = 'var(--primary-color)';
+        }
+        
         renderAnticiposList('#anticipos-list-container-planta');
     }
     function actualizarCalculoPartTime() {
@@ -1310,6 +1318,8 @@ document.addEventListener('DOMContentLoaded', () => {
         const div = userData.divisorPartTime || 1;
         const anticiposTotal = (userData.anticipos || []).reduce((s, a) => s + a.monto, 0);
         const vpp = div > 0 ? (pozo / div) : 0; const sub = vpp * p; const res = sub - anticiposTotal;
+        const resultadoFinalEl = document.getElementById('resultadoFinalPT');
+
         document.getElementById('puntosUsuarioDisplayPT').textContent = p;
         document.getElementById('diasTrabajadosDisplayPT').textContent = dias.length;
         document.getElementById('pozoIndividualDisplayPT').textContent = `$${formatNumberWithPoints(pozo)}`;
@@ -1317,7 +1327,15 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('valorPorPuntoDisplayPT').textContent = `$${formatNumberWithPoints(vpp)}`;
         document.getElementById('subtotalDisplayPT').textContent = `$${formatNumberWithPoints(sub)}`;
         document.getElementById('anticiposDisplayPT').textContent = `-$${formatNumberWithPoints(anticiposTotal)}`;
-        document.getElementById('resultadoFinalPT').textContent = `$${formatNumberWithPoints(res)}`;
+        
+        resultadoFinalEl.textContent = `$${formatNumberWithPoints(res)}`;
+        // Cambio de color si es negativo
+        if (res < 0) {
+            resultadoFinalEl.style.color = 'var(--danger-color)';
+        } else {
+            resultadoFinalEl.style.color = 'var(--primary-color)';
+        }
+        
         renderAnticiposList('#anticipos-list-container-pt');
     }
     function renderAnticiposList(containerSelector) {
@@ -1771,4 +1789,3 @@ document.addEventListener('DOMContentLoaded', () => {
 </script>
 </body>
 </html>
-
