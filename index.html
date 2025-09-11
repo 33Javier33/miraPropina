@@ -1274,12 +1274,15 @@ document.addEventListener('DOMContentLoaded', () => {
         actualizarCalculoRetiro();
         contenedor.addEventListener('click', e => {
             if (e.target.classList.contains('delete-button')) {
-                const { fecha, index } = e.target.dataset;
-                const userData = getUserData();
-                userData.montosPorFecha[fecha].splice(index, 1);
-                if (userData.montosPorFecha[fecha].length === 0) delete userData.montosPorFecha[fecha];
-                saveUserData(userData);
-                cargarYMostrarMontos(); showToast("Monto eliminado.");
+                if(confirm('¿Seguro que quieres eliminar este monto? Esta acción no se puede deshacer.')) {
+                    const { fecha, index } = e.target.dataset;
+                    const userData = getUserData();
+                    userData.montosPorFecha[fecha].splice(index, 1);
+                    if (userData.montosPorFecha[fecha].length === 0) delete userData.montosPorFecha[fecha];
+                    saveUserData(userData);
+                    cargarYMostrarMontos(); 
+                    showToast("Monto eliminado.");
+                }
             }
         });
     }
@@ -1302,7 +1305,6 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('anticiposDisplayPlanta').textContent = `-$${formatNumberWithPoints(anticiposTotal)}`;
         
         resultadoFinalEl.textContent = `$${formatNumberWithPoints(res)}`;
-        // Cambio de color si es negativo
         if (res < 0) {
             resultadoFinalEl.style.color = 'var(--danger-color)';
         } else {
@@ -1329,7 +1331,6 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('anticiposDisplayPT').textContent = `-$${formatNumberWithPoints(anticiposTotal)}`;
         
         resultadoFinalEl.textContent = `$${formatNumberWithPoints(res)}`;
-        // Cambio de color si es negativo
         if (res < 0) {
             resultadoFinalEl.style.color = 'var(--danger-color)';
         } else {
@@ -1376,7 +1377,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const id = targetBtn.id;
             if (id === 'registrarDivisorBtn') document.getElementById('divisorModal').style.display = 'flex';
             if (id === 'registrarAnticipoBtn') { document.getElementById('addAnticipoModal').style.display = 'flex'; document.getElementById('addAnticipoFechaInput').value = getTodayDateString(); }
-            if (id === 'resetMesBtn') { if (confirm('¿Estás SEGURO de reiniciar el mes?')) { let userData = getUserData(); userData.montosPorFecha = {}; userData.anticipos = []; userData.divisor = 0; userData.diasTrabajados = []; saveUserData(userData); showToast('Datos reiniciados.'); setTimeout(() => location.reload(), 1000); }}
+            if (id === 'resetMesBtn') { if (confirm('¿Estás SEGURO de reiniciar el mes? ¡Se borrarán todos los montos y anticipos de forma permanente!')) { let userData = getUserData(); userData.montosPorFecha = {}; userData.anticipos = []; userData.divisor = 0; userData.diasTrabajados = []; saveUserData(userData); showToast('Datos reiniciados.'); setTimeout(() => location.reload(), 1000); }}
             if (id === 'registrarDivisorPTBtn') {
                 const input = document.getElementById('divisorPTInput');
                 const userData = getUserData();
@@ -1390,8 +1391,12 @@ document.addEventListener('DOMContentLoaded', () => {
             const anticipoId = Number(anticipoBtn.dataset.id);
             let userData = getUserData();
             if (anticipoBtn.classList.contains('delete-anticipo-btn')) {
-                userData.anticipos = userData.anticipos.filter(a => a.id !== anticipoId);
-                saveUserData(userData); actualizarCalculoRetiro(); showToast("Anticipo eliminado.");
+                if (confirm('¿Estás seguro de que quieres eliminar este anticipo? Esta acción no se puede deshacer.')) {
+                    userData.anticipos = userData.anticipos.filter(a => a.id !== anticipoId);
+                    saveUserData(userData); 
+                    actualizarCalculoRetiro(); 
+                    showToast("Anticipo eliminado.");
+                }
             }
             if (anticipoBtn.classList.contains('edit-anticipo-btn')) {
                 const anticipoToEdit = userData.anticipos.find(a => a.id === anticipoId);
