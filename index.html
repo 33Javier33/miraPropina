@@ -787,6 +787,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const mainContent = document.getElementById('main-content');
     const menuToggle = document.getElementById('menuToggle');
     const sideMenu = document.getElementById('sideMenu');
+    const mainContainer = document.getElementById('mainContainer');
     let loggedInUser = null;
     let currentEditAnticipoId = null;
     let pendingLoginUser = null; 
@@ -879,7 +880,18 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    menuToggle.addEventListener('click', () => { sideMenu.classList.toggle('open'); menuToggle.classList.toggle('active'); });
+    menuToggle.addEventListener('click', (event) => {
+        event.stopPropagation(); // Evita que el clic se propague al mainContainer
+        sideMenu.classList.toggle('open');
+        menuToggle.classList.toggle('active');
+    });
+    
+    mainContainer.addEventListener('click', () => {
+        if (sideMenu.classList.contains('open') && window.innerWidth < 992) {
+            sideMenu.classList.remove('open');
+            menuToggle.classList.remove('active');
+        }
+    });
 
     const helpBtn = document.getElementById('help-btn');
     const helpPanel = document.getElementById('help-panel');
@@ -1794,3 +1806,5 @@ document.addEventListener('DOMContentLoaded', () => {
 </script>
 </body>
 </html>
+
+
