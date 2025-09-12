@@ -131,20 +131,17 @@
     h1 { text-align: center; margin-bottom: 20px; font-size: 2em; }
     section { margin-bottom: 30px; background: var(--bg-content); padding: 20px; border-radius: 8px; box-shadow: 0 2px 8px var(--shadow-color); }
     h2 { margin-top: 0; margin-bottom: 15px; font-size: 1.7em; border-bottom: 2px solid var(--bg-main); padding-bottom: 10px; }
+    h3 { margin-top: 0; margin-bottom: 10px; font-size: 1.3em; color: var(--text-primary); }
     #totalDiario { font-weight: bold; font-size: 1.5em; margin: 15px 0; color: var(--primary-color); text-align: center; }
     form { display: flex; flex-wrap: wrap; gap: 10px; }
     input, select, button, textarea { padding: 12px; border: 1px solid var(--border-color); border-radius: 6px; font-size: 1em; background-color: var(--bg-content); color: var(--text-primary); }
     input:focus, textarea:focus { border-color: var(--secondary-color); outline: none; }
-    button { background-color: var(--secondary-color); color: #fff; border: none; font-weight: bold; cursor: pointer; flex-grow: 1; }
-    button:hover { background-color: #388E3C; }
+    button { background-color: var(--secondary-color); color: #fff; border: none; font-weight: bold; cursor: pointer; flex-grow: 1; display: inline-flex; justify-content: center; align-items: center; gap: 8px; }
+    button:hover { opacity: 0.9; }
     .reset-button { background-color: var(--danger-color); }
-    .reset-button:hover { background-color: #c82333; }
     .edit-button-modal { background-color: var(--edit-color); color: #212529;}
-    .edit-button-modal:hover { background-color: #e0a800; }
     #importarDesdeSheetsBtn { background-color: var(--info-color); }
-    #importarDesdeSheetsBtn:hover { background-color: #138496; }
     .logout-button { background-color: var(--danger-color); font-weight: normal; padding: 8px 12px; font-size: 0.9em; flex-grow: 0; }
-    .logout-button:hover { background-color: #c82333; }
     #tarjetasMontos { display: flex; flex-direction: column; gap: 10px; margin-top: 20px; }
     .tarjeta { background-color: var(--bg-content); border-radius: 12px; box-shadow: 0 4px 12px var(--shadow-color); padding: 15px; border-left: 4px solid var(--primary-color); }
     .tarjeta h3 { margin: 0 0 8px 0; font-size: 1.1em; cursor: pointer; display: flex; justify-content: space-between; }
@@ -215,7 +212,6 @@
     .edit-btn-inline { background: none; border: none; cursor: pointer; color: var(--primary-color); margin-left: 10px; font-size: 0.9em; padding: 5px; flex-grow: 0; }
     .edit-btn-inline:hover { color: var(--secondary-color); }
     #changePasswordBtn { width: 100%; margin-top: 20px; background-color: var(--edit-color); color: #212529; }
-    #changePasswordBtn:hover { background-color: #e0a800; }
 
     .help-button { position: fixed; top: 15px; right: 15px; width: 40px; height: 40px; background-color: var(--info-color); color: white; border: none; border-radius: 50%; font-size: 1.5em; font-weight: bold; cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.15); z-index: 1002; display: flex; justify-content: center; align-items: center; }
     .help-panel { position: fixed; top: 0; right: 0; width: 350px; height: 100%; background-color: var(--bg-content); box-shadow: -5px 0 15px var(--shadow-color); transform: translateX(100%); transition: transform 0.3s ease-in-out; z-index: 1010; display: flex; flex-direction: column; }
@@ -420,7 +416,7 @@
                 <ul>
                     <li><strong>Retiro de Propina:</strong> Es tu pantalla principal. Aquí ves el resultado final de todos los cálculos según tu tipo de contrato (Planta o Part-Time). Es el resumen que te dice cuánto debes retirar.</li>
                     <li><strong>Montos por Noche:</strong> En esta sección puedes ver el desglose de todas las propinas recaudadas cada día del mes. Los datos se importan automáticamente y aquí puedes revisarlos en detalle.</li>
-                    <li><strong>Mis Datos:</strong> Aquí puedes verificar que tu información personal sea correcta, como tu nombre, tipo de contrato y, lo más importante, la <strong>cantidad de puntos</strong> que tienes asignados. También puedes cambiar tu contraseña desde aquí.</li>
+                    <li><strong>Mis Datos:</strong> Aquí puedes verificar que tu información personal sea correcta, como tu nombre, tipo de contrato y, lo más importante, la <strong>cantidad de puntos</strong> que tienes asignados. También puedes cambiar tu contraseña y realizar respaldos de datos desde aquí.</li>
                     <li><strong>Notas Admin:</strong> Un canal de comunicación directo para ver los mensajes del administrador y enviar respuestas.</li>
                 </ul>
 
@@ -596,6 +592,19 @@
               </div>
           </div>
           <button id="changePasswordBtn">Cambiar Contraseña</button>
+          
+          <div style="margin-top: 30px; border-top: 1px solid var(--border-color); padding-top: 20px;">
+              <h3>Respaldo y Recuperación</h3>
+              <p style="font-size: 0.9em; color: var(--text-secondary);">Guarda una copia de seguridad de todos los datos de la aplicación (incluyendo todos los usuarios registrados en este dispositivo) o restaura desde un archivo previo.</p>
+              <div style="display: flex; gap: 10px; margin-top: 15px;">
+                  <button id="exportDataBtn" style="background-color: var(--info-color);">
+                      <i class="fas fa-download"></i> Exportar Datos (JSON)
+                  </button>
+                  <button id="importDataBtn" style="background-color: var(--edit-color); color: #212529;">
+                      <i class="fas fa-upload"></i> Importar Datos (JSON)
+                  </button>
+              </div>
+          </div>
       </section>
       
       <section id="notasSection" class="content-panel">
@@ -774,6 +783,8 @@
         </div>
     </div>
 </div>
+
+<input type="file" id="importFileInput" style="display: none;" accept="application/json">
 
 
 <script>
@@ -1213,6 +1224,91 @@ document.addEventListener('DOMContentLoaded', () => {
         
         document.getElementById('editPuntosModal').style.display = 'none';
         showToast('Cantidad de puntos actualizada correctamente.');
+    });
+    
+    // --- Lógica de Respaldo y Recuperación ---
+    document.getElementById('exportDataBtn')?.addEventListener('click', () => {
+        try {
+            const appData = localStorage.getItem('appData');
+            if (!appData || appData === '{}') {
+                showToast('No hay datos para respaldar.', 'error');
+                return;
+            }
+
+            const dataBlob = new Blob([appData], { type: 'application/json' });
+            const url = URL.createObjectURL(dataBlob);
+            const anchor = document.createElement('a');
+            
+            const date = new Date();
+            const dateString = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+            anchor.href = url;
+            anchor.download = `respaldo_registros_${dateString}.json`;
+            
+            document.body.appendChild(anchor);
+            anchor.click();
+            document.body.removeChild(anchor);
+            
+            URL.revokeObjectURL(url);
+            showToast('Respaldo generado con éxito.');
+
+        } catch (error) {
+            console.error('Error al exportar datos:', error);
+            showToast('Ocurrió un error al generar el respaldo.', 'error');
+        }
+    });
+
+    document.getElementById('importDataBtn')?.addEventListener('click', () => {
+        document.getElementById('importFileInput').click();
+    });
+
+    document.getElementById('importFileInput')?.addEventListener('change', (event) => {
+        const file = event.target.files[0];
+        const inputElement = event.target; 
+
+        if (!file) { return; }
+
+        const reader = new FileReader();
+        
+        reader.onload = (e) => {
+            try {
+                const jsonContent = e.target.result;
+                const parsedData = JSON.parse(jsonContent);
+
+                if (typeof parsedData.usuarios !== 'object' || typeof parsedData.userData !== 'object') {
+                    throw new Error('El archivo no tiene el formato esperado.');
+                }
+
+                const confirmation = confirm(
+                    '¡ADVERTENCIA!\n\n' +
+                    'Estás a punto de reemplazar TODOS los datos actuales con los del archivo. Esta acción no se puede deshacer.\n\n' +
+                    '¿Deseas continuar?'
+                );
+
+                if (confirmation) {
+                    if (localStorage.getItem('loggedInUser')) {
+                        localStorage.removeItem('loggedInUser');
+                    }
+                    
+                    localStorage.setItem('appData', jsonContent);
+                    showToast('Datos restaurados. La página se recargará.');
+                    setTimeout(() => location.reload(), 2000);
+                } else {
+                    showToast('Restauración cancelada.');
+                }
+            } catch (error) {
+                console.error('Error al importar datos:', error);
+                showToast(`Error al procesar el archivo: ${error.message}`, 'error');
+            } finally {
+                inputElement.value = '';
+            }
+        };
+
+        reader.onerror = () => {
+            showToast('No se pudo leer el archivo seleccionado.', 'error');
+            inputElement.value = '';
+        };
+
+        reader.readAsText(file);
     });
 
     // --- Lógica de la aplicación (Montos, Cálculos, etc.) ---
@@ -1658,7 +1754,7 @@ document.addEventListener('DOMContentLoaded', () => {
         4.  **Mis Datos:**
             -   Muestra la información personal del usuario: nombre, contrato, año y puntos.
             -   **Importante:** El usuario PUEDE editar su cantidad de puntos asignados desde esta sección. Hay un botón con un lápiz para hacerlo.
-            -   El usuario también puede cambiar su contraseña desde aquí.
+            -   El usuario también puede cambiar su contraseña y realizar respaldos de datos (exportar/importar JSON) desde aquí.
         5.  **Notas Admin:**
             -   Es un chat para comunicarse con la administración.
             -   Muestra notificaciones con un ícono parpadeante cuando hay mensajes nuevos.
@@ -1806,5 +1902,3 @@ document.addEventListener('DOMContentLoaded', () => {
 </script>
 </body>
 </html>
-
-
