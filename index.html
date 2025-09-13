@@ -488,7 +488,18 @@
               <option value="Bóveda">Bóveda</option>
               <option value="Otros">Otros</option>
           </select>
-          <input type="number" id="loginAnio" placeholder="Año de ingreso" required />
+          <div style="display: flex; gap: 10px; width: 100%; align-items: center;">
+            <label for="loginDia" style="font-size: 0.9em; color: var(--text-secondary); white-space: nowrap;">F. Ingreso:</label>
+            <select id="loginDia" required style="flex: 1 1 70px;">
+              <option value="">Día</option>
+              <script>for(let i=1;i<=31;i++)document.write(`<option value="${i}">${i}</option>`);</script>
+            </select>
+            <select id="loginMes" required style="flex: 1 1 70px;">
+              <option value="">Mes</option>
+              <script>for(let i=1;i<=12;i++)document.write(`<option value="${i}">${i}</option>`);</script>
+            </select>
+            <input type="number" id="loginAnio" placeholder="Año" required style="flex: 1 1 90px;" />
+          </div>
           <input type="number" id="loginPuntos" placeholder="Cantidad de Puntos" required />
           <div class="password-wrapper">
             <input type="password" id="loginPassword" placeholder="Contraseña" required />
@@ -588,8 +599,8 @@
                   </span>
               </div>
               <div class="data-item">
-                  <span class="data-item-label">Año de Ingreso</span>
-                  <span id="userDataAnio" class="data-item-value"></span>
+                  <span class="data-item-label">Fecha de Ingreso</span>
+                  <span id="userDataFechaIngreso" class="data-item-value"></span>
               </div>
           </div>
           <button id="changePasswordBtn">Cambiar Contraseña</button>
@@ -1093,9 +1104,11 @@ document.addEventListener('DOMContentLoaded', () => {
         const nombre = document.getElementById('loginNombre').value.trim();
         const apellido = document.getElementById('loginApellido').value.trim();
         const password = document.getElementById('loginPassword').value;
+        const dia = document.getElementById('loginDia').value;
+        const mes = document.getElementById('loginMes').value;
         const anio = document.getElementById('loginAnio').value;
 
-        if (!nombre || !apellido || !password || !anio) { showToast("Todos los campos son requeridos.", "error"); return; }
+        if (!nombre || !apellido || !password || !dia || !mes || !anio) { showToast("Todos los campos son requeridos.", "error"); return; }
         const userId = `${nombre.toLowerCase()}-${apellido.toLowerCase()}`;
         const appData = getAppData();
         let existingUser = appData.usuarios[userId];
@@ -1106,6 +1119,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 existingUser.tipo = document.getElementById('loginTipoContrato').value;
                 existingUser.seccion = document.getElementById('loginSeccion').value;
                 existingUser.puntos = parseFloat(document.getElementById('loginPuntos').value) || 0;
+                existingUser.dia = dia;
+                existingUser.mes = mes;
                 existingUser.anio = anio;
                 appData.usuarios[userId] = existingUser;
                 saveAppData(appData);
@@ -1125,6 +1140,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 id: userId, nombre: nombre, apellido: apellido, 
                 tipo: document.getElementById('loginTipoContrato').value, 
                 seccion: document.getElementById('loginSeccion').value, 
+                dia: dia,
+                mes: mes,
                 anio: anio,
                 puntos: parseFloat(document.getElementById('loginPuntos').value) || 0, 
                 password: password, telefono: ''
@@ -1216,7 +1233,12 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('userDataNombre').textContent = `${loggedInUser.nombre} ${loggedInUser.apellido}`;
         document.getElementById('userDataContrato').textContent = loggedInUser.tipo;
         document.getElementById('puntosValueDisplay').textContent = loggedInUser.puntos;
-        document.getElementById('userDataAnio').textContent = loggedInUser.anio;
+        const fechaIngresoEl = document.getElementById('userDataFechaIngreso');
+        if (loggedInUser.dia && loggedInUser.mes) {
+            fechaIngresoEl.textContent = `${String(loggedInUser.dia).padStart(2, '0')}/${String(loggedInUser.mes).padStart(2, '0')}/${loggedInUser.anio}`;
+        } else {
+            fechaIngresoEl.textContent = loggedInUser.anio; // Fallback for old users
+        }
     }
     
     document.getElementById('changePasswordBtn').addEventListener('click', () => {
@@ -1808,3 +1830,4 @@ document.addEventListener('DOMContentLoaded', () => {
 </script>
 </body>
 </html>
+
