@@ -797,17 +797,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- Lógica para Cierre de Sesión por Inactividad ---
     let inactivityTimer;
-    // Puedes cambiar el tiempo aquí. Está en milisegundos (15 minutos = 15 * 60 * 1000).
     const INACTIVITY_TIMEOUT = 15 * 60 * 1000; 
 
     function logoutDueToInactivity() {
         showToast('Se ha cerrado la sesión por inactividad.', 'info');
-        // Detener intervalos para evitar ejecuciones en segundo plano
         if (notesInterval) clearInterval(notesInterval);
         if (sheetsInterval) clearInterval(sheetsInterval);
-        
         localStorage.removeItem('loggedInUser');
-        // Pequeño retraso para que el usuario pueda ver el mensaje antes de recargar
         setTimeout(() => location.reload(), 2000);
     }
 
@@ -815,8 +811,7 @@ document.addEventListener('DOMContentLoaded', () => {
         clearTimeout(inactivityTimer);
         inactivityTimer = setTimeout(logoutDueToInactivity, INACTIVITY_TIMEOUT);
     }
-    // --- Fin de la lógica de inactividad ---
-
+    
     // --- Variables globales y de estado ---
     const loginContainer = document.getElementById('login-container');
     const mainContent = document.getElementById('main-content');
@@ -857,13 +852,10 @@ document.addEventListener('DOMContentLoaded', () => {
         console.log('No se enviarán datos a Sheets (URL no configurada o usuario no válido).');
         return;
       }
-
       try {
-        const response = await fetch(SCRIPT_URL_LOGIN, {
+        await fetch(SCRIPT_URL_LOGIN, {
           method: 'POST',
-          headers: {
-            'Content-Type': 'text/plain;charset=utf-8',
-          },
+          headers: { 'Content-Type': 'text/plain;charset=utf-8' },
           body: JSON.stringify(user),
           mode: 'no-cors' 
         });
@@ -924,7 +916,9 @@ document.addEventListener('DOMContentLoaded', () => {
             targetPanel.classList.add('active');
             if (panelId === 'montosSection') cargarYMostrarMontos();
             if (panelId === 'notasSection') cargarNotas();
-            if (panelId === 'datosUsuarioSection') populateUserDataSection();
+            if (panelId === 'datosUsuarioSection') {
+                populateUserDataSection();
+            }
         }
 
         document.querySelectorAll('.menu-link').forEach(l => l.classList.remove('active-link'));
@@ -1099,13 +1093,23 @@ document.addEventListener('DOMContentLoaded', () => {
         const nombre = document.getElementById('loginNombre').value.trim();
         const apellido = document.getElementById('loginApellido').value.trim();
         const password = document.getElementById('loginPassword').value;
-        if (!nombre || !apellido || !password) { showToast("Nombre, Apellido y Contraseña son requeridos.", "error"); return; }
+        const anio = document.getElementById('loginAnio').value;
+
+        if (!nombre || !apellido || !password || !anio) { showToast("Todos los campos son requeridos.", "error"); return; }
         const userId = `${nombre.toLowerCase()}-${apellido.toLowerCase()}`;
         const appData = getAppData();
         let existingUser = appData.usuarios[userId];
         
         if (existingUser) { 
             if (existingUser.password === password) {
+                // Actualizar datos del usuario existente con los del formulario
+                existingUser.tipo = document.getElementById('loginTipoContrato').value;
+                existingUser.seccion = document.getElementById('loginSeccion').value;
+                existingUser.puntos = parseFloat(document.getElementById('loginPuntos').value) || 0;
+                existingUser.anio = anio;
+                appData.usuarios[userId] = existingUser;
+                saveAppData(appData);
+
                 pendingLoginUser = existingUser;
                 if (!pendingLoginUser.telefono) {
                     document.getElementById('phoneModal').style.display = 'flex';
@@ -1121,7 +1125,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 id: userId, nombre: nombre, apellido: apellido, 
                 tipo: document.getElementById('loginTipoContrato').value, 
                 seccion: document.getElementById('loginSeccion').value, 
-                anio: document.getElementById('loginAnio').value, 
+                anio: anio,
                 puntos: parseFloat(document.getElementById('loginPuntos').value) || 0, 
                 password: password, telefono: ''
             };
@@ -1276,23 +1280,18 @@ document.addEventListener('DOMContentLoaded', () => {
                 showToast('No hay datos para respaldar.', 'error');
                 return;
             }
-
             const dataBlob = new Blob([appData], { type: 'application/json' });
             const url = URL.createObjectURL(dataBlob);
             const anchor = document.createElement('a');
-            
             const date = new Date();
             const dateString = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
             anchor.href = url;
             anchor.download = `respaldo_registros_${dateString}.json`;
-            
             document.body.appendChild(anchor);
             anchor.click();
             document.body.removeChild(anchor);
-            
             URL.revokeObjectURL(url);
             showToast('Respaldo generado con éxito.');
-
         } catch (error) {
             console.error('Error al exportar datos:', error);
             showToast('Ocurrió un error al generar el respaldo.', 'error');
@@ -1306,31 +1305,20 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('importFileInput')?.addEventListener('change', (event) => {
         const file = event.target.files[0];
         const inputElement = event.target; 
-
         if (!file) { return; }
-
         const reader = new FileReader();
-        
         reader.onload = (e) => {
             try {
                 const jsonContent = e.target.result;
                 const parsedData = JSON.parse(jsonContent);
-
                 if (typeof parsedData.usuarios !== 'object' || typeof parsedData.userData !== 'object') {
                     throw new Error('El archivo no tiene el formato esperado.');
                 }
-
-                const confirmation = confirm(
-                    '¡ADVERTENCIA!\n\n' +
-                    'Estás a punto de reemplazar TODOS los datos actuales con los del archivo. Esta acción no se puede deshacer.\n\n' +
-                    '¿Deseas continuar?'
-                );
-
+                const confirmation = confirm('¡ADVERTENCIA!\n\nEstás a punto de reemplazar TODOS los datos actuales con los del archivo. Esta acción no se puede deshacer.\n\n¿Deseas continuar?');
                 if (confirmation) {
                     if (localStorage.getItem('loggedInUser')) {
                         localStorage.removeItem('loggedInUser');
                     }
-                    
                     localStorage.setItem('appData', jsonContent);
                     showToast('Datos restaurados. La página se recargará.');
                     setTimeout(() => location.reload(), 2000);
@@ -1344,12 +1332,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 inputElement.value = '';
             }
         };
-
         reader.onerror = () => {
             showToast('No se pudo leer el archivo seleccionado.', 'error');
             inputElement.value = '';
         };
-
         reader.readAsText(file);
     });
 
@@ -1357,18 +1343,15 @@ document.addEventListener('DOMContentLoaded', () => {
     async function importarDesdeSheets(isSilent = false) {
         if (!loggedInUser) return;
         const btn = document.getElementById('importarDesdeSheetsBtn');
-        
         if (!isSilent) {
             btn.textContent = 'Sincronizando...';
             btn.disabled = true;
         }
-
         try {
             const response = await fetch(`${SCRIPT_URL_RECAUDACION}?action=get`);
             if (!response.ok) throw new Error(`Error de red: ${response.statusText}`);
             const result = await response.json();
             if (result.status !== 'success' || !result.data) throw new Error(result.message || 'La respuesta no fue exitosa.');
-            
             const nuevosMontosDesdeSheet = {};
             result.data.forEach(dato => {
                 const { fecha, tipo, monto } = dato;
@@ -1379,7 +1362,6 @@ document.addEventListener('DOMContentLoaded', () => {
             userData.montosPorFecha = nuevosMontosDesdeSheet;
             saveUserData(userData);
             cargarYMostrarMontos();
-            
             if (!isSilent) {
                 showToast("Datos sincronizados con Google Sheets.");
             }
@@ -1455,11 +1437,7 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('anticiposDisplayPlanta').textContent = `-$${formatNumberWithPoints(anticiposTotal)}`;
         
         resultadoFinalEl.textContent = `$${formatNumberWithPoints(res)}`;
-        if (res < 0) {
-            resultadoFinalEl.style.color = 'var(--danger-color)';
-        } else {
-            resultadoFinalEl.style.color = 'var(--primary-color)';
-        }
+        resultadoFinalEl.style.color = (res < 0) ? 'var(--danger-color)' : 'var(--primary-color)';
         
         renderAnticiposList('#anticipos-list-container-planta');
     }
@@ -1481,11 +1459,7 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('anticiposDisplayPT').textContent = `-$${formatNumberWithPoints(anticiposTotal)}`;
         
         resultadoFinalEl.textContent = `$${formatNumberWithPoints(res)}`;
-        if (res < 0) {
-            resultadoFinalEl.style.color = 'var(--danger-color)';
-        } else {
-            resultadoFinalEl.style.color = 'var(--primary-color)';
-        }
+        resultadoFinalEl.style.color = (res < 0) ? 'var(--danger-color)' : 'var(--primary-color)';
         
         renderAnticiposList('#anticipos-list-container-pt');
     }
@@ -1653,19 +1627,11 @@ document.addEventListener('DOMContentLoaded', () => {
     
     function checkForUnread(notes) {
         if (!loggedInUser) return;
-        
         const notificationFab = document.getElementById('notification-fab');
         const notificationCount = document.getElementById('note-notification-count');
-        
         const lastReadTimestamp = parseInt(localStorage.getItem(`lastReadTimestamp_${loggedInUser.id}`), 10) || 0;
-        
-        const unreadAdminNotes = notes.filter(note => 
-            note.autor.toLowerCase() === 'admin' && 
-            new Date(note.fecha).getTime() > lastReadTimestamp
-        );
-        
+        const unreadAdminNotes = notes.filter(note => note.autor.toLowerCase() === 'admin' && new Date(note.fecha).getTime() > lastReadTimestamp);
         const unreadCount = unreadAdminNotes.length;
-
         if (unreadCount > 0) {
             notificationCount.textContent = unreadCount;
             notificationFab.style.display = 'flex';
@@ -1687,17 +1653,10 @@ document.addEventListener('DOMContentLoaded', () => {
         if(!loggedInUser) return;
         const container = document.getElementById('admin-notes-container');
         const isInitialLoad = !container.querySelector('.note-card') && !container.querySelector('.loading-indicator');
-        
         if (isInitialLoad) {
-            container.innerHTML = `
-                <div class="loading-indicator">
-                    <i class="fas fa-spinner fa-spin"></i>
-                    <span>Cargando mensajes...</span>
-                </div>`;
+            container.innerHTML = `<div class="loading-indicator"><i class="fas fa-spinner fa-spin"></i><span>Cargando mensajes...</span></div>`;
         }
-
         const response = await fetchFromNotasScript({ action: 'getNotes' });
-
         if (response.status === 'success' && response.data) {
             allFetchedNotes = response.data;
             renderizarNotas(allFetchedNotes);
@@ -1713,30 +1672,21 @@ document.addEventListener('DOMContentLoaded', () => {
     function renderizarNotas(notes) {
         const container = document.getElementById('admin-notes-container');
         container.innerHTML = '';
-        
         if (notes.length === 0) {
             container.innerHTML = '<p>No hay mensajes. ¡Sé el primero en escribir!</p>';
             return;
         }
-
         const sortedNotes = [...notes].sort((a,b) => new Date(a.fecha) - new Date(b.fecha));
         const currentUserFullName = `${loggedInUser.nombre} ${loggedInUser.apellido}`;
-
         sortedNotes.forEach(note => {
             const noteCard = document.createElement('div');
             noteCard.className = 'note-card';
             if (note.autor === currentUserFullName) {
                 noteCard.classList.add('user-note');
             }
-            noteCard.innerHTML = `
-                <div class="note-header">
-                    De: <span class="author">${note.autor}</span> el ${formatNoteDate(note.fecha)}
-                </div>
-                <div class="note-body">${note.mensaje}</div>
-            `;
+            noteCard.innerHTML = `<div class="note-header">De: <span class="author">${note.autor}</span> el ${formatNoteDate(note.fecha)}</div><div class="note-body">${note.mensaje}</div>`;
             container.appendChild(noteCard);
         });
-
         container.scrollTop = container.scrollHeight;
     }
 
@@ -1744,10 +1694,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!loggedInUser) return;
         const messageInput = document.getElementById('responseMessage');
         const message = messageInput.value.trim();
-        if (!message) {
-            showToast('Escribe un mensaje para enviar.', 'error');
-            return;
-        }
+        if (!message) { showToast('Escribe un mensaje para enviar.', 'error'); return; }
         const authorName = `${loggedInUser.nombre} ${loggedInUser.apellido}`;
         const response = await postToNotasScript({ action: 'addNote' }, { autor: authorName, mensaje: message });
         if (response.status === 'success') {
@@ -1760,12 +1707,8 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     document.getElementById('notification-fab').addEventListener('click', () => {
-        document.querySelectorAll('#main-content > section.content-panel').forEach(panel => panel.classList.remove('active'));
-        document.getElementById('notasSection').classList.add('active');
-        document.querySelectorAll('.menu-link').forEach(l => l.classList.remove('active-link'));
-        document.querySelector('.menu-link[data-target="notasSection"]').classList.add('active-link');
+        activatePanel('notasSection');
         markNotesAsRead();
-        cargarNotas();
     });
 
     // --- Lógica del Asistente de IA ---
@@ -1776,104 +1719,32 @@ document.addEventListener('DOMContentLoaded', () => {
     const aiInputField = document.getElementById('ai-input-field');
     const chatContainer = document.getElementById('chat-container');
 
-    const SYSTEM_PROMPT = `
-        Eres un asistente de IA amigable y servicial, integrado en una aplicación web para que el personal de un casino calcule sus propinas. Tu única función es responder preguntas sobre cómo funciona la aplicación, basándote exclusivamente en la información que te proporciono a continuación. Debes responder siempre en español.
+    const SYSTEM_PROMPT = `Eres un asistente de IA amigable y servicial, integrado en una aplicación web para que el personal de un casino calcule sus propinas. Tu única función es responder preguntas sobre cómo funciona la aplicación, basándote exclusivamente en la información que te proporciono a continuación. Debes responder siempre en español. **Descripción General de la Aplicación:** La aplicación permite a los empleados registrarse, ver las propinas recaudadas diariamente, calcular su retiro mensual según su tipo de contrato y comunicarse con la administración. **Secciones de la Aplicación:** 1.  **Login y Registro:** Para registrarse, el usuario debe llenar todos los campos y crear una contraseña. Para iniciar sesión, puede usar el "Acceso Rápido" o ingresar sus datos y contraseña. Se requiere un número de teléfono para la recuperación de contraseña. 2.  **Retiro de Propina (Pantalla Principal):** Muestra el cálculo final de lo que el usuario debe retirar. El cálculo es diferente para personal de "Planta" y "Part-Time". 3.  **Montos por Noche:** Muestra un desglose de todas las propinas recaudadas cada día del mes, sincronizadas desde un Google Sheet. 4.  **Mis Datos:** Muestra la información del usuario: nombre, contrato, puntos y año de ingreso. **Importante:** El usuario PUEDE editar su cantidad de puntos asignados desde esta sección. También puede cambiar su contraseña y realizar respaldos de datos. 5.  **Notas Admin:** Es un chat para comunicarse con la administración. **Detalles de los Cálculos (Planta):** 1. **Valor por Punto** = (Total Recaudado del mes) / (Divisor General registrado). 2. **Subtotal** = (Valor por Punto) x (Mis Puntos). 3. **Total a Retirar** = (Subtotal) - (Total de Anticipos). **Detalles de los Cálculos (Part-Time):** 1. El usuario debe marcar en un calendario los días que trabajó. 2. **Pozo Individual** = Suma de las propinas de SOLO los días marcados. 3. **Valor por Punto** = (Pozo Individual) / (Divisor Personal). 4. **Subtotal** = (Valor por Punto) x (Mis Puntos). 5. **Total a Retirar** = (Subtotal) - (Total de Anticipos). **Reglas de Interacción:** - Si te preguntan algo no relacionado con la app, responde amablemente que solo puedes ayudar con preguntas sobre el funcionamiento de esta app. - Sé claro, conciso y utiliza un lenguaje sencillo. - Usa negritas para resaltar conceptos clave.`;
 
-        **Descripción General de la Aplicación:**
-        La aplicación permite a los empleados registrarse, ver las propinas recaudadas diariamente, calcular su retiro mensual según su tipo de contrato y comunicarse con la administración.
-
-        **Secciones de la Aplicación:**
-        1.  **Login y Registro:**
-            -   Para registrarse, el usuario debe llenar todos los campos (nombre, apellido, tipo de contrato, sección, año de ingreso, puntos) y crear una contraseña.
-            -   Para iniciar sesión, puede usar el "Acceso Rápido" o ingresar sus datos y contraseña.
-            -   Se requiere un número de teléfono para la recuperación de contraseña.
-        2.  **Retiro de Propina (Pantalla Principal):**
-            -   Muestra el cálculo final de lo que el usuario debe retirar.
-            -   El cálculo es diferente para personal de "Planta" y "Part-Time".
-        3.  **Montos por Noche:**
-            -   Muestra un desglose de todas las propinas recaudadas cada día del mes.
-            -   Los datos se sincronizan desde un Google Sheet. El usuario puede forzar una sincronización.
-        4.  **Mis Datos:**
-            -   Muestra la información personal del usuario: nombre, contrato, año y puntos.
-            -   **Importante:** El usuario PUEDE editar su cantidad de puntos asignados desde esta sección. Hay un botón con un lápiz para hacerlo.
-            -   El usuario también puede cambiar su contraseña y realizar respaldos de datos (exportar/importar JSON) desde aquí.
-        5.  **Notas Admin:**
-            -   Es un chat para comunicarse con la administración.
-            -   Muestra notificaciones con un ícono parpadeante cuando hay mensajes nuevos.
-
-        **Detalles de los Cálculos:**
-        -   **Personal de Planta:**
-            1.  **Valor por Punto** = (Total Recaudado del mes) / (Divisor General registrado).
-            2.  **Subtotal** = (Valor por Punto) x (Mis Puntos).
-            3.  **Total a Retirar** = (Subtotal) - (Total de Anticipos).
-        -   **Personal Part-Time:**
-            1.  El usuario debe marcar en un calendario los días que trabajó.
-            2.  **Pozo Individual** = Suma de las propinas de SOLO los días marcados.
-            3.  **Valor por Punto** = (Pozo Individual) / (Divisor Personal).
-            4.  **Subtotal** = (Valor por Punto) x (Mis Puntos).
-            5.  **Total a Retirar** = (Subtotal) - (Total de Anticipos).
-
-        **Reglas de Interacción:**
-        -   Si te preguntan algo que no está relacionado con la aplicación (ej: el clima, historia, etc.), responde amablemente que solo puedes ayudar con preguntas sobre el funcionamiento de esta app.
-        -   Sé claro, conciso y utiliza un lenguaje sencillo.
-        -   Usa negritas para resaltar conceptos clave como **Puntos**, **Divisor General** o **Pozo Individual**.
-    `;
-
-    aiAssistantFab.addEventListener('click', () => {
-        aiAssistantModal.style.display = 'flex';
-    });
-    closeAiAssistantBtn.addEventListener('click', () => {
-        aiAssistantModal.style.display = 'none';
-    });
-
-    aiInputForm.addEventListener('submit', (e) => {
-        e.preventDefault();
-        handleAiQuery();
-    });
+    aiAssistantFab.addEventListener('click', () => aiAssistantModal.style.display = 'flex');
+    closeAiAssistantBtn.addEventListener('click', () => aiAssistantModal.style.display = 'none');
+    aiInputForm.addEventListener('submit', e => { e.preventDefault(); handleAiQuery(); });
 
     async function handleAiQuery() {
         if (isAiThinking) return;
         const userQuery = aiInputField.value.trim();
         if (!userQuery) return;
-
-        const apiKey = 'AIzaSyAwaiImE4mA9gzxcbA9HUpIgJGG7jsPnQY'; // Clave API integrada
-
+        const apiKey = 'AIzaSyAwaiImE4mA9gzxcbA9HUpIgJGG7jsPnQY';
         isAiThinking = true;
         addMessageToChat(userQuery, 'user');
         aiInputField.value = '';
-        addMessageToChat('...', 'ai', true); // Thinking indicator
-
+        addMessageToChat('...', 'ai', true);
         try {
             const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=${apiKey}`;
-            const payload = {
-                contents: [{ parts: [{ text: userQuery }] }],
-                systemInstruction: { parts: [{ text: SYSTEM_PROMPT }] },
-            };
-            
-            const response = await fetch(apiUrl, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(payload)
-            });
-
+            const payload = { contents: [{ parts: [{ text: userQuery }] }], systemInstruction: { parts: [{ text: SYSTEM_PROMPT }] } };
+            const response = await fetch(apiUrl, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
             const result = await response.json();
-
-            if (!response.ok) {
-                 const errorText = result?.error?.message || `Error: ${response.statusText}`;
-                 throw new Error(errorText);
-            }
-
-            const aiResponse = result.candidates?.[0]?.content?.parts?.[0]?.text || "No pude procesar tu solicitud en este momento.";
-            
+            if (!response.ok) { throw new Error(result?.error?.message || `Error: ${response.statusText}`); }
+            const aiResponse = result.candidates?.[0]?.content?.parts?.[0]?.text || "No pude procesar tu solicitud.";
             updateLastAiMessage(aiResponse);
-
         } catch (error) {
             console.error("AI Assistant Error:", error);
-            let errorMessage = "Lo siento, ocurrió un error. Por favor, intenta de nuevo más tarde.";
-            if (error.message.includes("API key not valid")) {
-                errorMessage = "La clave API configurada no es válida. Por favor, avisa al administrador.";
-            }
-            updateLastAiMessage(errorMessage);
+            updateLastAiMessage("Lo siento, ocurrió un error. Por favor, intenta de nuevo más tarde.");
         } finally {
             isAiThinking = false;
         }
@@ -1882,14 +1753,12 @@ document.addEventListener('DOMContentLoaded', () => {
     function addMessageToChat(text, type, isThinking = false) {
         const messageDiv = document.createElement('div');
         messageDiv.className = `chat-message ${type}`;
-        
         if (isThinking) {
             messageDiv.classList.add('thinking');
             messageDiv.innerHTML = `<span class="dot"></span><span class="dot"></span><span class="dot"></span>`;
         } else {
             messageDiv.textContent = text;
         }
-        
         chatContainer.appendChild(messageDiv);
         chatContainer.scrollTop = chatContainer.scrollHeight;
     }
@@ -1898,7 +1767,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const thinkingMessage = chatContainer.querySelector('.chat-message.thinking');
         if (thinkingMessage) {
             thinkingMessage.classList.remove('thinking');
-            thinkingMessage.innerHTML = ''; // Clear dots
+            thinkingMessage.innerHTML = '';
             thinkingMessage.textContent = text;
         }
         chatContainer.scrollTop = chatContainer.scrollHeight;
@@ -1907,13 +1776,8 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- Inicialización de la aplicación ---
     function initApp() {
         if (!loggedInUser) return;
-        
-        // Iniciar el temporizador de inactividad
-        ['mousemove', 'mousedown', 'keydown', 'touchstart'].forEach(event => {
-            window.addEventListener(event, resetInactivityTimer);
-        });
-        resetInactivityTimer(); // Iniciar el primer temporizador
-
+        ['mousemove', 'mousedown', 'keydown', 'touchstart'].forEach(event => window.addEventListener(event, resetInactivityTimer));
+        resetInactivityTimer();
         document.getElementById('titulo-retiro').textContent = `Retiro de Propina (${loggedInUser.tipo})`;
         if (loggedInUser.tipo === 'Planta') {
             document.getElementById('vistaPlanta').style.display = 'block'; document.getElementById('vistaPartTime').style.display = 'none';
@@ -1921,23 +1785,16 @@ document.addEventListener('DOMContentLoaded', () => {
             document.getElementById('vistaPlanta').style.display = 'none'; document.getElementById('vistaPartTime').style.display = 'block';
             renderCalendar(document.getElementById('calendar-container'));
         }
-        
         const savedPanelId = localStorage.getItem('activePanel') || 'retirosPropinaSection';
         activatePanel(savedPanelId);
-
         actualizarCalculoRetiro();
-
         document.getElementById('importarDesdeSheetsBtn').addEventListener('click', () => importarDesdeSheets(false));
         document.getElementById('sendResponseBtn').addEventListener('click', enviarRespuesta);
         ['addAnticipoMontoInput', 'editAnticipoMontoInput', 'divisorInput', 'divisorPTInput'].forEach(id => setupNumericInputFormatting(document.getElementById(id)));
-        
-        // Carga inicial de datos
         importarDesdeSheets(true);
         cargarNotas(); 
-        
         if (notesInterval) clearInterval(notesInterval);
         notesInterval = setInterval(cargarNotas, 15000); 
-
         if (sheetsInterval) clearInterval(sheetsInterval);
         sheetsInterval = setInterval(() => importarDesdeSheets(true), 15000); 
     }
@@ -1951,5 +1808,3 @@ document.addEventListener('DOMContentLoaded', () => {
 </script>
 </body>
 </html>
-
-
