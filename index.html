@@ -369,6 +369,47 @@
         background-color: var(--ai-color);
     }
 
+    /* Login Form Layout Adjustments */
+    #loginForm {
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
+    }
+    .form-row, .form-row-date {
+        display: flex;
+        gap: 10px;
+        width: 100%;
+    }
+    
+    /* Ensure all direct children that are form elements take full width in the column layout */
+    #loginForm > input,
+    #loginForm > .password-wrapper,
+    #loginForm > button,
+    #loginForm > a {
+        width: 100%;
+        box-sizing: border-box;
+    }
+
+    /* Make flex items in a row share space and shrink properly */
+    .form-row > input,
+    .form-row > select,
+    .form-row-date > select,
+    .form-row-date > input {
+        flex: 1;
+        min-width: 0; /* Critical for allowing elements to shrink on small screens */
+    }
+     .form-row-date > input {
+        flex: 1.5; /* Give the year input a bit more space */
+    }
+    .form-row-date > label {
+        flex-grow: 0;
+        flex-shrink: 0; /* Prevent the label from shrinking */
+        align-self: center;
+        font-size: 0.9em;
+        color: var(--text-secondary);
+    }
+
+
   </style>
 </head>
 <body>
@@ -474,39 +515,43 @@
             </div>
         </section>
         <form id="loginForm">
-          <input type="text" id="loginNombre" placeholder="Nombre" required />
-          <input type="text" id="loginApellido" placeholder="Apellido" required />
-          <select id="loginTipoContrato" required>
-              <option value="">Tipo de Contrato</option>
-              <option value="Planta">Planta</option>
-              <option value="Part Time">Part Time</option>
-          </select>
-          <select id="loginSeccion" required>
-              <option value="">Selecciona tu Sección</option>
-              <option value="Mesas">Mesas</option>
-              <option value="Máquinas">Máquinas</option>
-              <option value="Bóveda">Bóveda</option>
-              <option value="Otros">Otros</option>
-          </select>
-          <div style="display: flex; gap: 10px; width: 100%; align-items: center;">
-            <label for="loginDia" style="font-size: 0.9em; color: var(--text-secondary); white-space: nowrap;">F. Ingreso:</label>
-            <select id="loginDia" required style="flex: 1 1 70px;">
-              <option value="">Día</option>
-              <script>for(let i=1;i<=31;i++)document.write(`<option value="${i}">${i}</option>`);</script>
-            </select>
-            <select id="loginMes" required style="flex: 1 1 70px;">
-              <option value="">Mes</option>
-              <script>for(let i=1;i<=12;i++)document.write(`<option value="${i}">${i}</option>`);</script>
-            </select>
-            <input type="number" id="loginAnio" placeholder="Año" required style="flex: 1 1 90px;" />
-          </div>
-          <input type="number" id="loginPuntos" placeholder="Cantidad de Puntos" required />
-          <div class="password-wrapper">
-            <input type="password" id="loginPassword" placeholder="Contraseña" required />
-            <i class="fas fa-eye password-toggle-icon"></i>
-          </div>
-          <button type="submit">Ingresar o Registrar</button>
-          <a href="#" id="forgotPasswordLink" class="forgot-password-link">¿Olvidaste tu contraseña?</a>
+            <div class="form-row">
+                <input type="text" id="loginNombre" placeholder="Nombre" required />
+                <input type="text" id="loginApellido" placeholder="Apellido" required />
+            </div>
+            <div class="form-row">
+                <select id="loginTipoContrato" required>
+                    <option value="">Tipo de Contrato</option>
+                    <option value="Planta">Planta</option>
+                    <option value="Part Time">Part Time</option>
+                </select>
+                <select id="loginSeccion" required>
+                    <option value="">Selecciona tu Sección</option>
+                    <option value="Mesas">Mesas</option>
+                    <option value="Máquinas">Máquinas</option>
+                    <option value="Bóveda">Bóveda</option>
+                    <option value="Otros">Otros</option>
+                </select>
+            </div>
+            <div class="form-row-date">
+              <label for="loginDia">F. Ingreso:</label>
+              <select id="loginDia" required>
+                <option value="">Día</option>
+                <script>for(let i=1;i<=31;i++)document.write(`<option value="${i}">${i}</option>`);</script>
+              </select>
+              <select id="loginMes" required>
+                <option value="">Mes</option>
+                <script>for(let i=1;i<=12;i++)document.write(`<option value="${i}">${i}</option>`);</script>
+              </select>
+              <input type="number" id="loginAnio" placeholder="Año" required />
+            </div>
+            <input type="number" id="loginPuntos" placeholder="Cantidad de Puntos" required />
+            <div class="password-wrapper">
+              <input type="password" id="loginPassword" placeholder="Contraseña" required />
+              <i class="fas fa-eye password-toggle-icon"></i>
+            </div>
+            <button type="submit">Ingresar o Registrar</button>
+            <a href="#" id="forgotPasswordLink" class="forgot-password-link">¿Olvidaste tu contraseña?</a>
         </form>
       </section>
     </div>
@@ -1830,4 +1875,5 @@ document.addEventListener('DOMContentLoaded', () => {
 </script>
 </body>
 </html>
+
 
