@@ -127,6 +127,7 @@
     .toast { background-color: var(--success-color); color: white; padding: 15px 20px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); font-size: 1em; opacity: 0; transform: translateX(100%); transition: all 0.4s ease; }
     .toast.show { opacity: 1; transform: translateX(0); }
     .toast.error { background-color: var(--error-color); }
+    .toast.info { background-color: var(--info-color); }
 
     h1 { text-align: center; margin-bottom: 20px; font-size: 2em; }
     section { margin-bottom: 30px; background: var(--bg-content); padding: 20px; border-radius: 8px; box-shadow: 0 2px 8px var(--shadow-color); }
@@ -792,11 +793,29 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- URLs de los scripts ---
     const SCRIPT_URL_NOTAS = 'https://script.google.com/macros/s/AKfycbwhKQTp9kER_H87XLekd3d69u5PK5ZpfpGzKdAtYcfKM0qTUuF5apPvB2UNYSyS2-FR/exec';
     const SCRIPT_URL_RECAUDACION = 'https://script.google.com/macros/s/AKfycbxna9EH5LZPTPCPws58pGro6qCrZ8_zNwvUkUHS28BYfd8CsAcD1MRcqlITbDm4lTk/exec'; 
-    
-    // =========================================================================================
-    // URL de la aplicación web para el registro de usuarios ya insertada.
-    // =========================================================================================
     const SCRIPT_URL_LOGIN = 'https://script.google.com/macros/s/AKfycbxu5SIgte_vhmPawPDNf_xIYaey-WWIlRUJQbGXJrix0X6Dom_9mLLW3fbq-fe0FwehOg/exec';
+
+    // --- Lógica para Cierre de Sesión por Inactividad ---
+    let inactivityTimer;
+    // Puedes cambiar el tiempo aquí. Está en milisegundos (15 minutos = 15 * 60 * 1000).
+    const INACTIVITY_TIMEOUT = 15 * 60 * 1000; 
+
+    function logoutDueToInactivity() {
+        showToast('Se ha cerrado la sesión por inactividad.', 'info');
+        // Detener intervalos para evitar ejecuciones en segundo plano
+        if (notesInterval) clearInterval(notesInterval);
+        if (sheetsInterval) clearInterval(sheetsInterval);
+        
+        localStorage.removeItem('loggedInUser');
+        // Pequeño retraso para que el usuario pueda ver el mensaje antes de recargar
+        setTimeout(() => location.reload(), 2000);
+    }
+
+    function resetInactivityTimer() {
+        clearTimeout(inactivityTimer);
+        inactivityTimer = setTimeout(logoutDueToInactivity, INACTIVITY_TIMEOUT);
+    }
+    // --- Fin de la lógica de inactividad ---
 
     // --- Variables globales y de estado ---
     const loginContainer = document.getElementById('login-container');
@@ -832,7 +851,7 @@ document.addEventListener('DOMContentLoaded', () => {
         saveAppData(appData);
     }
     
-    // --- Nueva función para enviar datos del login a Sheets ---
+    // --- Función para enviar datos del login a Sheets ---
     async function enviarDatosLoginASheets(user) {
       if (!user || !SCRIPT_URL_LOGIN.startsWith('https://')) {
         console.log('No se enviarán datos a Sheets (URL no configurada o usuario no válido).');
@@ -1888,6 +1907,13 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- Inicialización de la aplicación ---
     function initApp() {
         if (!loggedInUser) return;
+        
+        // Iniciar el temporizador de inactividad
+        ['mousemove', 'mousedown', 'keydown', 'touchstart'].forEach(event => {
+            window.addEventListener(event, resetInactivityTimer);
+        });
+        resetInactivityTimer(); // Iniciar el primer temporizador
+
         document.getElementById('titulo-retiro').textContent = `Retiro de Propina (${loggedInUser.tipo})`;
         if (loggedInUser.tipo === 'Planta') {
             document.getElementById('vistaPlanta').style.display = 'block'; document.getElementById('vistaPartTime').style.display = 'none';
@@ -1925,3 +1951,5 @@ document.addEventListener('DOMContentLoaded', () => {
 </script>
 </body>
 </html>
+
+
