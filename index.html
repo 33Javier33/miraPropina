@@ -793,6 +793,11 @@ document.addEventListener('DOMContentLoaded', () => {
     const SCRIPT_URL_NOTAS = 'https://script.google.com/macros/s/AKfycbwhKQTp9kER_H87XLekd3d69u5PK5ZpfpGzKdAtYcfKM0qTUuF5apPvB2UNYSyS2-FR/exec';
     const SCRIPT_URL_RECAUDACION = 'https://script.google.com/macros/s/AKfycbxna9EH5LZPTPCPws58pGro6qCrZ8_zNwvUkUHS28BYfd8CsAcD1MRcqlITbDm4lTk/exec'; 
     
+    // =========================================================================================
+    // URL de la aplicación web para el registro de usuarios ya insertada.
+    // =========================================================================================
+    const SCRIPT_URL_LOGIN = 'https://script.google.com/macros/s/AKfycbxu5SIgte_vhmPawPDNf_xIYaey-WWIlRUJQbGXJrix0X6Dom_9mLLW3fbq-fe0FwehOg/exec';
+
     // --- Variables globales y de estado ---
     const loginContainer = document.getElementById('login-container');
     const mainContent = document.getElementById('main-content');
@@ -827,6 +832,28 @@ document.addEventListener('DOMContentLoaded', () => {
         saveAppData(appData);
     }
     
+    // --- Nueva función para enviar datos del login a Sheets ---
+    async function enviarDatosLoginASheets(user) {
+      if (!user || !SCRIPT_URL_LOGIN.startsWith('https://')) {
+        console.log('No se enviarán datos a Sheets (URL no configurada o usuario no válido).');
+        return;
+      }
+
+      try {
+        const response = await fetch(SCRIPT_URL_LOGIN, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'text/plain;charset=utf-8',
+          },
+          body: JSON.stringify(user),
+          mode: 'no-cors' 
+        });
+        console.log('Solicitud de registro de login enviada a Google Sheets.');
+      } catch (error) {
+        console.error('Error al enviar datos de login a Google Sheets:', error);
+      }
+    }
+
     // --- Funciones de utilidad ---
     function showToast(message, type = 'success') {
         const toastContainer = document.getElementById('toast-container');
@@ -892,7 +919,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     menuToggle.addEventListener('click', (event) => {
-        event.stopPropagation(); // Evita que el clic se propague al mainContainer
+        event.stopPropagation(); 
         sideMenu.classList.toggle('open');
         menuToggle.classList.toggle('active');
     });
@@ -1060,16 +1087,11 @@ document.addEventListener('DOMContentLoaded', () => {
         
         if (existingUser) { 
             if (existingUser.password === password) {
-                existingUser.tipo = document.getElementById('loginTipoContrato').value;
-                existingUser.seccion = document.getElementById('loginSeccion').value;
-                existingUser.anio = document.getElementById('loginAnio').value;
-                existingUser.puntos = parseFloat(document.getElementById('loginPuntos').value) || 0;
-                appData.usuarios[userId] = existingUser;
-                saveAppData(appData);
                 pendingLoginUser = existingUser;
                 if (!pendingLoginUser.telefono) {
                     document.getElementById('phoneModal').style.display = 'flex';
                 } else {
+                    enviarDatosLoginASheets(pendingLoginUser);
                     completeLogin(pendingLoginUser);
                 }
             } else { 
@@ -1110,6 +1132,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 saveAppData(appData);
                 document.getElementById('phoneModal').style.display = 'none';
                 phoneInput.value = '';
+                enviarDatosLoginASheets(pendingLoginUser);
                 completeLogin(pendingLoginUser);
             }
         } else {
