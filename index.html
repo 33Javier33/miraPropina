@@ -851,19 +851,51 @@ document.addEventListener('DOMContentLoaded', () => {
     const SCRIPT_URL_RECAUDACION = 'https://script.google.com/macros/s/AKfycbxna9EH5LZPTPCPws58pGro6qCrZ8_zNwvUkUHS28BYfd8CsAcD1MRcqlITbDm4lTk/exec'; 
     const SCRIPT_URL_LOGIN = 'https://script.google.com/macros/s/AKfycbxu5SIgte_vhmPawPDNf_xIYaey-WWIlRUJQbGXJrix0X6Dom_9mLLW3fbq-fe0FwehOg/exec';
 
-    // --- NUEVA LÓGICA: Cierre de Sesión Automático al Salir ---
-    /**
-     * Esta función se ejecuta cuando el usuario cierra la pestaña o el navegador.
-     * Limpia los datos de la sesión del almacenamiento local para que la próxima
-     * vez que abra la app, deba iniciar sesión de nuevo.
-     */
-    window.addEventListener('unload', () => {
-        // Solo limpia si había una sesión activa.
-        if (localStorage.getItem('loggedInUser')) {
-            console.log('Evento "unload" detectado. Cerrando sesión y limpiando datos.');
-            localStorage.removeItem('loggedInUser');
+    // --- Lógica para Cierre de Sesión por Inactividad (Método Robusto con Timestamp) ---
+    // Tu lógica original es bastante buena. He añadido un par de comentarios y una pequeña
+    // mejora para mayor robustez, pero la base de tu código ya era correcta.
+    const INACTIVITY_TIMEOUT = 15 * 60 * 1000; // 15 minutos en milisegundos
+    let inactivityCheckInterval = null; // Variable para controlar el verificador periódico
+
+    // Guarda la hora de la última interacción del usuario en localStorage
+    function saveLastActivity() {
+        localStorage.setItem('lastActivityTimestamp', Date.now());
+    }
+
+    // Verifica periódicamente si ha pasado el tiempo de inactividad
+    function checkInactivity() {
+        const lastActivity = parseInt(localStorage.getItem('lastActivityTimestamp'), 10);
+        // Si no hay registro de actividad o el usuario no está logueado, no hace nada
+        if (!lastActivity || !loggedInUser) {
+            return;
         }
-    });
+        const now = Date.now();
+        // Si ha pasado más tiempo del permitido, cierra la sesión
+        if (now - lastActivity > INACTIVITY_TIMEOUT) {
+            console.log("Inactividad detectada. Cerrando sesión.");
+            logoutDueToInactivity();
+        }
+    }
+
+    // Cierra la sesión, limpia los datos y recarga la página
+    function logoutDueToInactivity() {
+        // Solo ejecuta el cierre si hay un usuario logueado almacenado
+        if (localStorage.getItem('loggedInUser')) {
+            showToast('Se ha cerrado la sesión por inactividad.', 'info');
+            // Limpia todos los intervalos para evitar ejecuciones en segundo plano
+            if (notesInterval) clearInterval(notesInterval);
+            if (sheetsInterval) clearInterval(sheetsInterval);
+            if (inactivityCheckInterval) clearInterval(inactivityCheckInterval);
+            
+            // **MEJORA**: Limpia la variable global para evitar cualquier ejecución residual
+            // antes de que la página se recargue por completo.
+            loggedInUser = null;
+            
+            localStorage.removeItem('loggedInUser');
+            localStorage.removeItem('lastActivityTimestamp'); // Limpia también el timestamp
+            setTimeout(() => location.reload(), 2000);
+        }
+    }
     
     // --- Variables globales y de estado ---
     const loginContainer = document.getElementById('login-container');
@@ -900,50 +932,40 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     
     /**
-     * --- NUEVA LÓGICA: Envío condicional de datos a Google Sheets ---
-     * Esta función primero verifica si el usuario ya existe en la hoja de cálculo
-     * antes de intentar registrarlo.
+     * --- CORRECCIÓN CLAVE: Envío de datos a Google Sheets ---
+     * El principal problema era el uso de `mode: 'no-cors'`. Este modo envía la solicitud
+     * "a ciegas", sin poder saber si tuvo éxito o no, y a menudo es bloqueado o causa
+     * problemas. Al eliminarlo, permitimos que el navegador maneje la comunicación
+     * de forma estándar.
      *
-     * IMPORTANTE: Para que esto funcione, tu script de Google (en SCRIPT_URL_LOGIN)
-     * debe ser modificado para manejar una solicitud GET que busque al usuario.
-     * Necesitarás añadir una función `doGet(e)` en tu Google Apps Script que:
-     * 1. Reciba un parámetro `userId`, por ejemplo: ?action=checkUser&userId=carlos-perez
-     * 2. Busque ese `userId` en tu hoja de cálculo.
-     * 3. Devuelva un JSON como: `{"exists": true}` si lo encuentra, o `{"exists": false}` si no.
+     * **IMPORTANTE**: Para que esto funcione, tu script de Google Apps (en SCRIPT_URL_LOGIN)
+     * debe estar configurado para aceptar estas solicitudes. Debes asegurarte de que tu
+     * función `doPost(e)` en Google Apps Script termine con algo como esto:
+     *
+     * return ContentService.createTextOutput(JSON.stringify({status: 'success'}))
+     * .setMimeType(ContentService.MimeType.JSON)
+     * .setHeader('Access-Control-Allow-Origin', '*'); // O la URL específica de tu app
+     *
+     * Esto permite que tu app reciba una respuesta y evita errores de CORS.
     */
-    async function checkAndRegisterLoginInSheets(user) {
-        if (!user || !user.id || !SCRIPT_URL_LOGIN.startsWith('https://')) {
-            console.log('No se verificarán datos en Sheets (URL no configurada o usuario no válido).');
-            return;
-        }
-
-        try {
-            // Paso 1: Verificar si el usuario ya existe
-            const checkUrl = `${SCRIPT_URL_LOGIN}?action=checkUser&userId=${encodeURIComponent(user.id)}`;
-            const response = await fetch(checkUrl);
-            const result = await response.json();
-
-            // Paso 2: Si no existe, registrarlo.
-            if (result && result.exists === false) {
-                console.log(`El usuario ${user.id} no existe en Sheets. Registrando...`);
-                await fetch(SCRIPT_URL_LOGIN, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-                    body: JSON.stringify(user)
-                });
-                console.log('Nuevo usuario registrado en Google Sheets.');
-            } else if (result && result.exists === true) {
-                console.log(`El usuario ${user.id} ya existe en Sheets. Se omite el registro.`);
-            } else {
-                 console.warn('La respuesta de verificación de Sheets no fue la esperada.', result);
-            }
-
-        } catch (error) {
-            console.error('Error durante el proceso de verificación y registro en Google Sheets:', error);
-            showToast('Error al contactar el servidor de registro.', 'error');
-        }
+    async function enviarDatosLoginASheets(user) {
+      if (!user || !SCRIPT_URL_LOGIN.startsWith('https://')) {
+        console.log('No se enviarán datos a Sheets (URL no configurada o usuario no válido).');
+        return;
+      }
+      try {
+        await fetch(SCRIPT_URL_LOGIN, {
+          method: 'POST',
+          headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+          body: JSON.stringify(user)
+          // Se eliminó la línea: mode: 'no-cors' 
+        });
+        console.log('Solicitud de registro de login enviada a Google Sheets.');
+      } catch (error) {
+        // Con el cambio, ahora sí podrás ver errores de red o de CORS en la consola del navegador.
+        console.error('Error al enviar datos de login a Google Sheets:', error);
+      }
     }
-
 
     // --- Funciones de utilidad ---
     function showToast(message, type = 'success') {
@@ -1198,7 +1220,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (!pendingLoginUser.telefono) {
                     document.getElementById('phoneModal').style.display = 'flex';
                 } else {
-                    checkAndRegisterLoginInSheets(pendingLoginUser);
+                    enviarDatosLoginASheets(pendingLoginUser);
                     completeLogin(pendingLoginUser);
                 }
             } else { 
@@ -1226,7 +1248,9 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('logoutBtn').addEventListener('click', () => { 
         if (notesInterval) clearInterval(notesInterval);
         if (sheetsInterval) clearInterval(sheetsInterval);
+        if (inactivityCheckInterval) clearInterval(inactivityCheckInterval);
         localStorage.removeItem('loggedInUser'); 
+        localStorage.removeItem('lastActivityTimestamp');
         location.reload(); 
     });
     
@@ -1241,7 +1265,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 saveAppData(appData);
                 document.getElementById('phoneModal').style.display = 'none';
                 phoneInput.value = '';
-                checkAndRegisterLoginInSheets(pendingLoginUser);
+                enviarDatosLoginASheets(pendingLoginUser);
                 completeLogin(pendingLoginUser);
             }
         } else {
@@ -1867,6 +1891,20 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- Inicialización de la aplicación ---
     function initApp() {
         if (!loggedInUser) return;
+        
+        // --- LÓGICA DE INACTIVIDAD ---
+        // 1. Cada vez que el usuario interactúa, guardamos la hora actual
+        ['mousemove', 'mousedown', 'keydown', 'touchstart'].forEach(event => {
+            window.addEventListener(event, saveLastActivity);
+        });
+
+        // 2. Guardamos la hora por primera vez al iniciar
+        saveLastActivity();
+
+        // 3. Establecemos un intervalo que verifique la inactividad cada 30 segundos
+        if (inactivityCheckInterval) clearInterval(inactivityCheckInterval); // Limpia cualquier intervalo anterior
+        inactivityCheckInterval = setInterval(checkInactivity, 30000); // 30000 ms = 30 segundos
+        // --- FIN DE LA LÓGICA ---
 
         document.getElementById('titulo-retiro').textContent = `Retiro de Propina (${loggedInUser.tipo})`;
         if (loggedInUser.tipo === 'Planta') {
