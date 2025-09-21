@@ -139,6 +139,7 @@
     input:focus, textarea:focus { border-color: var(--secondary-color); outline: none; }
     button { background-color: var(--secondary-color); color: #fff; border: none; font-weight: bold; cursor: pointer; flex-grow: 1; display: inline-flex; justify-content: center; align-items: center; gap: 8px; }
     button:hover { opacity: 0.9; }
+    button:disabled { background-color: #aaa; cursor: not-allowed; }
     .reset-button { background-color: var(--danger-color); }
     .edit-button-modal { background-color: var(--edit-color); color: #212529;}
     #importarDesdeSheetsBtn { background-color: var(--info-color); }
@@ -849,23 +850,20 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- URLs de los scripts ---
     const SCRIPT_URL_NOTAS = 'https://script.google.com/macros/s/AKfycbwhKQTp9kER_H87XLekd3d69u5PK5ZpfpGzKdAtYcfKM0qTUuF5apPvB2UNYSyS2-FR/exec';
     const SCRIPT_URL_RECAUDACION = 'https://script.google.com/macros/s/AKfycbxna9EH5LZPTPCPws58pGro6qCrZ8_zNwvUkUHS28BYfd8CsAcD1MRcqlITbDm4lTk/exec'; 
-    // ¡URL ACTUALIZADA PARA EL LOGIN!
     const SCRIPT_URL_LOGIN = 'https://script.google.com/macros/s/AKfycbzBK3kNb7DnkIaEiIjzOzvtw9vCB0CGgwV4P8U1-OIOHZYeQBvVBxTFv-hIxT4vIPkP/exec';
 
-    // --- Lógica para Cierre de Sesión por Inactividad ---
-    const INACTIVITY_TIMEOUT = 15 * 60 * 1000; // 15 minutos
-    let inactivityTimer = null;
+    // --- Lógica para Cierre de Sesión al Salir de la App ---
+    document.addEventListener('visibilitychange', () => {
+      // Si la app ya no está visible Y hay un usuario logueado, se cierra la sesión.
+      if (document.hidden && loggedInUser) {
+        logout();
+      }
+    });
 
-    function resetInactivityTimer() {
-        clearTimeout(inactivityTimer);
-        if (loggedInUser) {
-            inactivityTimer = setTimeout(logout, INACTIVITY_TIMEOUT);
-        }
-    }
-
+    // --- Función de Cierre de Sesión ---
     function logout() {
         if (localStorage.getItem('loggedInUser')) {
-            showToast('Se ha cerrado la sesión por inactividad.', 'info');
+            showToast('Se ha cerrado la sesión por seguridad.', 'info');
             if (notesInterval) clearInterval(notesInterval);
             if (sheetsInterval) clearInterval(sheetsInterval);
             localStorage.removeItem('loggedInUser');
@@ -1761,15 +1759,35 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!loggedInUser) return;
         const messageInput = document.getElementById('responseMessage');
         const message = messageInput.value.trim();
-        if (!message) { showToast('Escribe un mensaje para enviar.', 'error'); return; }
-        const authorName = `${loggedInUser.nombre} ${loggedInUser.apellido}`;
-        const response = await postToNotasScript({ action: 'addNote' }, { autor: authorName, mensaje: message });
-        if (response.status === 'success') {
-            showToast('Respuesta enviada con éxito.');
-            messageInput.value = '';
-            cargarNotas();
-        } else {
-            showToast('No se pudo enviar la respuesta.', 'error');
+        if (!message) {
+            showToast('Escribe un mensaje para enviar.', 'error');
+            return;
+        }
+
+        const sendButton = document.getElementById('sendResponseBtn');
+        if (sendButton.disabled) return; // Evita envíos múltiples
+
+        sendButton.disabled = true;
+        sendButton.innerHTML = `<i class="fas fa-spinner fa-spin"></i> Enviando...`;
+
+        try {
+            const authorName = `${loggedInUser.nombre} ${loggedInUser.apellido}`;
+            const response = await postToNotasScript({ action: 'addNote' }, { autor: authorName, mensaje: message });
+            
+            if (response.status === 'success') {
+                showToast('Respuesta enviada con éxito.');
+                messageInput.value = '';
+                cargarNotas();
+            } else {
+                showToast(response.message || 'No se pudo enviar la respuesta.', 'error');
+            }
+        } catch (error) {
+            console.error("Error al enviar la respuesta:", error);
+            showToast('Error de conexión al enviar la respuesta.', 'error');
+        } finally {
+            // Este bloque se ejecuta siempre, tanto si hay éxito como si hay error.
+            sendButton.disabled = false;
+            sendButton.innerHTML = 'Enviar Respuesta';
         }
     }
 
@@ -1844,12 +1862,6 @@ document.addEventListener('DOMContentLoaded', () => {
     function initApp() {
         if (!loggedInUser) return;
         
-        // Iniciar el temporizador de inactividad
-        ['mousemove', 'mousedown', 'keydown', 'touchstart'].forEach(event => {
-            window.addEventListener(event, resetInactivityTimer);
-        });
-        resetInactivityTimer();
-
         document.getElementById('titulo-retiro').textContent = `Retiro de Propina (${loggedInUser.tipo})`;
         if (loggedInUser.tipo === 'Planta') {
             document.getElementById('vistaPlanta').style.display = 'block'; document.getElementById('vistaPartTime').style.display = 'none';
