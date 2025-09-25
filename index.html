@@ -1089,10 +1089,17 @@ document.addEventListener('DOMContentLoaded', () => {
             const userId = userTile.dataset.userId;
             const fullUser = getAppData().usuarios[userId];
             if (fullUser) {
-                Object.keys(fullUser).forEach(key => {
-                    const input = document.getElementById(`login${key.charAt(0).toUpperCase() + key.slice(1)}`);
-                    if(input) input.value = fullUser[key];
-                });
+                // Rellenar campos explícitamente para asegurar la correspondencia
+                document.getElementById('loginNombre').value = fullUser.nombre || '';
+                document.getElementById('loginApellido').value = fullUser.apellido || '';
+                document.getElementById('loginTipoContrato').value = fullUser.tipo || ''; // Corregido
+                document.getElementById('loginSeccion').value = fullUser.seccion || '';
+                document.getElementById('loginDia').value = fullUser.dia || '';
+                document.getElementById('loginMes').value = fullUser.mes || '';
+                document.getElementById('loginAnio').value = fullUser.anio || '';
+                document.getElementById('loginPuntos').value = fullUser.puntos || '';
+                
+                // Limpiar contraseña y enfocar para el ingreso
                 document.getElementById('loginPassword').value = ''; 
                 document.getElementById('loginPassword').focus();   
             }
