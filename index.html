@@ -318,6 +318,7 @@
     #responseForm textarea { width: 100%; box-sizing: border-box; resize: vertical; min-height: 80px; }
     #sendResponseBtn { width: 100%; }
 
+    /* AI Assistant Modal Styles */
     #aiAssistantModal .modal-content {
         max-width: 600px;
         height: 70vh;
@@ -353,7 +354,7 @@
         color: var(--text-primary);
         align-self: flex-start;
         border-bottom-left-radius: 4px;
-        white-space: pre-wrap;
+        white-space: pre-wrap; /* Preserve line breaks from AI */
     }
     .chat-message.thinking {
         display: flex;
@@ -385,6 +386,7 @@
         background-color: var(--ai-color);
     }
 
+    /* Login Form Layout Adjustments */
     #loginForm {
         display: flex;
         flex-direction: column;
@@ -396,6 +398,7 @@
         width: 100%;
     }
     
+    /* Ensure all direct children that are form elements take full width in the column layout */
     #loginForm > input,
     #loginForm > .password-wrapper,
     #loginForm > button,
@@ -404,24 +407,26 @@
         box-sizing: border-box;
     }
 
+    /* Make flex items in a row share space and shrink properly */
     .form-row > input,
     .form-row > select,
     .form-row-date > select,
     .form-row-date > input {
         flex: 1;
-        min-width: 0;
+        min-width: 0; /* Critical for allowing elements to shrink on small screens */
     }
      .form-row-date > input {
-        flex: 1.5;
+        flex: 1.5; /* Give the year input a bit more space */
     }
     .form-row-date > label {
         flex-grow: 0;
-        flex-shrink: 0;
+        flex-shrink: 0; /* Prevent the label from shrinking */
         align-self: center;
         font-size: 0.9em;
         color: var(--text-secondary);
     }
 
+    /* --- Statistics Styles (used inside modal) --- */
     .stat-cards {
         display: grid;
         grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
@@ -472,6 +477,7 @@
         min-height: 300px;
         width: 100%;
     }
+
   </style>
 </head>
 <body>
@@ -504,7 +510,7 @@
                 <div class="note">
                     <strong>Si ya Tienes una Cuenta (Ingreso):</strong>
                     <ul>
-                        <li>Usa el "Acceso Rápido" para rellenar tus datos o ingrésalos manualmente.</li>
+                        <li>Usa el "Acceso Rápido" para rellenar tus datos o ingrésalos manually.</li>
                         <li>Escribe tu contraseña y presiona "Ingresar o Registrar".</li>
                     </ul>
                 </div>
@@ -759,6 +765,7 @@
 
 <div id="toast-container"></div>
 
+<!-- MODAL DE ESTADÍSTICAS -->
 <div id="statsModal" class="modal-backdrop" style="display: none;">
     <div class="modal-content">
         <div class="modal-header">
@@ -931,15 +938,17 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- URLs de los scripts ---
     const SCRIPT_URL_NOTAS = 'https://script.google.com/macros/s/AKfycbwhKQTp9kER_H87XLekd3d69u5PK5ZpfpGzKdAtYcfKM0qTUuF5apPvB2UNYSyS2-FR/exec';
     const SCRIPT_URL_RECAUDACION = 'https://script.google.com/macros/s/AKfycbxna9EH5LZPTPCPws58pGro6qCrZ8_zNwvUkUHS28BYfd8CsAcD1MRcqlITbDm4lTk/exec'; 
-    const SCRIPT_URL_LOGIN = 'https://script.google.com/macros/s/AKfycbzBK3kNb7DnkIaEiIjzOzvtw9vCB0CGgwV4P8U1-OIOHZYeQBvVBxTFv-hIxT4vIPkP/exec'; // <-- CONFIRMA QUE ESTA ES LA URL DE TU SCRIPT DE LOGIN
+    const SCRIPT_URL_LOGIN = 'https://script.google.com/macros/s/AKfycbzBK3kNb7DnkIaEiIjzOzvtw9vCB0CGgwV4P8U1-OIOHZYeQBvVBxTFv-hIxT4vIPkP/exec';
 
     // --- Lógica para Cierre de Sesión al Salir de la App ---
     document.addEventListener('visibilitychange', () => {
+      // Si la app ya no está visible Y hay un usuario logueado, se cierra la sesión.
       if (document.hidden && loggedInUser) {
         logout();
       }
     });
 
+    // --- Función de Cierre de Sesión ---
     function logout() {
         if (localStorage.getItem('loggedInUser')) {
             showToast('Se ha cerrado la sesión por seguridad.', 'info');
@@ -965,7 +974,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let sheetsInterval = null;
     let allFetchedNotes = [];
     let isAiThinking = false;
-    let tipChart = null; 
+    let tipChart = null; // Variable para la instancia del gráfico
 
     // --- Funciones de gestión de datos (localStorage) ---
     function getAppData() { return JSON.parse(localStorage.getItem('appData')) || { usuarios: {}, userData: {} }; }
@@ -1011,7 +1020,7 @@ document.addEventListener('DOMContentLoaded', () => {
         toast.className = `toast ${type}`; toast.textContent = message;
         toastContainer.appendChild(toast);
         setTimeout(() => toast.classList.add('show'), 10);
-        setTimeout(() => { toast.classList.remove('show'); setTimeout(() => toast.remove(), 4000); }, 3000);
+        setTimeout(() => { toast.classList.remove('show'); setTimeout(() => toast.remove(), 400); }, 3000);
     }
     function formatNumberWithPoints(value) { if (value === null || value === undefined || isNaN(value)) { return "0"; } return Math.round(value).toString().replace(/\B(?=(\d{3})+(?!\d))/g, "."); }
     function formatDate(dateString) { if (!dateString) return ''; const [year, month, day] = dateString.split('-'); return `${day}/${month}/${year}`; }
@@ -1118,26 +1127,6 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // --- Lógica de autenticación y sesión de usuario ---
-    
-    // ✅ NUEVA FUNCIÓN PARA VERIFICAR ESTADO DEL USUARIO
-    async function checkUserStatus(userId) {
-      try {
-        const url = new URL(SCRIPT_URL_LOGIN);
-        url.searchParams.append('userId', userId);
-        
-        const response = await fetch(url);
-        if (!response.ok) {
-          console.error("Error de red al verificar estado. Se permitirá el acceso por defecto.");
-          return 'activo'; // Si falla la red, permitir acceso para no bloquear al usuario.
-        }
-        const result = await response.json();
-        return result.status || 'inactivo'; // Devuelve el estado o 'inactivo' si hay un problema.
-      } catch (error) {
-        console.error('Error en checkUserStatus:', error);
-        return 'activo'; // En caso de error, permitir acceso por defecto.
-      }
-    }
-
     function displayRecentLogins() {
         const recentLogins = JSON.parse(localStorage.getItem('recentLogins')) || [];
         const container = document.getElementById('quickAccessUsers');
@@ -1187,14 +1176,17 @@ document.addEventListener('DOMContentLoaded', () => {
             const userId = userTile.dataset.userId;
             const fullUser = getAppData().usuarios[userId];
             if (fullUser) {
+                // Rellenar campos explícitamente para asegurar la correspondencia
                 document.getElementById('loginNombre').value = fullUser.nombre || '';
                 document.getElementById('loginApellido').value = fullUser.apellido || '';
-                document.getElementById('loginTipoContrato').value = fullUser.tipo || '';
+                document.getElementById('loginTipoContrato').value = fullUser.tipo || ''; // Corregido
                 document.getElementById('loginSeccion').value = fullUser.seccion || '';
                 document.getElementById('loginDia').value = fullUser.dia || '';
                 document.getElementById('loginMes').value = fullUser.mes || '';
                 document.getElementById('loginAnio').value = fullUser.anio || '';
                 document.getElementById('loginPuntos').value = fullUser.puntos || '';
+                
+                // Limpiar contraseña y enfocar para el ingreso
                 document.getElementById('loginPassword').value = ''; 
                 document.getElementById('loginPassword').focus();   
             }
@@ -1249,8 +1241,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
     
-    // ✅ LÓGICA DE LOGIN ACTUALIZADA
-    document.getElementById('loginForm').addEventListener('submit', async e => { // Se añade 'async'
+    document.getElementById('loginForm').addEventListener('submit', e => {
         e.preventDefault();
         const nombre = document.getElementById('loginNombre').value.trim();
         const apellido = document.getElementById('loginApellido').value.trim();
@@ -1259,25 +1250,14 @@ document.addEventListener('DOMContentLoaded', () => {
         const mes = document.getElementById('loginMes').value;
         const anio = document.getElementById('loginAnio').value;
 
-        if (!nombre || !apellido || !password || !dia || !mes || !anio) { 
-            showToast("Todos los campos son requeridos.", "error"); 
-            return; 
-        }
+        if (!nombre || !apellido || !password || !dia || !mes || !anio) { showToast("Todos los campos son requeridos.", "error"); return; }
         const userId = `${nombre.toLowerCase()}-${apellido.toLowerCase()}`;
         const appData = getAppData();
         let existingUser = appData.usuarios[userId];
         
         if (existingUser) { 
             if (existingUser.password === password) {
-                
-                // --- VERIFICACIÓN DE ESTADO ---
-                const status = await checkUserStatus(userId);
-                if (status !== 'activo') {
-                    showToast('Tu cuenta ha sido desactivada. Contacta al administrador.', 'error');
-                    return; // Detiene el login si no está activo.
-                }
-                // --- FIN DE LA VERIFICACIÓN ---
-    
+                // Actualizar datos del usuario existente con los del formulario
                 existingUser.tipo = document.getElementById('loginTipoContrato').value;
                 existingUser.seccion = document.getElementById('loginSeccion').value;
                 existingUser.puntos = parseFloat(document.getElementById('loginPuntos').value) || 0;
@@ -1297,18 +1277,19 @@ document.addEventListener('DOMContentLoaded', () => {
             } else { 
                 showToast('Contraseña incorrecta.', 'error'); 
             }
-        } else { // --- Registro de nuevo usuario ---
+        } else { 
             const newUser = {
                 id: userId, nombre: nombre, apellido: apellido, 
                 tipo: document.getElementById('loginTipoContrato').value, 
                 seccion: document.getElementById('loginSeccion').value, 
-                dia: dia, mes: mes, anio: anio,
+                dia: dia,
+                mes: mes,
+                anio: anio,
                 puntos: parseFloat(document.getElementById('loginPuntos').value) || 0, 
                 password: password, telefono: ''
             };
             if (!newUser.tipo || !newUser.seccion || !newUser.anio || newUser.puntos <= 0) { 
-                showToast("Completa todos los campos para registrarte.", "error"); 
-                return; 
+                showToast("Completa todos los campos para registrarte.", "error"); return; 
             }
             pendingLoginUser = newUser;
             document.getElementById('phoneModal').style.display = 'flex';
@@ -1393,7 +1374,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (loggedInUser.dia && loggedInUser.mes) {
             fechaIngresoEl.textContent = `${String(loggedInUser.dia).padStart(2, '0')}/${String(loggedInUser.mes).padStart(2, '0')}/${loggedInUser.anio}`;
         } else {
-            fechaIngresoEl.textContent = loggedInUser.anio; 
+            fechaIngresoEl.textContent = loggedInUser.anio; // Fallback for old users
         }
     }
     
@@ -1411,12 +1392,13 @@ document.addEventListener('DOMContentLoaded', () => {
         const appData = getAppData();
         appData.usuarios[loggedInUser.id].password = newPassword;
         saveAppData(appData);
-        loggedInUser.password = newPassword; 
+        loggedInUser.password = newPassword; // Update in-memory user object
         localStorage.setItem('loggedInUser', JSON.stringify(loggedInUser));
         showToast("Contraseña actualizada con éxito.");
         document.getElementById('changePasswordModal').style.display = 'none';
     });
 
+    // --- Lógica para editar puntos ---
     document.getElementById('editPuntosBtn').addEventListener('click', () => {
         const editPuntosModal = document.getElementById('editPuntosModal');
         document.getElementById('editPuntosInput').value = loggedInUser.puntos;
@@ -1449,6 +1431,7 @@ document.addEventListener('DOMContentLoaded', () => {
         showToast('Cantidad de puntos actualizada correctamente.');
     });
     
+    // --- Lógica de Respaldo y Recuperación ---
     document.getElementById('exportDataBtn')?.addEventListener('click', () => {
         try {
             const appData = localStorage.getItem('appData');
@@ -1771,18 +1754,20 @@ document.addEventListener('DOMContentLoaded', () => {
         actualizarCalculoPartTime(); showToast("Divisor personal guardado.");
     });
 
+    // --- Lógica de Estadísticas (Ahora en un Modal) ---
     const statsModal = document.getElementById('statsModal');
     const openStatsModalBtn = document.getElementById('openStatsModalBtn');
     const closeStatsModalBtn = document.getElementById('closeStatsModalBtn');
 
     openStatsModalBtn.addEventListener('click', () => {
-        updateStatisticsUI(); 
+        updateStatisticsUI(); // Llama a la función para renderizar/actualizar los datos
         statsModal.style.display = 'flex';
     });
     closeStatsModalBtn.addEventListener('click', () => {
         statsModal.style.display = 'none';
     });
     statsModal.addEventListener('click', (e) => {
+        // Cierra el modal si se hace clic en el fondo oscuro
         if (e.target === statsModal) {
             statsModal.style.display = 'none';
         }
@@ -1939,6 +1924,7 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('dailyViewBtn').classList.remove('active');
     });
 
+    // --- Lógica de notas, notificaciones y comunicación ---
     async function fetchFromNotasScript(params) {
         const url = new URL(SCRIPT_URL_NOTAS);
         Object.keys(params).forEach(key => url.searchParams.append(key, params[key]));
@@ -2044,7 +2030,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         const sendButton = document.getElementById('sendResponseBtn');
-        if (sendButton.disabled) return; 
+        if (sendButton.disabled) return; // Evita envíos múltiples
 
         sendButton.disabled = true;
         sendButton.innerHTML = `<i class="fas fa-spinner fa-spin"></i> Enviando...`;
@@ -2064,6 +2050,7 @@ document.addEventListener('DOMContentLoaded', () => {
             console.error("Error al enviar la respuesta:", error);
             showToast('Error de conexión al enviar la respuesta.', 'error');
         } finally {
+            // Este bloque se ejecuta siempre, tanto si hay éxito como si hay error.
             sendButton.disabled = false;
             sendButton.innerHTML = 'Enviar Respuesta';
         }
@@ -2074,6 +2061,7 @@ document.addEventListener('DOMContentLoaded', () => {
         markNotesAsRead();
     });
 
+    // --- Lógica del Asistente de IA ---
     const aiAssistantFab = document.getElementById('ai-assistant-fab');
     const aiAssistantModal = document.getElementById('aiAssistantModal');
     const closeAiAssistantBtn = document.getElementById('closeAiAssistantBtn');
@@ -2091,13 +2079,13 @@ document.addEventListener('DOMContentLoaded', () => {
         if (isAiThinking) return;
         const userQuery = aiInputField.value.trim();
         if (!userQuery) return;
-        const apiKey = 'AIzaSyAwaiImE4mA9gzxcbA9HUpIgJGG7jsPnQY'; // Reemplaza con tu clave de API si es necesario
+        const apiKey = 'AIzaSyAwaiImE4mA9gzxcbA9HUpIgJGG7jsPnQY';
         isAiThinking = true;
         addMessageToChat(userQuery, 'user');
         aiInputField.value = '';
         addMessageToChat('...', 'ai', true);
         try {
-            const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=${apiKey}`;
+            const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=${apiKey}`;
             const payload = { contents: [{ parts: [{ text: userQuery }] }], systemInstruction: { parts: [{ text: SYSTEM_PROMPT }] } };
             const response = await fetch(apiUrl, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
             const result = await response.json();
@@ -2135,6 +2123,7 @@ document.addEventListener('DOMContentLoaded', () => {
         chatContainer.scrollTop = chatContainer.scrollHeight;
     }
 
+    // --- Inicialización de la aplicación ---
     function initApp() {
         if (!loggedInUser) return;
         
