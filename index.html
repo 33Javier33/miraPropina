@@ -995,21 +995,31 @@ document.addEventListener('DOMContentLoaded', () => {
         saveAppData(appData);
     }
     
+    /**
+     * MODIFICADO: Esta función ahora espera y procesa la respuesta de Google Sheets.
+     * Ya no usa 'no-cors', lo que permite verificar si el usuario está inactivo.
+     * @param {object} user - El objeto de usuario para enviar a Google Sheets.
+     * @returns {Promise<object>} - La respuesta del script de Google (ej: {status: 'success' | 'error', message: '...'}).
+     */
     async function enviarDatosLoginASheets(user) {
       if (!user || !SCRIPT_URL_LOGIN.startsWith('https://')) {
         console.log('No se enviarán datos a Sheets (URL no configurada o usuario no válido).');
-        return;
+        return { status: 'success', message: 'Función de Sheets desactivada localmente.' };
       }
       try {
         const response = await fetch(SCRIPT_URL_LOGIN, {
           method: 'POST',
           headers: { 'Content-Type': 'text/plain;charset=utf-8' },
           body: JSON.stringify(user),
-          mode: 'no-cors'
+          // Se elimina mode: 'no-cors' para poder leer la respuesta del servidor.
         });
-        console.log('Solicitud de registro de login enviada a Google Sheets.');
+        const result = await response.json(); // Leemos la respuesta JSON del script
+        console.log('Respuesta de Google Sheets:', result);
+        return result; // Devolvemos el objeto de respuesta completo
       } catch (error) {
         console.error('Error al enviar datos de login a Google Sheets:', error);
+        // Devolvemos un objeto de error consistente para manejarlo en el login
+        return { status: 'error', message: 'Error de conexión con el servidor. Intenta de nuevo.' };
       }
     }
 
@@ -1022,6 +1032,46 @@ document.addEventListener('DOMContentLoaded', () => {
         setTimeout(() => toast.classList.add('show'), 10);
         setTimeout(() => { toast.classList.remove('show'); setTimeout(() => toast.remove(), 400); }, 3000);
     }
+
+    /**
+     * NUEVO: Muestra una pantalla de carga.
+     * @param {string} message - El mensaje a mostrar.
+     */
+    function showLoadingOverlay(message = 'Verificando...') {
+        let overlay = document.getElementById('loading-overlay');
+        if (!overlay) {
+            overlay = document.createElement('div');
+            overlay.id = 'loading-overlay';
+            // Estilos para el overlay
+            Object.assign(overlay.style, {
+                position: 'fixed', top: '0', left: '0', width: '100%', height: '100%',
+                backgroundColor: 'rgba(0, 0, 0, 0.7)', color: 'white',
+                display: 'flex', justifyContent: 'center', alignItems: 'center',
+                zIndex: '10000', fontSize: '1.5em', transition: 'opacity 0.3s'
+            });
+            overlay.innerHTML = `
+                <div style="text-align: center;">
+                    <i class="fas fa-spinner fa-spin" style="font-size: 2em; margin-bottom: 15px;"></i>
+                    <div id="loading-message"></div>
+                </div>`;
+            document.body.appendChild(overlay);
+        }
+        overlay.querySelector('#loading-message').textContent = message;
+        overlay.style.opacity = '1';
+        overlay.style.display = 'flex';
+    }
+
+    /**
+     * NUEVO: Oculta la pantalla de carga.
+     */
+    function hideLoadingOverlay() {
+        const overlay = document.getElementById('loading-overlay');
+        if (overlay) {
+            overlay.style.opacity = '0';
+            setTimeout(() => { overlay.style.display = 'none'; }, 300); // Espera a que termine la transición
+        }
+    }
+
     function formatNumberWithPoints(value) { if (value === null || value === undefined || isNaN(value)) { return "0"; } return Math.round(value).toString().replace(/\B(?=(\d{3})+(?!\d))/g, "."); }
     function formatDate(dateString) { if (!dateString) return ''; const [year, month, day] = dateString.split('-'); return `${day}/${month}/${year}`; }
     function getTodayDateString() { return new Date().toISOString().split('T')[0]; }
@@ -1241,8 +1291,14 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
     
-    document.getElementById('loginForm').addEventListener('submit', e => {
+    /**
+     * MODIFICADO: El proceso de login ahora es asíncrono.
+     * Muestra un overlay de carga y espera la respuesta de Google Sheets antes de continuar.
+     */
+    document.getElementById('loginForm').addEventListener('submit', async (e) => {
         e.preventDefault();
+        const loginButton = e.target.querySelector('button[type="submit"]');
+
         const nombre = document.getElementById('loginNombre').value.trim();
         const apellido = document.getElementById('loginApellido').value.trim();
         const password = document.getElementById('loginPassword').value;
@@ -1250,49 +1306,84 @@ document.addEventListener('DOMContentLoaded', () => {
         const mes = document.getElementById('loginMes').value;
         const anio = document.getElementById('loginAnio').value;
 
-        if (!nombre || !apellido || !password || !dia || !mes || !anio) { showToast("Todos los campos son requeridos.", "error"); return; }
-        const userId = `${nombre.toLowerCase()}-${apellido.toLowerCase()}`;
-        const appData = getAppData();
-        let existingUser = appData.usuarios[userId];
-        
-        if (existingUser) { 
-            if (existingUser.password === password) {
-                // Actualizar datos del usuario existente con los del formulario
-                existingUser.tipo = document.getElementById('loginTipoContrato').value;
-                existingUser.seccion = document.getElementById('loginSeccion').value;
-                existingUser.puntos = parseFloat(document.getElementById('loginPuntos').value) || 0;
-                existingUser.dia = dia;
-                existingUser.mes = mes;
-                existingUser.anio = anio;
-                appData.usuarios[userId] = existingUser;
-                saveAppData(appData);
+        if (!nombre || !apellido || !password || !dia || !mes || !anio) {
+            showToast("Todos los campos son requeridos.", "error");
+            return;
+        }
 
-                pendingLoginUser = existingUser;
-                if (!pendingLoginUser.telefono) {
-                    document.getElementById('phoneModal').style.display = 'flex';
+        showLoadingOverlay('Verificando credenciales...');
+        if (loginButton) loginButton.disabled = true;
+
+        try {
+            const userId = `${nombre.toLowerCase()}-${apellido.toLowerCase()}`;
+            const appData = getAppData();
+            let existingUser = appData.usuarios[userId];
+            let userToValidate;
+
+            if (existingUser) { // Usuario ya existe en el almacenamiento local
+                if (existingUser.password === password) {
+                    // Actualizar datos del usuario con los del formulario por si cambiaron
+                    existingUser.tipo = document.getElementById('loginTipoContrato').value;
+                    existingUser.seccion = document.getElementById('loginSeccion').value;
+                    existingUser.puntos = parseFloat(document.getElementById('loginPuntos').value) || 0;
+                    existingUser.dia = dia;
+                    existingUser.mes = mes;
+                    existingUser.anio = anio;
+                    userToValidate = existingUser;
                 } else {
-                    enviarDatosLoginASheets(pendingLoginUser);
-                    completeLogin(pendingLoginUser);
+                    showToast('Contraseña incorrecta.', 'error');
+                    return; // Sale de la función si la contraseña es incorrecta
                 }
-            } else { 
-                showToast('Contraseña incorrecta.', 'error'); 
+            } else { // Usuario nuevo
+                userToValidate = {
+                    id: userId, nombre: nombre, apellido: apellido,
+                    tipo: document.getElementById('loginTipoContrato').value,
+                    seccion: document.getElementById('loginSeccion').value,
+                    dia: dia, mes: mes, anio: anio,
+                    puntos: parseFloat(document.getElementById('loginPuntos').value) || 0,
+                    password: password, telefono: ''
+                };
+                if (!userToValidate.tipo || !userToValidate.seccion || !userToValidate.anio || userToValidate.puntos <= 0) {
+                    showToast("Completa todos los campos para registrarte.", "error");
+                    return;
+                }
             }
-        } else { 
-            const newUser = {
-                id: userId, nombre: nombre, apellido: apellido, 
-                tipo: document.getElementById('loginTipoContrato').value, 
-                seccion: document.getElementById('loginSeccion').value, 
-                dia: dia,
-                mes: mes,
-                anio: anio,
-                puntos: parseFloat(document.getElementById('loginPuntos').value) || 0, 
-                password: password, telefono: ''
-            };
-            if (!newUser.tipo || !newUser.seccion || !newUser.anio || newUser.puntos <= 0) { 
-                showToast("Completa todos los campos para registrarte.", "error"); return; 
+            
+            // -- VERIFICACIÓN CON GOOGLE SHEETS --
+            // Llama a la función y espera la respuesta del servidor.
+            const sheetsResponse = await enviarDatosLoginASheets(userToValidate);
+
+            if (sheetsResponse.status === 'error') {
+                // Si el script de Google devuelve un error (ej. usuario inactivo), lo muestra y detiene el login.
+                showToast(sheetsResponse.message, 'error');
+                return; 
             }
-            pendingLoginUser = newUser;
-            document.getElementById('phoneModal').style.display = 'flex';
+
+            // -- Si la verificación es exitosa, se procede con el login --
+            if (existingUser) {
+                // Si el usuario existía, se guardan los datos actualizados
+                appData.usuarios[userId] = userToValidate;
+                saveAppData(appData);
+            }
+
+            pendingLoginUser = userToValidate;
+
+            if (!pendingLoginUser.telefono) {
+                // Si no tiene teléfono, se muestra el modal para solicitarlo.
+                // La lógica para guardar el teléfono se encargará de completar el login.
+                document.getElementById('phoneModal').style.display = 'flex';
+            } else {
+                // Si ya tiene teléfono, se completa el login directamente.
+                completeLogin(pendingLoginUser);
+            }
+
+        } catch (error) {
+            console.error("Error en el proceso de login:", error);
+            showToast("Ocurrió un error inesperado durante el login.", "error");
+        } finally {
+            // Este bloque se ejecuta siempre, haya éxito o error.
+            hideLoadingOverlay();
+            if (loginButton) loginButton.disabled = false;
         }
     });
     
@@ -1309,7 +1400,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 saveAppData(appData);
                 document.getElementById('phoneModal').style.display = 'none';
                 phoneInput.value = '';
-                enviarDatosLoginASheets(pendingLoginUser);
+                // Envía los datos actualizados (con teléfono) y completa el login.
+                enviarDatosLoginASheets(pendingLoginUser); 
                 completeLogin(pendingLoginUser);
             }
         } else {
@@ -2155,5 +2247,6 @@ document.addEventListener('DOMContentLoaded', () => {
     checkLogin();
 });
 </script>
+
 </body>
 </html>
