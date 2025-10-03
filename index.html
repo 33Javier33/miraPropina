@@ -398,7 +398,6 @@
         width: 100%;
     }
     
-    /* Ensure all direct children that are form elements take full width in the column layout */
     #loginForm > input,
     #loginForm > .password-wrapper,
     #loginForm > button,
@@ -407,20 +406,19 @@
         box-sizing: border-box;
     }
 
-    /* Make flex items in a row share space and shrink properly */
     .form-row > input,
     .form-row > select,
     .form-row-date > select,
     .form-row-date > input {
         flex: 1;
-        min-width: 0; /* Critical for allowing elements to shrink on small screens */
+        min-width: 0; 
     }
      .form-row-date > input {
-        flex: 1.5; /* Give the year input a bit more space */
+        flex: 1.5; 
     }
     .form-row-date > label {
         flex-grow: 0;
-        flex-shrink: 0; /* Prevent the label from shrinking */
+        flex-shrink: 0; 
         align-self: center;
         font-size: 0.9em;
         color: var(--text-secondary);
@@ -640,7 +638,7 @@
                   <div class="calculation-item"><strong>Mis Puntos:</strong> <span id="puntosUsuarioDisplayPlanta">0</span></div>
                   <hr>
                   <div class="calculation-item"><strong>Total Recaudado:</strong> <span id="totalMontoDividirPlanta">$0</span></div>
-                  <div class="calculation-item"><strong>Divisor Registrado:</strong> <span id="divisorDisplayPlanta">No registrado</span></div>
+                  <div class="calculation-item"><strong>Divisor Registrado (Ayer):</strong> <span id="divisorDisplayPlanta">No registrado</span></div>
                   <div class="calculation-item" style="color: var(--info-color); font-weight: bold;"><strong>Valor por Punto:</strong> <span id="valorPorPuntoDisplayPlanta">$0</span></div>
                   <hr>
                   <div class="calculation-item"><strong>Subtotal (Puntos x Valor):</strong> <span id="subtotalDisplayPlanta">$0</span></div>
@@ -681,7 +679,6 @@
           </div>
           <div class="retiro-actions">
               <button id="openStatsModalBtn" style="background-color: var(--primary-color);">Ver Estadísticas</button>
-              <button id="registrarDivisorBtn">Registrar Divisor General (Planta)</button>
               <button id="registrarAnticipoBtn">Registrar Anticipo</button>
               <button id="resetMesBtn" class="reset-button">Reiniciar Mes</button>
           </div>
@@ -765,7 +762,6 @@
 
 <div id="toast-container"></div>
 
-<!-- MODAL DE ESTADÍSTICAS -->
 <div id="statsModal" class="modal-backdrop" style="display: none;">
     <div class="modal-content">
         <div class="modal-header">
@@ -937,12 +933,12 @@
 document.addEventListener('DOMContentLoaded', () => {
     // --- URLs de los scripts ---
     const SCRIPT_URL_NOTAS = 'https://script.google.com/macros/s/AKfycbwhKQTp9kER_H87XLekd3d69u5PK5ZpfpGzKdAtYcfKM0qTUuF5apPvB2UNYSyS2-FR/exec';
+    const SCRIPT_URL_RECAUDACION_EXTERNA = 'https://script.google.com/macros/s/AKfycbxdiAMbUy2nTuXvvIuF_-KF-ed0s7jxXvh4X2T5u88jl9FSZdrDkNVgVNc7akhpIwCX/exec';
     const SCRIPT_URL_RECAUDACION = 'https://script.google.com/macros/s/AKfycbxna9EH5LZPTPCPws58pGro6qCrZ8_zNwvUkUHS28BYfd8CsAcD1MRcqlITbDm4lTk/exec'; 
     const SCRIPT_URL_LOGIN = 'https://script.google.com/macros/s/AKfycbzBK3kNb7DnkIaEiIjzOzvtw9vCB0CGgwV4P8U1-OIOHZYeQBvVBxTFv-hIxT4vIPkP/exec';
 
     // --- Lógica para Cierre de Sesión al Salir de la App ---
     document.addEventListener('visibilitychange', () => {
-      // Si la app ya no está visible Y hay un usuario logueado, se cierra la sesión.
       if (document.hidden && loggedInUser) {
         logout();
       }
@@ -974,7 +970,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let sheetsInterval = null;
     let allFetchedNotes = [];
     let isAiThinking = false;
-    let tipChart = null; // Variable para la instancia del gráfico
+    let tipChart = null;
 
     // --- Funciones de gestión de datos (localStorage) ---
     function getAppData() { return JSON.parse(localStorage.getItem('appData')) || { usuarios: {}, userData: {} }; }
@@ -983,7 +979,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const appData = getAppData();
         const userId = loggedInUser.id;
         if (!appData.userData[userId]) {
-            appData.userData[userId] = { montosPorFecha: {}, anticipos: [], divisor: 0, diasTrabajados: [], divisorPartTime: 1 };
+            appData.userData[userId] = { montosPorFecha: {}, anticipos: [], divisor: 0, diasTrabajados: [], divisorPartTime: 1, divisorDelDia: null };
             saveAppData(appData);
         }
         return appData.userData[userId];
@@ -995,12 +991,6 @@ document.addEventListener('DOMContentLoaded', () => {
         saveAppData(appData);
     }
     
-    /**
-     * MODIFICADO: Esta función ahora espera y procesa la respuesta de Google Sheets.
-     * Ya no usa 'no-cors', lo que permite verificar si el usuario está inactivo.
-     * @param {object} user - El objeto de usuario para enviar a Google Sheets.
-     * @returns {Promise<object>} - La respuesta del script de Google (ej: {status: 'success' | 'error', message: '...'}).
-     */
     async function enviarDatosLoginASheets(user) {
       if (!user || !SCRIPT_URL_LOGIN.startsWith('https://')) {
         console.log('No se enviarán datos a Sheets (URL no configurada o usuario no válido).');
@@ -1011,14 +1001,12 @@ document.addEventListener('DOMContentLoaded', () => {
           method: 'POST',
           headers: { 'Content-Type': 'text/plain;charset=utf-8' },
           body: JSON.stringify(user),
-          // Se elimina mode: 'no-cors' para poder leer la respuesta del servidor.
         });
-        const result = await response.json(); // Leemos la respuesta JSON del script
+        const result = await response.json();
         console.log('Respuesta de Google Sheets:', result);
-        return result; // Devolvemos el objeto de respuesta completo
+        return result;
       } catch (error) {
         console.error('Error al enviar datos de login a Google Sheets:', error);
-        // Devolvemos un objeto de error consistente para manejarlo en el login
         return { status: 'error', message: 'Error de conexión con el servidor. Intenta de nuevo.' };
       }
     }
@@ -1033,16 +1021,11 @@ document.addEventListener('DOMContentLoaded', () => {
         setTimeout(() => { toast.classList.remove('show'); setTimeout(() => toast.remove(), 400); }, 3000);
     }
 
-    /**
-     * NUEVO: Muestra una pantalla de carga.
-     * @param {string} message - El mensaje a mostrar.
-     */
     function showLoadingOverlay(message = 'Verificando...') {
         let overlay = document.getElementById('loading-overlay');
         if (!overlay) {
             overlay = document.createElement('div');
             overlay.id = 'loading-overlay';
-            // Estilos para el overlay
             Object.assign(overlay.style, {
                 position: 'fixed', top: '0', left: '0', width: '100%', height: '100%',
                 backgroundColor: 'rgba(0, 0, 0, 0.7)', color: 'white',
@@ -1061,14 +1044,11 @@ document.addEventListener('DOMContentLoaded', () => {
         overlay.style.display = 'flex';
     }
 
-    /**
-     * NUEVO: Oculta la pantalla de carga.
-     */
     function hideLoadingOverlay() {
         const overlay = document.getElementById('loading-overlay');
         if (overlay) {
             overlay.style.opacity = '0';
-            setTimeout(() => { overlay.style.display = 'none'; }, 300); // Espera a que termine la transición
+            setTimeout(() => { overlay.style.display = 'none'; }, 300);
         }
     }
 
@@ -1226,17 +1206,15 @@ document.addEventListener('DOMContentLoaded', () => {
             const userId = userTile.dataset.userId;
             const fullUser = getAppData().usuarios[userId];
             if (fullUser) {
-                // Rellenar campos explícitamente para asegurar la correspondencia
                 document.getElementById('loginNombre').value = fullUser.nombre || '';
                 document.getElementById('loginApellido').value = fullUser.apellido || '';
-                document.getElementById('loginTipoContrato').value = fullUser.tipo || ''; // Corregido
+                document.getElementById('loginTipoContrato').value = fullUser.tipo || '';
                 document.getElementById('loginSeccion').value = fullUser.seccion || '';
                 document.getElementById('loginDia').value = fullUser.dia || '';
                 document.getElementById('loginMes').value = fullUser.mes || '';
                 document.getElementById('loginAnio').value = fullUser.anio || '';
                 document.getElementById('loginPuntos').value = fullUser.puntos || '';
                 
-                // Limpiar contraseña y enfocar para el ingreso
                 document.getElementById('loginPassword').value = ''; 
                 document.getElementById('loginPassword').focus();   
             }
@@ -1291,10 +1269,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
     
-    /**
-     * MODIFICADO: El proceso de login ahora es asíncrono.
-     * Muestra un overlay de carga y espera la respuesta de Google Sheets antes de continuar.
-     */
     document.getElementById('loginForm').addEventListener('submit', async (e) => {
         e.preventDefault();
         const loginButton = e.target.querySelector('button[type="submit"]');
@@ -1320,9 +1294,8 @@ document.addEventListener('DOMContentLoaded', () => {
             let existingUser = appData.usuarios[userId];
             let userToValidate;
 
-            if (existingUser) { // Usuario ya existe en el almacenamiento local
+            if (existingUser) {
                 if (existingUser.password === password) {
-                    // Actualizar datos del usuario con los del formulario por si cambiaron
                     existingUser.tipo = document.getElementById('loginTipoContrato').value;
                     existingUser.seccion = document.getElementById('loginSeccion').value;
                     existingUser.puntos = parseFloat(document.getElementById('loginPuntos').value) || 0;
@@ -1332,9 +1305,9 @@ document.addEventListener('DOMContentLoaded', () => {
                     userToValidate = existingUser;
                 } else {
                     showToast('Contraseña incorrecta.', 'error');
-                    return; // Sale de la función si la contraseña es incorrecta
+                    return;
                 }
-            } else { // Usuario nuevo
+            } else {
                 userToValidate = {
                     id: userId, nombre: nombre, apellido: apellido,
                     tipo: document.getElementById('loginTipoContrato').value,
@@ -1349,19 +1322,14 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             }
             
-            // -- VERIFICACIÓN CON GOOGLE SHEETS --
-            // Llama a la función y espera la respuesta del servidor.
             const sheetsResponse = await enviarDatosLoginASheets(userToValidate);
 
             if (sheetsResponse.status === 'error') {
-                // Si el script de Google devuelve un error (ej. usuario inactivo), lo muestra y detiene el login.
                 showToast(sheetsResponse.message, 'error');
                 return; 
             }
 
-            // -- Si la verificación es exitosa, se procede con el login --
             if (existingUser) {
-                // Si el usuario existía, se guardan los datos actualizados
                 appData.usuarios[userId] = userToValidate;
                 saveAppData(appData);
             }
@@ -1369,11 +1337,8 @@ document.addEventListener('DOMContentLoaded', () => {
             pendingLoginUser = userToValidate;
 
             if (!pendingLoginUser.telefono) {
-                // Si no tiene teléfono, se muestra el modal para solicitarlo.
-                // La lógica para guardar el teléfono se encargará de completar el login.
                 document.getElementById('phoneModal').style.display = 'flex';
             } else {
-                // Si ya tiene teléfono, se completa el login directamente.
                 completeLogin(pendingLoginUser);
             }
 
@@ -1381,7 +1346,6 @@ document.addEventListener('DOMContentLoaded', () => {
             console.error("Error en el proceso de login:", error);
             showToast("Ocurrió un error inesperado durante el login.", "error");
         } finally {
-            // Este bloque se ejecuta siempre, haya éxito o error.
             hideLoadingOverlay();
             if (loginButton) loginButton.disabled = false;
         }
@@ -1400,7 +1364,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 saveAppData(appData);
                 document.getElementById('phoneModal').style.display = 'none';
                 phoneInput.value = '';
-                // Envía los datos actualizados (con teléfono) y completa el login.
                 enviarDatosLoginASheets(pendingLoginUser); 
                 completeLogin(pendingLoginUser);
             }
@@ -1466,7 +1429,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (loggedInUser.dia && loggedInUser.mes) {
             fechaIngresoEl.textContent = `${String(loggedInUser.dia).padStart(2, '0')}/${String(loggedInUser.mes).padStart(2, '0')}/${loggedInUser.anio}`;
         } else {
-            fechaIngresoEl.textContent = loggedInUser.anio; // Fallback for old users
+            fechaIngresoEl.textContent = loggedInUser.anio;
         }
     }
     
@@ -1484,13 +1447,12 @@ document.addEventListener('DOMContentLoaded', () => {
         const appData = getAppData();
         appData.usuarios[loggedInUser.id].password = newPassword;
         saveAppData(appData);
-        loggedInUser.password = newPassword; // Update in-memory user object
+        loggedInUser.password = newPassword;
         localStorage.setItem('loggedInUser', JSON.stringify(loggedInUser));
         showToast("Contraseña actualizada con éxito.");
         document.getElementById('changePasswordModal').style.display = 'none';
     });
 
-    // --- Lógica para editar puntos ---
     document.getElementById('editPuntosBtn').addEventListener('click', () => {
         const editPuntosModal = document.getElementById('editPuntosModal');
         document.getElementById('editPuntosInput').value = loggedInUser.puntos;
@@ -1523,7 +1485,6 @@ document.addEventListener('DOMContentLoaded', () => {
         showToast('Cantidad de puntos actualizada correctamente.');
     });
     
-    // --- Lógica de Respaldo y Recuperación ---
     document.getElementById('exportDataBtn')?.addEventListener('click', () => {
         try {
             const appData = localStorage.getItem('appData');
@@ -1671,20 +1632,82 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
     
+    async function obtenerYActualizarValorPorPuntoExterno() {
+        if (!loggedInUser || loggedInUser.tipo !== 'Planta') {
+            return;
+        }
+        
+        console.log("Sincronizando con app de recaudación externa...");
+        
+        try {
+            const response = await fetch(`${SCRIPT_URL_RECAUDACION_EXTERNA}?action=get&v=${new Date().getTime()}`);
+            if (!response.ok) {
+                console.error("No se pudo conectar con la app externa de recaudación.");
+                return;
+            }
+            
+            const result = await response.json();
+            
+            if (result.status === 'success' && result.data) {
+                const datosExternos = result.data;
+                const divisoresResponse = await fetch(`${SCRIPT_URL_RECAUDACION_EXTERNA}?action=getDivisores&v=${new Date().getTime()}`);
+                const divisoresExternos = (await divisoresResponse.json()).data || {};
+                
+                const totalesPorDia = datosExternos.reduce((acc, dato) => {
+                    acc[dato.fecha] = (acc[dato.fecha] || 0) + dato.monto;
+                    return acc;
+                }, {});
+
+                const totalGeneralDivision = Object.keys(totalesPorDia).reduce((sum, fecha) => {
+                    const divisor = divisoresExternos[fecha];
+                    return divisor > 0 ? sum + (totalesPorDia[fecha] / divisor) : sum;
+                }, 0);
+
+                // --- INICIO DE LA MODIFICACIÓN ---
+                const today = new Date();
+                today.setDate(today.getDate() - 1); // Restamos un día para obtener la fecha de ayer
+                const yesterdayString = today.toISOString().split('T')[0]; // Formato YYYY-MM-DD
+                const divisorDeAyer = divisoresExternos[yesterdayString] || null;
+                // --- FIN DE LA MODIFICACIÓN ---
+                
+                const userData = getUserData();
+                const needsUpdate = userData.divisor !== totalGeneralDivision || userData.divisorDelDia !== divisorDeAyer;
+
+                if (needsUpdate) {
+                    userData.divisor = totalGeneralDivision;
+                    userData.divisorDelDia = divisorDeAyer;
+                    saveUserData(userData);
+                    
+                    console.log(`'Valor por Punto' actualizado: ${totalGeneralDivision}. Divisor de ayer capturado: ${divisorDeAyer}.`);
+                    showToast("Datos de recaudación externa sincronizados.", "info");
+                    actualizarCalculoPlanta();
+                }
+            }
+        } catch (error) {
+            console.error("Error al obtener datos de la app externa:", error);
+        }
+    }
+    
     function actualizarCalculoRetiro() { if (!loggedInUser) return; loggedInUser.tipo === 'Planta' ? actualizarCalculoPlanta() : actualizarCalculoPartTime(); }
+    
     function actualizarCalculoPlanta() {
         const userData = getUserData();
         const p = loggedInUser.puntos || 0;
         const total = Object.values(userData.montosPorFecha || {}).flat().reduce((s, m) => s + m.monto, 0);
-        const div = userData.divisor || 0;
+        const valorPorPunto = userData.divisor || 0; 
         const anticiposTotal = (userData.anticipos || []).reduce((s, a) => s + a.monto, 0);
-        const vpp = div > 0 ? (total / div) : 0; const sub = vpp * p; const res = sub - anticiposTotal;
+        const sub = valorPorPunto * p; 
+        const res = sub - anticiposTotal;
         const resultadoFinalEl = document.getElementById('resultadoFinalPlanta');
         
         document.getElementById('puntosUsuarioDisplayPlanta').textContent = p;
         document.getElementById('totalMontoDividirPlanta').textContent = `$${formatNumberWithPoints(total)}`;
-        document.getElementById('divisorDisplayPlanta').textContent = div > 0 ? formatNumberWithPoints(div) : 'N/A';
-        document.getElementById('valorPorPuntoDisplayPlanta').textContent = `$${formatNumberWithPoints(vpp)}`;
+        
+        const divisorDelDia = userData.divisorDelDia;
+        // MODIFICADO: Se cambia el texto por defecto si no se encuentra el divisor de ayer.
+        document.getElementById('divisorDisplayPlanta').textContent = divisorDelDia ? formatNumberWithPoints(divisorDelDia) : 'No registrado ayer';
+
+        document.getElementById('valorPorPuntoDisplayPlanta').textContent = `$${formatNumberWithPoints(valorPorPunto)}`;
         document.getElementById('subtotalDisplayPlanta').textContent = `$${formatNumberWithPoints(sub)}`;
         document.getElementById('anticiposDisplayPlanta').textContent = `-$${formatNumberWithPoints(anticiposTotal)}`;
         
@@ -1693,6 +1716,7 @@ document.addEventListener('DOMContentLoaded', () => {
         
         renderAnticiposList('#anticipos-list-container-planta');
     }
+
     function actualizarCalculoPartTime() {
         const userData = getUserData();
         const p = loggedInUser.puntos || 0, dias = userData.diasTrabajados || [], montos = userData.montosPorFecha || {};
@@ -1751,7 +1775,6 @@ document.addEventListener('DOMContentLoaded', () => {
         const targetBtn = e.target.closest('button');
         if (targetBtn) {
             const id = targetBtn.id;
-            if (id === 'registrarDivisorBtn') document.getElementById('divisorModal').style.display = 'flex';
             if (id === 'registrarAnticipoBtn') { document.getElementById('addAnticipoModal').style.display = 'flex'; document.getElementById('addAnticipoFechaInput').value = getTodayDateString(); }
             if (id === 'resetMesBtn') { if (confirm('¿Estás SEGURO de reiniciar el mes? ¡Se borrarán todos los montos y anticipos de forma permanente!')) { let userData = getUserData(); userData.montosPorFecha = {}; userData.anticipos = []; userData.divisor = 0; userData.diasTrabajados = []; saveUserData(userData); showToast('Datos reiniciados.'); setTimeout(() => location.reload(), 1000); }}
             if (id === 'registrarDivisorPTBtn') {
@@ -1802,7 +1825,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     document.getElementById('cancelAddAnticipoBtn').addEventListener('click', () => { document.getElementById('addAnticipoModal').style.display = 'none'; });
     document.getElementById('cancelEditAnticipoBtn').addEventListener('click', () => { document.getElementById('editAnticipoModal').style.display = 'none'; });
-    document.getElementById('cancelDivisorBtn').addEventListener('click', () => { document.getElementById('divisorModal').style.display = 'none'; });
     document.getElementById('cancelDivisorPTBtn').addEventListener('click', () => { document.getElementById('divisorPTModal').style.display = 'none'; });
 
     document.getElementById('saveAddAnticipoBtn').addEventListener('click', () => {
@@ -1830,14 +1852,7 @@ document.addEventListener('DOMContentLoaded', () => {
             actualizarCalculoRetiro(); showToast("Anticipo actualizado.");
         }
     });
-    document.getElementById('saveDivisorBtn').addEventListener('click', () => {
-        const divisor = parseFloat(document.getElementById('divisorInput').dataset.cleanValue) || 0;
-        if (divisor <= 0) { showToast('Divisor inválido.', 'error'); return; }
-        const userData = getUserData(); userData.divisor = divisor; saveUserData(userData);
-        document.getElementById('divisorInput').value = '';
-        document.getElementById('divisorModal').style.display = 'none';
-        actualizarCalculoPlanta(); showToast("Divisor general guardado.");
-    });
+
     document.getElementById('saveDivisorPTBtn').addEventListener('click', () => {
         const divisor = parseFloat(document.getElementById('divisorPTInput').dataset.cleanValue) || 1;
         if (divisor <= 0) { showToast('Divisor inválido.', 'error'); return; }
@@ -1852,14 +1867,13 @@ document.addEventListener('DOMContentLoaded', () => {
     const closeStatsModalBtn = document.getElementById('closeStatsModalBtn');
 
     openStatsModalBtn.addEventListener('click', () => {
-        updateStatisticsUI(); // Llama a la función para renderizar/actualizar los datos
+        updateStatisticsUI();
         statsModal.style.display = 'flex';
     });
     closeStatsModalBtn.addEventListener('click', () => {
         statsModal.style.display = 'none';
     });
     statsModal.addEventListener('click', (e) => {
-        // Cierra el modal si se hace clic en el fondo oscuro
         if (e.target === statsModal) {
             statsModal.style.display = 'none';
         }
@@ -2122,7 +2136,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         const sendButton = document.getElementById('sendResponseBtn');
-        if (sendButton.disabled) return; // Evita envíos múltiples
+        if (sendButton.disabled) return;
 
         sendButton.disabled = true;
         sendButton.innerHTML = `<i class="fas fa-spinner fa-spin"></i> Enviando...`;
@@ -2142,7 +2156,6 @@ document.addEventListener('DOMContentLoaded', () => {
             console.error("Error al enviar la respuesta:", error);
             showToast('Error de conexión al enviar la respuesta.', 'error');
         } finally {
-            // Este bloque se ejecuta siempre, tanto si hay éxito como si hay error.
             sendButton.disabled = false;
             sendButton.innerHTML = 'Enviar Respuesta';
         }
@@ -2177,8 +2190,8 @@ document.addEventListener('DOMContentLoaded', () => {
         aiInputField.value = '';
         addMessageToChat('...', 'ai', true);
         try {
-            const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=${apiKey}`;
-            const payload = { contents: [{ parts: [{ text: userQuery }] }], systemInstruction: { parts: [{ text: SYSTEM_PROMPT }] } };
+            const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${apiKey}`;
+            const payload = { contents: [{ role: 'user', parts: [{ text: userQuery }] }], system_instruction: { parts: [{ text: SYSTEM_PROMPT }] } };
             const response = await fetch(apiUrl, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
             const result = await response.json();
             if (!response.ok) { throw new Error(result?.error?.message || `Error: ${response.statusText}`); }
@@ -2231,13 +2244,18 @@ document.addEventListener('DOMContentLoaded', () => {
         actualizarCalculoRetiro();
         document.getElementById('importarDesdeSheetsBtn').addEventListener('click', () => importarDesdeSheets(false));
         document.getElementById('sendResponseBtn').addEventListener('click', enviarRespuesta);
-        ['addAnticipoMontoInput', 'editAnticipoMontoInput', 'divisorInput', 'divisorPTInput'].forEach(id => setupNumericInputFormatting(document.getElementById(id)));
+        ['addAnticipoMontoInput', 'editAnticipoMontoInput', 'divisorPTInput'].forEach(id => setupNumericInputFormatting(document.getElementById(id)));
         importarDesdeSheets(true);
         cargarNotas(); 
         if (notesInterval) clearInterval(notesInterval);
         notesInterval = setInterval(cargarNotas, 15000); 
         if (sheetsInterval) clearInterval(sheetsInterval);
-        sheetsInterval = setInterval(() => importarDesdeSheets(true), 15000); 
+        sheetsInterval = setInterval(() => {
+            importarDesdeSheets(true);
+            if(loggedInUser.tipo === 'Planta') {
+                obtenerYActualizarValorPorPuntoExterno();
+            }
+        }, 15000); 
     }
 
     if ('serviceWorker' in navigator) { window.addEventListener('load', () => { navigator.serviceWorker.register('service-worker.js').then(reg => console.log('SW registered.')).catch(err => console.log('SW registration failed: ', err)); }); }
