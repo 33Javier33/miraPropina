@@ -1663,12 +1663,10 @@ document.addEventListener('DOMContentLoaded', () => {
                     return divisor > 0 ? sum + (totalesPorDia[fecha] / divisor) : sum;
                 }, 0);
 
-                // --- INICIO DE LA MODIFICACIÓN ---
                 const today = new Date();
-                today.setDate(today.getDate() - 1); // Restamos un día para obtener la fecha de ayer
-                const yesterdayString = today.toISOString().split('T')[0]; // Formato YYYY-MM-DD
+                today.setDate(today.getDate() - 1); 
+                const yesterdayString = today.toISOString().split('T')[0];
                 const divisorDeAyer = divisoresExternos[yesterdayString] || null;
-                // --- FIN DE LA MODIFICACIÓN ---
                 
                 const userData = getUserData();
                 const needsUpdate = userData.divisor !== totalGeneralDivision || userData.divisorDelDia !== divisorDeAyer;
@@ -1704,7 +1702,6 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('totalMontoDividirPlanta').textContent = `$${formatNumberWithPoints(total)}`;
         
         const divisorDelDia = userData.divisorDelDia;
-        // MODIFICADO: Se cambia el texto por defecto si no se encuentra el divisor de ayer.
         document.getElementById('divisorDisplayPlanta').textContent = divisorDelDia ? formatNumberWithPoints(divisorDelDia) : 'No registrado ayer';
 
         document.getElementById('valorPorPuntoDisplayPlanta').textContent = `$${formatNumberWithPoints(valorPorPunto)}`;
@@ -1881,16 +1878,43 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function updateStatisticsUI(view = 'daily') {
         if (!loggedInUser) return;
+
+        const today = new Date();
+        const currentDay = today.getDate();
+        const currentMonth = today.getMonth();
+        const currentYear = today.getFullYear();
+
+        let startDate, endDate;
+
+        if (currentDay < 15) {
+            const lastMonth = new Date(currentYear, currentMonth - 1, 15);
+            startDate = new Date(lastMonth.getFullYear(), lastMonth.getMonth(), 15);
+            endDate = new Date(currentYear, currentMonth, 14);
+        } else {
+            const nextMonth = new Date(currentYear, currentMonth + 1, 14);
+            startDate = new Date(currentYear, currentMonth, 15);
+            endDate = new Date(nextMonth.getFullYear(), nextMonth.getMonth(), 14);
+        }
+
+        const modalHeader = statsModal.querySelector('.modal-header h4');
+        modalHeader.innerHTML = `Estadísticas del Período <small style="font-size: 0.6em; font-weight: normal; display: block;">(${startDate.toLocaleDateString('es-ES')} - ${endDate.toLocaleDateString('es-ES')})</small>`;
+
+        const startDateString = startDate.toISOString().split('T')[0];
+        const endDateString = endDate.toISOString().split('T')[0];
+        
         const userData = getUserData();
         const montosPorFecha = userData.montosPorFecha || {};
-        const fechas = Object.keys(montosPorFecha).sort();
         
+        const fechasDelPeriodo = Object.keys(montosPorFecha).filter(fecha => {
+            return fecha >= startDateString && fecha <= endDateString;
+        }).sort();
+
         const statCardsContainer = document.getElementById('statCardsContainer');
         const chartContainer = document.querySelector('.chart-container');
         const chartControls = document.querySelector('.chart-controls');
         
-        if (fechas.length === 0) {
-            statCardsContainer.innerHTML = '<p style="text-align:center; color: var(--text-secondary);">No hay datos para mostrar estadísticas. Sincroniza con Sheets para empezar.</p>';
+        if (fechasDelPeriodo.length === 0) {
+            statCardsContainer.innerHTML = '<p style="text-align:center; color: var(--text-secondary);">No hay datos para mostrar estadísticas en el período actual.</p>';
             if(tipChart) tipChart.destroy();
             chartContainer.style.display = 'none';
             chartControls.style.display = 'none';
@@ -1900,39 +1924,41 @@ document.addEventListener('DOMContentLoaded', () => {
             chartControls.style.display = 'flex';
         }
 
-        const dailyData = fechas.map(fecha => ({
+        const dailyData = fechasDelPeriodo.map(fecha => ({
             fecha,
             total: montosPorFecha[fecha].reduce((sum, m) => sum + m.monto, 0)
         }));
 
-        let totalRecaudado = dailyData.reduce((sum, day) => sum + day.total, 0);
-        let diasRegistrados = dailyData.length;
-        let promedioDiario = totalRecaudado / diasRegistrados;
+        const diasRegistrados = dailyData.length;
+        const totalRecaudado = dailyData.reduce((sum, day) => sum + day.total, 0);
+        const promedioDiario = diasRegistrados > 0 ? totalRecaudado / diasRegistrados : 0;
 
         let proyeccionHTML = '';
         if (loggedInUser.tipo === 'Planta') {
-            const divisor = userData.divisor || 0;
-            if (divisor > 0) {
-                const firstDate = new Date(fechas[0] + 'T00:00:00');
-                const daysInMonth = new Date(firstDate.getFullYear(), firstDate.getMonth() + 1, 0).getDate();
-                const totalProyectado = promedioDiario * daysInMonth;
-                const valorPuntoProyectado = totalProyectado / divisor;
-                proyeccionHTML = `
-                <div class="stat-card">
-                    <span class="label">Valor por Punto (Proyectado)</span>
-                    <span class="value projection">$${formatNumberWithPoints(valorPuntoProyectado)}</span>
-                    <p class="disclaimer">*Estimación basada en el promedio actual.</p>
-                </div>`;
+            
+            const currentValorPorPunto = userData.divisor || 0; 
+            const daysInPeriod = ((endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24)) + 1;
+            
+            let valorPuntoProyectado = 0;
+            if (diasRegistrados > 0) {
+                valorPuntoProyectado = (currentValorPorPunto / diasRegistrados) * daysInPeriod;
             }
+
+            proyeccionHTML = `
+            <div class="stat-card">
+                <span class="label">Valor por Punto (Proyectado)</span>
+                <span class="value projection">$${formatNumberWithPoints(valorPuntoProyectado)}</span>
+                <p class="disclaimer">*Estimación para el período completo.</p>
+            </div>`;
         }
 
         statCardsContainer.innerHTML = `
             <div class="stat-card">
-                <span class="label">Total Recaudado Actual</span>
+                <span class="label">Total Recaudado (Período)</span>
                 <span class="value">$${formatNumberWithPoints(totalRecaudado)}</span>
             </div>
             <div class="stat-card">
-                <span class="label">Días Registrados</span>
+                <span class="label">Días Registrados (Período)</span>
                 <span class="value">${diasRegistrados}</span>
             </div>
             <div class="stat-card">
