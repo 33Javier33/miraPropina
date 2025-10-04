@@ -638,7 +638,7 @@
                   <div class="calculation-item"><strong>Mis Puntos:</strong> <span id="puntosUsuarioDisplayPlanta">0</span></div>
                   <hr>
                   <div class="calculation-item"><strong>Total Recaudado:</strong> <span id="totalMontoDividirPlanta">$0</span></div>
-                  <div class="calculation-item"><strong>Divisor Registrado (Ayer):</strong> <span id="divisorDisplayPlanta">No registrado</span></div>
+                  <div class="calculation-item"><strong>Divisor Registrado (Último):</strong> <span id="divisorDisplayPlanta">No registrado</span></div>
                   <div class="calculation-item" style="color: var(--info-color); font-weight: bold;"><strong>Valor por Punto:</strong> <span id="valorPorPuntoDisplayPlanta">$0</span></div>
                   <hr>
                   <div class="calculation-item"><strong>Subtotal (Puntos x Valor):</strong> <span id="subtotalDisplayPlanta">$0</span></div>
@@ -1663,20 +1663,22 @@ document.addEventListener('DOMContentLoaded', () => {
                     return divisor > 0 ? sum + (totalesPorDia[fecha] / divisor) : sum;
                 }, 0);
 
-                const today = new Date();
-                today.setDate(today.getDate() - 1); 
-                const yesterdayString = today.toISOString().split('T')[0];
-                const divisorDeAyer = divisoresExternos[yesterdayString] || null;
+                let ultimoDivisorRegistrado = null;
+                const fechasDivisores = Object.keys(divisoresExternos).sort();
+                if (fechasDivisores.length > 0) {
+                    const ultimaFecha = fechasDivisores[fechasDivisores.length - 1];
+                    ultimoDivisorRegistrado = divisoresExternos[ultimaFecha];
+                }
                 
                 const userData = getUserData();
-                const needsUpdate = userData.divisor !== totalGeneralDivision || userData.divisorDelDia !== divisorDeAyer;
+                const needsUpdate = userData.divisor !== totalGeneralDivision || userData.divisorDelDia !== ultimoDivisorRegistrado;
 
                 if (needsUpdate) {
                     userData.divisor = totalGeneralDivision;
-                    userData.divisorDelDia = divisorDeAyer;
+                    userData.divisorDelDia = ultimoDivisorRegistrado;
                     saveUserData(userData);
                     
-                    console.log(`'Valor por Punto' actualizado: ${totalGeneralDivision}. Divisor de ayer capturado: ${divisorDeAyer}.`);
+                    console.log(`'Valor por Punto' actualizado: ${totalGeneralDivision}. Último divisor capturado: ${ultimoDivisorRegistrado}.`);
                     showToast("Datos de recaudación externa sincronizados.", "info");
                     actualizarCalculoPlanta();
                 }
@@ -1702,7 +1704,7 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('totalMontoDividirPlanta').textContent = `$${formatNumberWithPoints(total)}`;
         
         const divisorDelDia = userData.divisorDelDia;
-        document.getElementById('divisorDisplayPlanta').textContent = divisorDelDia ? formatNumberWithPoints(divisorDelDia) : 'No registrado ayer';
+        document.getElementById('divisorDisplayPlanta').textContent = divisorDelDia ? formatNumberWithPoints(divisorDelDia) : 'No registrado';
 
         document.getElementById('valorPorPuntoDisplayPlanta').textContent = `$${formatNumberWithPoints(valorPorPunto)}`;
         document.getElementById('subtotalDisplayPlanta').textContent = `$${formatNumberWithPoints(sub)}`;
