@@ -1224,8 +1224,14 @@ document.addEventListener('DOMContentLoaded', () => {
     function addRecentLogin(user) {
         let recentLogins = JSON.parse(localStorage.getItem('recentLogins')) || [];
         recentLogins = recentLogins.filter(u => u.id !== user.id); 
-        recentLogins.unshift({ id: user.id, nombre: user.nombre, apellido: user.apellido });
-        recentLogins = recentLogins.slice(0, 4);
+        recentLogins.unshift({ 
+            id: user.id, 
+            nombre: user.nombre, 
+            apellido: user.apellido,
+            timestamp: new Date().toISOString(), // <-- AÑADIDO: Guardar la hora
+            isNew: user.isNew || false // <-- AÑADIDO: Guardar si es nuevo registro
+        });
+        recentLogins = recentLogins.slice(0, 10); // Guardar los últimos 10
         localStorage.setItem('recentLogins', JSON.stringify(recentLogins));
     }
 
@@ -1303,6 +1309,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     existingUser.mes = mes;
                     existingUser.anio = anio;
                     userToValidate = existingUser;
+                    userToValidate.isNew = false; // <-- AÑADIDO: No es un nuevo registro
                 } else {
                     showToast('Contraseña incorrecta.', 'error');
                     return;
@@ -1314,7 +1321,8 @@ document.addEventListener('DOMContentLoaded', () => {
                     seccion: document.getElementById('loginSeccion').value,
                     dia: dia, mes: mes, anio: anio,
                     puntos: parseFloat(document.getElementById('loginPuntos').value) || 0,
-                    password: password, telefono: ''
+                    password: password, telefono: '',
+                    isNew: true // <-- AÑADIDO: Es un nuevo registro
                 };
                 if (!userToValidate.tipo || !userToValidate.seccion || !userToValidate.anio || userToValidate.puntos <= 0) {
                     showToast("Completa todos los campos para registrarte.", "error");
