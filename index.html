@@ -1585,8 +1585,9 @@ document.addEventListener('DOMContentLoaded', () => {
             const userData = getUserData();
             userData.montosPorFecha = nuevosMontosDesdeSheet;
             saveUserData(userData);
-            cargarYMostrarMontos();
+            // La llamada a cargarYMostrarMontos se hará después de la sincronización en initApp
             if (!isSilent) {
+                cargarYMostrarMontos(); // Actualizar solo si es un click manual
                 showToast("Datos sincronizados con Google Sheets.");
             }
         } catch (error) {
@@ -1691,7 +1692,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     saveUserData(userData);
                     
                     console.log(`'Valor por Punto' actualizado: ${totalGeneralDivision}. Último divisor capturado: ${ultimoDivisorRegistrado}.`);
-                    showToast("Datos de recaudación externa sincronizados.", "info");
+                    // El toast de actualización general se mostrará en initApp
                     actualizarCalculoPlanta();
                 }
             }
@@ -2326,31 +2327,66 @@ document.addEventListener('DOMContentLoaded', () => {
     function initApp() {
         if (!loggedInUser) return;
         
+        // Configuración inicial de la UI que no depende de los datos de Sheets
         document.getElementById('titulo-retiro').textContent = `Retiro de Propina (${loggedInUser.tipo})`;
         if (loggedInUser.tipo === 'Planta') {
-            document.getElementById('vistaPlanta').style.display = 'block'; document.getElementById('vistaPartTime').style.display = 'none';
+            document.getElementById('vistaPlanta').style.display = 'block';
+            document.getElementById('vistaPartTime').style.display = 'none';
         } else {
-            document.getElementById('vistaPlanta').style.display = 'none'; document.getElementById('vistaPartTime').style.display = 'block';
+            document.getElementById('vistaPlanta').style.display = 'none';
+            document.getElementById('vistaPartTime').style.display = 'block';
             renderCalendar(document.getElementById('calendar-container'));
         }
         const savedPanelId = localStorage.getItem('activePanel') || 'retirosPropinaSection';
         activatePanel(savedPanelId);
-        actualizarCalculoRetiro();
         document.getElementById('importarDesdeSheetsBtn').addEventListener('click', () => importarDesdeSheets(false));
         document.getElementById('sendResponseBtn').addEventListener('click', enviarRespuesta);
         ['addAnticipoMontoInput', 'editAnticipoMontoInput', 'divisorPTInput'].forEach(id => setupNumericInputFormatting(document.getElementById(id)));
-        importarDesdeSheets(true);
-        cargarNotas(); 
-        obtenerDivisoresExternos(true);
+
+        // --- NUEVA LÓGICA DE CARGA RÁPIDA ---
+
+        // 1. Carga y muestra los datos locales INMEDIATAMENTE.
+        // La app se siente instantánea porque usa los datos de la última sesión.
+        console.log("Paso 1: Cargando datos desde caché local para una visualización inmediata.");
+        cargarYMostrarMontos();
+        actualizarCalculoRetiro();
+        
+        // 2. Inicia la sincronización en segundo plano y carga de notas.
+        console.log("Paso 2: Iniciando sincronización en segundo plano con los servidores.");
+        showToast("Sincronizando datos...", "info");
+        cargarNotas(); // Las notas pueden cargarse en paralelo.
+
+        (async () => {
+            // Esta función se ejecuta sin bloquear la interfaz.
+            await importarDesdeSheets(true); // El 'true' evita que muestre su propio toast
+            if(loggedInUser.tipo === 'Planta') {
+                await obtenerYActualizarValorPorPuntoExterno();
+            }
+            await obtenerDivisoresExternos(true);
+
+            // 3. Cuando termina la sincronización, actualiza la UI con los datos frescos.
+            console.log("Paso 3: Sincronización completada. Refrescando la interfaz.");
+            showToast("¡Datos actualizados!");
+            cargarYMostrarMontos(); // Vuelve a renderizar con los nuevos datos
+            actualizarCalculoRetiro(); // Vuelve a calcular todo
+
+        })();
+
+        // 4. Inicia los intervalos de actualización periódica.
         if (notesInterval) clearInterval(notesInterval);
         notesInterval = setInterval(cargarNotas, 15000); 
+        
         if (sheetsInterval) clearInterval(sheetsInterval);
         sheetsInterval = setInterval(() => {
-            importarDesdeSheets(true);
-            if(loggedInUser.tipo === 'Planta') {
-                obtenerYActualizarValorPorPuntoExterno();
-            }
-            obtenerDivisoresExternos(true);
+            // Este intervalo mantiene los datos frescos mientras la app está abierta.
+            (async () => {
+                await importarDesdeSheets(true);
+                if(loggedInUser.tipo === 'Planta') {
+                   await obtenerYActualizarValorPorPuntoExterno();
+                }
+                await obtenerDivisoresExternos(true);
+                actualizarCalculoRetiro(); // Actualiza los cálculos con los datos más recientes
+            })();
         }, 15000); 
     }
 
