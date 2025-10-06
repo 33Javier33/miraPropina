@@ -1712,7 +1712,9 @@ document.addEventListener('DOMContentLoaded', () => {
             const result = await divisoresResponse.json();
             if (result.status === 'success' && result.data) {
                 divisoresDiariosExternos = result.data;
-                console.log("Divisores diarios externos actualizados:", divisoresDiariosExternos);
+                // <-- CAMBIO 1: Guardar los divisores obtenidos en la caché local para el próximo inicio.
+                localStorage.setItem('cachedDivisores', JSON.stringify(divisoresDiariosExternos));
+                console.log("Divisores externos actualizados y guardados en caché local.");
                 if (loggedInUser && loggedInUser.tipo === 'Part Time') {
                     actualizarCalculoPartTime();
                 }
@@ -2327,7 +2329,10 @@ document.addEventListener('DOMContentLoaded', () => {
     function initApp() {
         if (!loggedInUser) return;
         
-        // Configuración inicial de la UI que no depende de los datos de Sheets
+        // <-- CAMBIO 2: Cargar los divisores desde la caché ANTES de hacer cualquier cálculo.
+        divisoresDiariosExternos = JSON.parse(localStorage.getItem('cachedDivisores')) || {};
+        
+        // Configuración inicial de la UI
         document.getElementById('titulo-retiro').textContent = `Retiro de Propina (${loggedInUser.tipo})`;
         if (loggedInUser.tipo === 'Planta') {
             document.getElementById('vistaPlanta').style.display = 'block';
@@ -2343,32 +2348,31 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('sendResponseBtn').addEventListener('click', enviarRespuesta);
         ['addAnticipoMontoInput', 'editAnticipoMontoInput', 'divisorPTInput'].forEach(id => setupNumericInputFormatting(document.getElementById(id)));
 
-        // --- NUEVA LÓGICA DE CARGA RÁPIDA ---
+        // --- LÓGICA DE CARGA RÁPIDA MEJORADA ---
 
         // 1. Carga y muestra los datos locales INMEDIATAMENTE.
-        // La app se siente instantánea porque usa los datos de la última sesión.
-        console.log("Paso 1: Cargando datos desde caché local para una visualización inmediata.");
+        // Ahora incluye los divisores para Part Time, asegurando un cálculo inicial correcto.
+        console.log("Paso 1: Cargando datos desde caché local (incluyendo divisores) para visualización inmediata.");
         cargarYMostrarMontos();
         actualizarCalculoRetiro();
         
         // 2. Inicia la sincronización en segundo plano y carga de notas.
         console.log("Paso 2: Iniciando sincronización en segundo plano con los servidores.");
         showToast("Sincronizando datos...", "info");
-        cargarNotas(); // Las notas pueden cargarse en paralelo.
+        cargarNotas(); 
 
         (async () => {
-            // Esta función se ejecuta sin bloquear la interfaz.
-            await importarDesdeSheets(true); // El 'true' evita que muestre su propio toast
+            await importarDesdeSheets(true);
             if(loggedInUser.tipo === 'Planta') {
                 await obtenerYActualizarValorPorPuntoExterno();
             }
-            await obtenerDivisoresExternos(true);
+            await obtenerDivisoresExternos(true); // Esta función ahora guarda en caché.
 
-            // 3. Cuando termina la sincronización, actualiza la UI con los datos frescos.
+            // 3. Al terminar la sincronización, actualiza la UI con los datos frescos.
             console.log("Paso 3: Sincronización completada. Refrescando la interfaz.");
             showToast("¡Datos actualizados!");
-            cargarYMostrarMontos(); // Vuelve a renderizar con los nuevos datos
-            actualizarCalculoRetiro(); // Vuelve a calcular todo
+            cargarYMostrarMontos();
+            actualizarCalculoRetiro();
 
         })();
 
@@ -2378,14 +2382,13 @@ document.addEventListener('DOMContentLoaded', () => {
         
         if (sheetsInterval) clearInterval(sheetsInterval);
         sheetsInterval = setInterval(() => {
-            // Este intervalo mantiene los datos frescos mientras la app está abierta.
             (async () => {
                 await importarDesdeSheets(true);
                 if(loggedInUser.tipo === 'Planta') {
                    await obtenerYActualizarValorPorPuntoExterno();
                 }
                 await obtenerDivisoresExternos(true);
-                actualizarCalculoRetiro(); // Actualiza los cálculos con los datos más recientes
+                actualizarCalculoRetiro();
             })();
         }, 15000); 
     }
