@@ -553,8 +553,8 @@
                 <div class="note">
                     <p><strong>Paso A: Marcar Días y Calcular Pozo</strong><br>En el calendario, debes marcar los días que trabajaste para que la app sume las propinas de <strong>solo esos días</strong> en tu "Pozo Individual".</p>
 
-                    <p><strong>Paso B: Calcular el Valor por Punto</strong><br>La app divide tu "Pozo Individual" por tu "Divisor Personal".</p>
-                    <div class="formula">Valor por Punto = Pozo Individual / Divisor Personal</div>
+                    <p><strong>Paso B: Calcular el Valor por Punto</strong><br>La app divide tu "Pozo Individual" por tu "Divisor Personal". Este divisor corresponde al divisor registrado en el <strong>último día</strong> que marcaste en el calendario.</p>
+                    <div class="formula">Valor por Punto = Pozo Individual / Divisor Personal (Último Día)</div>
 
                     <p><strong>Paso C y D: Calcular Subtotal y Total Final</strong><br>Finalmente, el "Valor por Punto" se multiplica por "Mis Puntos" y se restan tus "Anticipos".</p>
                 </div>
@@ -662,7 +662,10 @@
                           <hr>
                           <div class="calculation-item"><strong>Días trabajados:</strong> <span id="diasTrabajadosDisplayPT">0</span></div>
                           <div class="calculation-item"><strong>Pozo Individual:</strong> <span id="pozoIndividualDisplayPT">$0</span></div>
-                          <div class="calculation-item"><strong>Divisor Personal:</strong> <span id="divisorDisplayPT">1</span></div>
+                          <div class="calculation-item">
+                               <strong title="Corresponde al divisor del último día de trabajo que marcaste en el calendario.">Divisor Personal (Auto):</strong>
+                               <span id="divisorDisplayPT">0</span>
+                          </div>
                           <div class="calculation-item" style="color: var(--info-color); font-weight: bold;"><strong>Valor por Punto:</strong> <span id="valorPorPuntoDisplayPT">$0</span></div>
                           <hr>
                           <div class="calculation-item"><strong>Subtotal:</strong> <span id="subtotalDisplayPT">$0</span></div>
@@ -672,7 +675,7 @@
                               <strong class="total-result">Total a Retirar:</strong> 
                               <span id="resultadoFinalPT" class="total-result">$0</span>
                           </div>
-                          <button id="registrarDivisorPTBtn" style="width:100%; margin-top:10px;">Editar Divisor Personal</button>
+                          <button id="registrarDivisorPTBtn" style="width:100%; margin-top:10px; display: none;">Editar Divisor Personal</button>
                       </div>
                   </div>
               </div>
@@ -971,6 +974,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let allFetchedNotes = [];
     let isAiThinking = false;
     let tipChart = null;
+    let divisoresDiariosExternos = {};
 
     // --- Funciones de gestión de datos (localStorage) ---
     function getAppData() { return JSON.parse(localStorage.getItem('appData')) || { usuarios: {}, userData: {} }; }
@@ -1695,6 +1699,28 @@ document.addEventListener('DOMContentLoaded', () => {
             console.error("Error al obtener datos de la app externa:", error);
         }
     }
+
+    async function obtenerDivisoresExternos(isSilent = true) {
+        try {
+            const divisoresResponse = await fetch(`${SCRIPT_URL_RECAUDACION_EXTERNA}?action=getDivisores&v=${new Date().getTime()}`);
+            if (!divisoresResponse.ok) {
+                 if (!isSilent) showToast('No se pudieron obtener los divisores diarios.', 'error');
+                 console.error("No se pudo conectar para obtener divisores.");
+                 return;
+            }
+            const result = await divisoresResponse.json();
+            if (result.status === 'success' && result.data) {
+                divisoresDiariosExternos = result.data;
+                console.log("Divisores diarios externos actualizados:", divisoresDiariosExternos);
+                if (loggedInUser && loggedInUser.tipo === 'Part Time') {
+                    actualizarCalculoPartTime();
+                }
+            }
+        } catch (error) {
+            console.error("Error al obtener los divisores externos:", error);
+            if (!isSilent) showToast('Error al obtener divisores.', 'error');
+        }
+    }
     
     function actualizarCalculoRetiro() { if (!loggedInUser) return; loggedInUser.tipo === 'Planta' ? actualizarCalculoPlanta() : actualizarCalculoPartTime(); }
     
@@ -1726,11 +1752,21 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function actualizarCalculoPartTime() {
         const userData = getUserData();
-        const p = loggedInUser.puntos || 0, dias = userData.diasTrabajados || [], montos = userData.montosPorFecha || {};
+        const p = loggedInUser.puntos || 0;
+        const dias = userData.diasTrabajados || [];
+        const montos = userData.montosPorFecha || {};
         const pozo = dias.reduce((s, f) => s + (montos[f] || []).reduce((ds, m) => ds + m.monto, 0), 0);
-        const div = userData.divisorPartTime || 1;
+        
+        let div = 0;
+        if (dias.length > 0) {
+            const ultimoDiaTrabajado = dias.sort((a, b) => b.localeCompare(a))[0];
+            div = divisoresDiariosExternos[ultimoDiaTrabajado] || 0;
+        }
+
         const anticiposTotal = (userData.anticipos || []).reduce((s, a) => s + a.monto, 0);
-        const vpp = div > 0 ? (pozo / div) : 0; const sub = vpp * p; const res = sub - anticiposTotal;
+        const vpp = div > 0 ? (pozo / div) : 0;
+        const sub = vpp * p;
+        const res = sub - anticiposTotal;
         const resultadoFinalEl = document.getElementById('resultadoFinalPT');
 
         document.getElementById('puntosUsuarioDisplayPT').textContent = p;
@@ -1746,6 +1782,7 @@ document.addEventListener('DOMContentLoaded', () => {
         
         renderAnticiposList('#anticipos-list-container-pt');
     }
+
     function renderAnticiposList(containerSelector) {
         const container = document.querySelector(containerSelector);
         if (!container) return;
@@ -1945,7 +1982,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
         let proyeccionHTML = '';
         if (loggedInUser.tipo === 'Planta') {
-            
             const currentValorPorPunto = userData.divisor || 0; 
             const daysInPeriod = ((endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24)) + 1;
             
@@ -1960,7 +1996,29 @@ document.addEventListener('DOMContentLoaded', () => {
                 <span class="value projection">$${formatNumberWithPoints(valorPuntoProyectado)}</span>
                 <p class="disclaimer">*Estimación para el período completo.</p>
             </div>`;
+        } else if (loggedInUser.tipo === 'Part Time') {
+            const diasTrabajadosEnPeriodo = (userData.diasTrabajados || []).filter(fecha => {
+                return fecha >= startDateString && fecha <= endDateString;
+            }).sort((a, b) => b.localeCompare(a));
+
+            if (diasTrabajadosEnPeriodo.length > 0) {
+                const pozoDelPeriodo = diasTrabajadosEnPeriodo.reduce((sum, fecha) => {
+                    return sum + (montosPorFecha[fecha] || []).reduce((s, m) => s + m.monto, 0);
+                }, 0);
+
+                const ultimoDiaTrabajado = diasTrabajadosEnPeriodo[0];
+                const divisorDelUltimoDia = divisoresDiariosExternos[ultimoDiaTrabajado] || 0;
+                const valorPorPuntoActual = divisorDelUltimoDia > 0 ? (pozoDelPeriodo / divisorDelUltimoDia) : 0;
+
+                proyeccionHTML = `
+                <div class="stat-card">
+                    <span class="label">Valor por Punto (Actual)</span>
+                    <span class="value projection">$${formatNumberWithPoints(valorPorPuntoActual)}</span>
+                    <p class="disclaimer">*Calculado con los días trabajados en este período.</p>
+                </div>`;
+            }
         }
+
 
         statCardsContainer.innerHTML = `
             <div class="stat-card">
@@ -2283,6 +2341,7 @@ document.addEventListener('DOMContentLoaded', () => {
         ['addAnticipoMontoInput', 'editAnticipoMontoInput', 'divisorPTInput'].forEach(id => setupNumericInputFormatting(document.getElementById(id)));
         importarDesdeSheets(true);
         cargarNotas(); 
+        obtenerDivisoresExternos(true);
         if (notesInterval) clearInterval(notesInterval);
         notesInterval = setInterval(cargarNotas, 15000); 
         if (sheetsInterval) clearInterval(sheetsInterval);
@@ -2291,6 +2350,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if(loggedInUser.tipo === 'Planta') {
                 obtenerYActualizarValorPorPuntoExterno();
             }
+            obtenerDivisoresExternos(true);
         }, 15000); 
     }
 
