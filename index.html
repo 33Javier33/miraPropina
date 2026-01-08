@@ -843,11 +843,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const SCRIPT_URL_LOGIN = 'https://script.google.com/macros/s/AKfycbyuUqSHgmrGYOUife2U_zZss6EvqDOAHZbXZGknDipaE12cOhTRYndFbN1Efmk1cCRa/exec';
 
     // --- Lógica para Cierre de Sesión al Salir de la App ---
-    document.addEventListener('visibilitychange', () => {
-      if (document.hidden && loggedInUser) {
-        logout();
-      }
-    });
+    
 
     // --- Función de Cierre de Sesión ---
     function logout() {
