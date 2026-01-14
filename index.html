@@ -179,7 +179,6 @@
     .final-calculation { border-top: 2px solid var(--border-color); padding-top: 15px; margin-top: 15px; }
     .total-result { font-size: 1.8em; font-weight: bold; color: var(--primary-color); }
     
-    /* --- CORRECCIÓN COLOR ROJO NEGATIVOS --- */
     .negative-value { color: var(--danger-color) !important; }
 
     .retiro-actions { display: flex; gap: 10px; margin-top: 20px; flex-wrap: wrap; }
@@ -430,6 +429,7 @@
 <nav id="sideMenu" class="side-menu"></nav>
 
 <div id="mainContainer" class="main-container">
+    <!-- BOTÓN MENÚ CON ETIQUETA NUEVA -->
     <button id="menuToggle" class="menu-toggle" style="display: none;">
         <span class="bar"></span>
         <span class="bar"></span>
@@ -1111,12 +1111,12 @@ document.addEventListener('DOMContentLoaded', () => {
     function displayRecentLogins() {
         const recentLogins = JSON.parse(localStorage.getItem('recentLogins')) || [];
         const container = document.getElementById('quickAccessUsers');
-        const section = document.getElementById('quickAccessSection'); // Asegurar que seleccionamos la sección
+        const section = document.getElementById('quickAccessSection'); 
         
         container.innerHTML = ''; 
         
         if (recentLogins.length > 0) {
-            section.style.display = 'block'; // Mostrar la sección si hay usuarios
+            section.style.display = 'block'; 
             
             recentLogins.forEach(user => {
                 const userDiv = document.createElement('div');
@@ -1127,12 +1127,10 @@ document.addEventListener('DOMContentLoaded', () => {
                     <div class="quick-access-name">${user.nombre}</div>
                 `;
                 
-                // Click para RELLENAR EL FORMULARIO (No entrar directo)
+                // Click para RELLENAR EL FORMULARIO
                 userDiv.addEventListener('click', (e) => {
-                    // Si el click fue en el botón de borrar
                     if(e.target.classList.contains('delete-user-btn')) {
                         e.stopPropagation();
-                        // --- CONFIRMACIÓN ANTES DE BORRAR ---
                         if(confirm('¿Estás seguro de que quieres eliminar a este usuario del acceso rápido?')) {
                             let current = JSON.parse(localStorage.getItem('recentLogins')) || [];
                             current = current.filter(u => u.id !== user.id);
@@ -1142,26 +1140,36 @@ document.addEventListener('DOMContentLoaded', () => {
                         return;
                     }
                     
-                    // RELLENAR CAMPOS
-                    document.getElementById('loginNombre').value = user.nombre;
-                    document.getElementById('loginApellido').value = user.apellido;
-                    document.getElementById('loginTipoContrato').value = user.tipo;
-                    document.getElementById('loginSeccion').value = user.seccion;
-                    document.getElementById('loginDia').value = user.dia;
-                    document.getElementById('loginMes').value = user.mes;
-                    document.getElementById('loginAnio').value = user.anio;
-                    document.getElementById('loginPuntos').value = user.puntos;
+                    // RELLENO EXPLÍCITO Y ROBUSTO
+                    const nombreInput = document.getElementById('loginNombre');
+                    const apellidoInput = document.getElementById('loginApellido');
+                    const contratoSelect = document.getElementById('loginTipoContrato');
+                    const seccionSelect = document.getElementById('loginSeccion');
+                    const diaSelect = document.getElementById('loginDia');
+                    const mesSelect = document.getElementById('loginMes');
+                    const anioInput = document.getElementById('loginAnio');
+                    const puntosInput = document.getElementById('loginPuntos');
+                    const passwordInput = document.getElementById('loginPassword');
 
-                    // Limpiar y enfocar contraseña
-                    const passInput = document.getElementById('loginPassword');
-                    passInput.value = '';
-                    passInput.focus();
+                    if(nombreInput) nombreInput.value = user.nombre || '';
+                    if(apellidoInput) apellidoInput.value = user.apellido || '';
+                    if(contratoSelect) contratoSelect.value = user.tipo || '';
+                    if(seccionSelect) seccionSelect.value = user.seccion || '';
+                    if(diaSelect) diaSelect.value = user.dia || '';
+                    if(mesSelect) mesSelect.value = user.mes || '';
+                    if(anioInput) anioInput.value = user.anio || '';
+                    if(puntosInput) puntosInput.value = user.puntos || '';
+                    
+                    if(passwordInput) {
+                        passwordInput.value = '';
+                        passwordInput.focus();
+                    }
                 });
 
                 container.appendChild(userDiv);
             });
         } else {
-            section.style.display = 'none'; // Ocultar si no hay usuarios
+            section.style.display = 'none'; 
         }
     }
 
@@ -1188,7 +1196,7 @@ document.addEventListener('DOMContentLoaded', () => {
             appData.usuarios[user.id] = user;
             saveAppData(appData);
             
-            updateRecentLogins(user); // <--- GUARDAR EN ACCESO RÁPIDO
+            updateRecentLogins(user); 
             
             localStorage.setItem('loggedInUser', JSON.stringify(user));
             location.reload();
