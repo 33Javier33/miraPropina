@@ -863,7 +863,7 @@
 
 <script>
 document.addEventListener('DOMContentLoaded', () => {
-    // --- Lógica del Modo Oscuro ---
+    // --- Modo Oscuro ---
     const themeToggleBtn = document.getElementById('theme-toggle');
     if (localStorage.getItem('theme') === 'dark') {
         document.body.classList.add('dark-mode');
@@ -881,34 +881,23 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // --- URLs de los scripts ---
+    // --- URLs de los scripts (Google Apps Script) ---
     const SCRIPT_URL_NOTAS = 'https://script.google.com/macros/s/AKfycbwhKQTp9kER_H87XLekd3d69u5PK5ZpfpGzKdAtYcfKM0qTUuF5apPvB2UNYSyS2-FR/exec';
     const SCRIPT_URL_RECAUDACION_EXTERNA = 'https://script.google.com/macros/s/AKfycbxdiAMbUy2nTuXvvIuF_-KF-ed0s7jxXvh4X2T5u88jl9FSZdrDkNVgVNc7akhpIwCX/exec';
     const SCRIPT_URL_RECAUDACION = 'https://script.google.com/macros/s/AKfycbxna9EH5LZPTPCPws58pGro6qCrZ8_zNwvUkUHS28BYfd8CsAcD1MRcqlITbDm4lTk/exec'; 
     const SCRIPT_URL_LOGIN = 'https://script.google.com/macros/s/AKfycbyuUqSHgmrGYOUife2U_zZss6EvqDOAHZbXZGknDipaE12cOhTRYndFbN1Efmk1cCRa/exec';
 
-    // --- Función de Cierre de Sesión ---
-    function logout() {
-        if (localStorage.getItem('loggedInUser')) {
-            showToast('Se ha cerrado la sesión por seguridad.', 'info');
-            if (notesInterval) clearInterval(notesInterval);
-            if (sheetsInterval) clearInterval(sheetsInterval);
-            localStorage.removeItem('loggedInUser');
-            loggedInUser = null;
-            setTimeout(() => location.reload(), 1500);
-        }
-    }
-    
-    // --- Variables globales y de estado ---
+    // --- Variables Globales ---
     const loginContainer = document.getElementById('login-container');
     const mainContent = document.getElementById('main-content');
     const menuToggle = document.getElementById('menuToggle');
     const sideMenu = document.getElementById('sideMenu');
-    const mainContainer = document.getElementById('mainContainer');
+    
     let loggedInUser = null;
     let currentEditAnticipoId = null;
-    let pendingLoginUser = null; 
-    let userToChangePasswordId = null; 
+    let pendingLoginUser = null; // Usuario que pasó login pero falta teléfono
+    let userToChangePasswordId = null; // ID para recuperación de contraseña
+    
     let notesInterval = null; 
     let sheetsInterval = null;
     let allFetchedNotes = [];
@@ -916,9 +905,10 @@ document.addEventListener('DOMContentLoaded', () => {
     let divisoresDiariosExternos = {};
     let lastActivityTime = Date.now(); 
 
-    // --- Funciones de gestión de datos (localStorage) ---
+    // --- Funciones LocalStorage ---
     function getAppData() { return JSON.parse(localStorage.getItem('appData')) || { usuarios: {}, userData: {} }; }
     function saveAppData(data) { localStorage.setItem('appData', JSON.stringify(data)); }
+    
     function getUserData() {
         const appData = getAppData();
         const userId = loggedInUser.id;
@@ -935,34 +925,7 @@ document.addEventListener('DOMContentLoaded', () => {
         saveAppData(appData);
     }
     
-    function mostrarActualizandoEnCampos() {
-        const ids = [
-            'valorPorPuntoDisplayPlanta', 'divisorDisplayPlanta', 
-            'valorPorPuntoDisplayPT', 'divisorDisplayPT'
-        ];
-        ids.forEach(id => {
-            const el = document.getElementById(id);
-            if(el) el.textContent = 'Actualizando...';
-        });
-    }
-
-    async function enviarDatosLoginASheets(user) {
-      if (!user || !SCRIPT_URL_LOGIN.startsWith('https://')) {
-        return { status: 'success', message: 'Función desactivada localmente.' };
-      }
-      try {
-        const response = await fetch(SCRIPT_URL_LOGIN, {
-          method: 'POST',
-          headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-          body: JSON.stringify(user),
-        });
-        return await response.json();
-      } catch (error) {
-        return { status: 'error', message: 'Error de conexión.' };
-      }
-    }
-
-    // --- Funciones de utilidad ---
+    // --- Utilidades ---
     function showToast(message, type = 'success') {
         const toastContainer = document.getElementById('toast-container');
         const toast = document.createElement('div');
@@ -1008,7 +971,23 @@ document.addEventListener('DOMContentLoaded', () => {
     function setupNumericInputFormatting(el) { if(el) el.addEventListener('input', e => { let v = e.target.value.replace(/\./g, ''); e.target.dataset.cleanValue = (isNaN(v) || v === '') ? '' : v; e.target.value = (isNaN(v) || v === '') ? '' : formatNumberWithPoints(parseInt(v, 10)); }); }
     function formatNoteDate(isoString) { if (!isoString) return 'Fecha desconocida'; const date = new Date(isoString); return date.toLocaleString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' }); }
 
-    // --- Lógica del menú ---
+    async function enviarDatosLoginASheets(user) {
+      if (!user || !SCRIPT_URL_LOGIN.startsWith('https://')) {
+        return { status: 'success', message: 'Función desactivada localmente.' };
+      }
+      try {
+        const response = await fetch(SCRIPT_URL_LOGIN, {
+          method: 'POST',
+          headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+          body: JSON.stringify(user),
+        });
+        return await response.json();
+      } catch (error) {
+        return { status: 'error', message: 'Error de conexión.' };
+      }
+    }
+
+    // --- Menú y Navegación ---
     const setupMenu = () => {
         sideMenu.innerHTML = '<div class="menu-header">Menú</div>';
         const orderedSections = [
@@ -1049,13 +1028,12 @@ document.addEventListener('DOMContentLoaded', () => {
     menuToggle.addEventListener('click', (e) => {
         e.stopPropagation(); sideMenu.classList.toggle('open'); menuToggle.classList.toggle('active');
     });
-    
-    // --- CERRAR MENÚ AL HACER CLIC FUERA ---
+
+    // Cerrar menú al click fuera (Móvil)
     document.addEventListener('click', (e) => {
-        if (window.innerWidth < 992) { // Solo en móvil
+        if (window.innerWidth < 992) { 
             const menu = document.getElementById('sideMenu');
             const btn = document.getElementById('menuToggle');
-            // Si el menú está abierto y el clic NO fue en el menú NI en el botón
             if (menu.classList.contains('open') && !menu.contains(e.target) && !btn.contains(e.target)) {
                 menu.classList.remove('open');
                 btn.classList.remove('active');
@@ -1063,11 +1041,10 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // --- AYUDA ---
+    // --- Ayuda ---
     const helpBtn = document.getElementById('help-btn');
     const helpPanel = document.getElementById('help-panel');
     const closeHelpBtn = document.getElementById('close-help-btn');
-
     helpBtn.addEventListener('click', () => {
         helpPanel.classList.add('open');
         document.querySelectorAll('.help-content-section').forEach(s => s.classList.remove('active-help'));
@@ -1081,7 +1058,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
     closeHelpBtn.addEventListener('click', () => helpPanel.classList.remove('open'));
 
-    // --- SESIÓN ---
+    // --- LOGIN Y GESTIÓN DE SESIÓN ---
     function checkLogin() {
         const user = JSON.parse(localStorage.getItem('loggedInUser'));
         if (user && user.id) {
@@ -1091,7 +1068,7 @@ document.addEventListener('DOMContentLoaded', () => {
             menuToggle.style.display = 'flex';
             document.getElementById('userInfo').textContent = `${user.nombre} ${user.apellido}`;
             setupMenu(); initApp();
-            resetInactivityTimer(); // Iniciar timer al login
+            resetInactivityTimer();
         } else {
             loginContainer.style.display = 'block'; 
             mainContent.style.display = 'none'; 
@@ -1099,12 +1076,12 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // --- NUEVO: Función para actualizar la lista de usuarios recientes ---
+    // --- Acceso Rápido ---
     function updateRecentLogins(user) {
         let recent = JSON.parse(localStorage.getItem('recentLogins')) || [];
-        recent = recent.filter(u => u.id !== user.id); // Evitar duplicados
-        recent.unshift(user); // Agregar al principio
-        if (recent.length > 5) recent.pop(); // Mantener solo los últimos 5
+        recent = recent.filter(u => u.id !== user.id);
+        recent.unshift(user);
+        if (recent.length > 5) recent.pop();
         localStorage.setItem('recentLogins', JSON.stringify(recent));
     }
 
@@ -1112,26 +1089,17 @@ document.addEventListener('DOMContentLoaded', () => {
         const recentLogins = JSON.parse(localStorage.getItem('recentLogins')) || [];
         const container = document.getElementById('quickAccessUsers');
         const section = document.getElementById('quickAccessSection'); 
-        
         container.innerHTML = ''; 
-        
         if (recentLogins.length > 0) {
             section.style.display = 'block'; 
-            
             recentLogins.forEach(user => {
                 const userDiv = document.createElement('div');
                 userDiv.className = 'quick-access-user';
-                userDiv.innerHTML = `
-                    <button class="delete-user-btn" data-user-id="${user.id}">&times;</button>
-                    <div class="quick-access-avatar">${user.nombre.charAt(0).toUpperCase()}</div>
-                    <div class="quick-access-name">${user.nombre}</div>
-                `;
-                
-                // Click para RELLENAR EL FORMULARIO
+                userDiv.innerHTML = `<button class="delete-user-btn" data-user-id="${user.id}">&times;</button><div class="quick-access-avatar">${user.nombre.charAt(0).toUpperCase()}</div><div class="quick-access-name">${user.nombre}</div>`;
                 userDiv.addEventListener('click', (e) => {
                     if(e.target.classList.contains('delete-user-btn')) {
                         e.stopPropagation();
-                        if(confirm('¿Estás seguro de que quieres eliminar a este usuario del acceso rápido?')) {
+                        if(confirm('¿Eliminar del acceso rápido?')) {
                             let current = JSON.parse(localStorage.getItem('recentLogins')) || [];
                             current = current.filter(u => u.id !== user.id);
                             localStorage.setItem('recentLogins', JSON.stringify(current));
@@ -1139,40 +1107,16 @@ document.addEventListener('DOMContentLoaded', () => {
                         }
                         return;
                     }
-                    
-                    // RELLENO EXPLÍCITO Y ROBUSTO
-                    const nombreInput = document.getElementById('loginNombre');
-                    const apellidoInput = document.getElementById('loginApellido');
-                    const contratoSelect = document.getElementById('loginTipoContrato');
-                    const seccionSelect = document.getElementById('loginSeccion');
-                    const diaSelect = document.getElementById('loginDia');
-                    const mesSelect = document.getElementById('loginMes');
-                    const anioInput = document.getElementById('loginAnio');
-                    const puntosInput = document.getElementById('loginPuntos');
-                    const passwordInput = document.getElementById('loginPassword');
-
-                    if(nombreInput) nombreInput.value = user.nombre || '';
-                    if(apellidoInput) apellidoInput.value = user.apellido || '';
-                    if(contratoSelect) contratoSelect.value = user.tipo || '';
-                    if(seccionSelect) seccionSelect.value = user.seccion || '';
-                    if(diaSelect) diaSelect.value = user.dia || '';
-                    if(mesSelect) mesSelect.value = user.mes || '';
-                    if(anioInput) anioInput.value = user.anio || '';
-                    if(puntosInput) puntosInput.value = user.puntos || '';
-                    
-                    if(passwordInput) {
-                        passwordInput.value = '';
-                        passwordInput.focus();
-                    }
+                    const n = document.getElementById('loginNombre'), a = document.getElementById('loginApellido'), c = document.getElementById('loginTipoContrato'), s = document.getElementById('loginSeccion'), d = document.getElementById('loginDia'), m = document.getElementById('loginMes'), y = document.getElementById('loginAnio'), p = document.getElementById('loginPuntos'), pw = document.getElementById('loginPassword');
+                    if(n) n.value = user.nombre || ''; if(a) a.value = user.apellido || ''; if(c) c.value = user.tipo || ''; if(s) s.value = user.seccion || ''; if(d) d.value = user.dia || ''; if(m) m.value = user.mes || ''; if(y) y.value = user.anio || ''; if(p) p.value = user.puntos || '';
+                    if(pw) { pw.value = ''; pw.focus(); }
                 });
-
                 container.appendChild(userDiv);
             });
-        } else {
-            section.style.display = 'none'; 
-        }
+        } else { section.style.display = 'none'; }
     }
 
+    // --- PROCESO DE LOGIN ---
     document.getElementById('loginForm').addEventListener('submit', async (e) => {
         e.preventDefault();
         const user = {
@@ -1191,42 +1135,147 @@ document.addEventListener('DOMContentLoaded', () => {
         showLoadingOverlay();
         const res = await enviarDatosLoginASheets(user);
         hideLoadingOverlay();
+        
         if (res.status === 'success') {
             const appData = getAppData();
+            const existingUser = appData.usuarios[user.id];
+            
+            // Si el usuario ya existe y tiene teléfono, usamos ese teléfono
+            if(existingUser && existingUser.telefono){
+                user.telefono = existingUser.telefono;
+            }
+            
+            // Si NO tiene teléfono, interrumpimos el login para pedirlo
+            if(!user.telefono) {
+                pendingLoginUser = user;
+                document.getElementById('phoneModal').style.display = 'flex';
+                // No guardamos sesión ni recargamos todavía
+                return;
+            }
+            
+            // Flujo Normal
             appData.usuarios[user.id] = user;
             saveAppData(appData);
-            
             updateRecentLogins(user); 
-            
             localStorage.setItem('loggedInUser', JSON.stringify(user));
             location.reload();
         } else { showToast(res.message, 'error'); }
     });
 
+    // --- GUARDAR TELÉFONO (MODAL) ---
+    document.getElementById('savePhoneBtn').addEventListener('click', async () => {
+        const phoneVal = document.getElementById('phoneInput').value.trim();
+        if(!phoneVal) { showToast('Por favor, ingresa tu número.', 'error'); return; }
+        
+        if(pendingLoginUser) {
+            const btn = document.getElementById('savePhoneBtn');
+            btn.textContent = 'Guardando...';
+            btn.disabled = true;
+
+            pendingLoginUser.telefono = phoneVal;
+            
+            // Guardar local
+            const appData = getAppData();
+            appData.usuarios[pendingLoginUser.id] = pendingLoginUser;
+            saveAppData(appData);
+            
+            // Actualizar Sheets con el teléfono nuevo
+            await enviarDatosLoginASheets(pendingLoginUser);
+            
+            localStorage.setItem('loggedInUser', JSON.stringify(pendingLoginUser));
+            updateRecentLogins(pendingLoginUser);
+            location.reload();
+        }
+    });
+
+    // --- RECUPERACIÓN DE CONTRASEÑA ---
+    const forgotPasswordLink = document.getElementById('forgotPasswordLink');
+    if (forgotPasswordLink) {
+        forgotPasswordLink.addEventListener('click', (e) => {
+            e.preventDefault();
+            document.getElementById('forgotPasswordModal').style.display = 'flex';
+            document.getElementById('verifyPhoneContainer').style.display = 'block';
+            document.getElementById('newPasswordContainer').style.display = 'none';
+            document.getElementById('verifyPhoneBtn').style.display = 'inline-flex';
+            document.getElementById('saveNewPasswordBtn').style.display = 'none';
+            document.getElementById('recoveryResult').style.display = 'none';
+            document.getElementById('recoverPhoneInput').value = '';
+            document.getElementById('newPasswordInput').value = '';
+            userToChangePasswordId = null;
+        });
+    }
+
+    document.getElementById('cancelForgotBtn').addEventListener('click', () => {
+        document.getElementById('forgotPasswordModal').style.display = 'none';
+    });
+
+    document.getElementById('verifyPhoneBtn').addEventListener('click', () => {
+        const phoneInput = document.getElementById('recoverPhoneInput').value.trim();
+        const resultDiv = document.getElementById('recoveryResult');
+        
+        if (!phoneInput) {
+            resultDiv.textContent = "Ingresa un número."; resultDiv.className = "error"; resultDiv.style.display = "block"; return;
+        }
+
+        const appData = getAppData();
+        const usuarios = Object.values(appData.usuarios || {});
+        const foundUser = usuarios.find(u => u.telefono === phoneInput);
+
+        if (foundUser) {
+            userToChangePasswordId = foundUser.id;
+            resultDiv.textContent = `Hola ${foundUser.nombre}. Puedes cambiar tu clave.`;
+            resultDiv.className = "success"; resultDiv.style.display = "block";
+            setTimeout(() => {
+                document.getElementById('verifyPhoneContainer').style.display = 'none';
+                document.getElementById('newPasswordContainer').style.display = 'block';
+                document.getElementById('verifyPhoneBtn').style.display = 'none';
+                document.getElementById('saveNewPasswordBtn').style.display = 'inline-flex';
+            }, 1000);
+        } else {
+            resultDiv.textContent = "Número no encontrado."; resultDiv.className = "error"; resultDiv.style.display = "block";
+        }
+    });
+
+    document.getElementById('saveNewPasswordBtn').addEventListener('click', async () => {
+        const newPass = document.getElementById('newPasswordInput').value.trim();
+        if (!newPass || newPass.length < 4) { showToast("Contraseña muy corta.", "error"); return; }
+        if (!userToChangePasswordId) { location.reload(); return; }
+
+        const btn = document.getElementById('saveNewPasswordBtn');
+        btn.textContent = "Guardando..."; btn.disabled = true;
+
+        try {
+            const appData = getAppData();
+            if (appData.usuarios[userToChangePasswordId]) {
+                appData.usuarios[userToChangePasswordId].password = newPass;
+                saveAppData(appData); 
+                await enviarDatosLoginASheets(appData.usuarios[userToChangePasswordId]);
+                showToast("Contraseña restablecida.");
+                document.getElementById('forgotPasswordModal').style.display = 'none';
+            }
+        } catch (e) { showToast("Error al guardar.", "error"); } 
+        finally { btn.textContent = "Guardar Nueva Contraseña"; btn.disabled = false; }
+    });
+
     // --- ESTADÍSTICAS ---
     const statsModal = document.getElementById('statsModal');
-    const openStatsModalBtn = document.getElementById('openStatsModalBtn');
-    const closeStatsModalBtn = document.getElementById('closeStatsModalBtn');
-    const dailyViewBtn = document.getElementById('dailyViewBtn');
-    const weeklyViewBtn = document.getElementById('weeklyViewBtn');
-
-    openStatsModalBtn.addEventListener('click', () => {
+    document.getElementById('openStatsModalBtn').addEventListener('click', () => {
         updateStatisticsUI('daily');
-        dailyViewBtn.classList.add('active');
-        weeklyViewBtn.classList.remove('active');
+        document.getElementById('dailyViewBtn').classList.add('active');
+        document.getElementById('weeklyViewBtn').classList.remove('active');
         statsModal.style.display = 'flex';
     });
-    closeStatsModalBtn.addEventListener('click', () => statsModal.style.display = 'none');
+    document.getElementById('closeStatsModalBtn').addEventListener('click', () => statsModal.style.display = 'none');
     
-    dailyViewBtn.addEventListener('click', () => {
-        dailyViewBtn.classList.add('active');
-        weeklyViewBtn.classList.remove('active');
+    document.getElementById('dailyViewBtn').addEventListener('click', () => {
+        document.getElementById('dailyViewBtn').classList.add('active');
+        document.getElementById('weeklyViewBtn').classList.remove('active');
         updateStatisticsUI('daily');
     });
     
-    weeklyViewBtn.addEventListener('click', () => {
-        weeklyViewBtn.classList.add('active');
-        dailyViewBtn.classList.remove('active');
+    document.getElementById('weeklyViewBtn').addEventListener('click', () => {
+        document.getElementById('weeklyViewBtn').classList.add('active');
+        document.getElementById('dailyViewBtn').classList.remove('active');
         updateStatisticsUI('weekly');
     });
 
@@ -1234,36 +1283,22 @@ document.addEventListener('DOMContentLoaded', () => {
         const today = new Date();
         const day = today.getDate();
         let startDate, endDate;
-
-        if (day >= 15) {
-            startDate = new Date(today.getFullYear(), today.getMonth(), 15);
-            endDate = new Date(today.getFullYear(), today.getMonth() + 1, 14);
-        } else {
-            startDate = new Date(today.getFullYear(), today.getMonth() - 1, 15);
-            endDate = new Date(today.getFullYear(), today.getMonth(), 14);
-        }
+        if (day >= 15) { startDate = new Date(today.getFullYear(), today.getMonth(), 15); endDate = new Date(today.getFullYear(), today.getMonth() + 1, 14); } 
+        else { startDate = new Date(today.getFullYear(), today.getMonth() - 1, 15); endDate = new Date(today.getFullYear(), today.getMonth(), 14); }
 
         const userData = getUserData();
-        // PROTECCIÓN 1: Asegurar que userData exista
         if (!userData) return;
-        
         const montosPorFecha = userData.montosPorFecha || {};
         const startDateStr = startDate.toISOString().split('T')[0];
         const endDateStr = endDate.toISOString().split('T')[0];
-
         const fechasDelCiclo = Object.keys(montosPorFecha).filter(f => f >= startDateStr && f <= endDateStr).sort();
 
-        let vppAcumulado = 0;
-        let poolAcumulado = 0;
-        let dailyVppData = [];
-
+        let vppAcumulado = 0, poolAcumulado = 0, dailyVppData = [];
         fechasDelCiclo.forEach(fecha => {
             const poolDia = montosPorFecha[fecha].reduce((sum, m) => sum + m.monto, 0);
             const divisorDia = divisoresDiariosExternos[fecha] || 0;
             const vppDia = divisorDia > 0 ? (poolDia / divisorDia) : 0;
-            
-            poolAcumulado += poolDia;
-            vppAcumulado += vppDia;
+            poolAcumulado += poolDia; vppAcumulado += vppDia;
             dailyVppData.push({ fecha, vpp: vppDia, pool: poolDia });
         });
 
@@ -1272,58 +1307,37 @@ document.addEventListener('DOMContentLoaded', () => {
         const vppProyectado = promedioVppDiario * 30;
         const gananciaProyectada = vppProyectado * loggedInUser.puntos;
 
-        // PROTECCIÓN 2: Asegurar que el elemento exista antes de escribir
         const statContainer = document.getElementById('statCardsContainer');
         if (statContainer) {
             statContainer.innerHTML = `
                 <div class="stat-card"><span class="label">VPP Acumulado</span><span class="value">$${formatNumberWithPoints(vppAcumulado)}</span></div>
                 <div class="stat-card"><span class="label">Pool Total Acumulado</span><span class="value">$${formatNumberWithPoints(poolAcumulado)}</span></div>
-                <div class="stat-card"><span class="label">VPP Proyectado (Día 14)</span><span class="value projection">$${formatNumberWithPoints(vppProyectado)}</span></div>
-                <div class="stat-card"><span class="label">Ganancia Est. (Mes)</span><span class="value" style="color:var(--secondary-color)">$${formatNumberWithPoints(gananciaProyectada)}</span><p class="disclaimer">*Calculado sobre tus ${loggedInUser.puntos} puntos.</p></div>
+                <div class="stat-card"><span class="label">VPP Proyectado (Mes)</span><span class="value projection">$${formatNumberWithPoints(vppProyectado)}</span></div>
+                <div class="stat-card"><span class="label">Ganancia Est.</span><span class="value" style="color:var(--secondary-color)">$${formatNumberWithPoints(gananciaProyectada)}</span><p class="disclaimer">*Calculado sobre tus ${loggedInUser.puntos} puntos.</p></div>
             `;
         }
 
         if (view === 'weekly') {
             const weeklyData = [];
-            let currentWeekVpp = 0;
-            let count = 0;
-            let weekIndex = 1;
-            
+            let currentWeekVpp = 0, count = 0, weekIndex = 1;
             dailyVppData.forEach((d, index) => {
-                currentWeekVpp += d.vpp;
-                count++;
-                
+                currentWeekVpp += d.vpp; count++;
                 if (count === 7 || index === dailyVppData.length - 1) {
-                    weeklyData.push({
-                        fecha: `Semana ${weekIndex}`,
-                        vpp: currentWeekVpp / count
-                    });
-                    currentWeekVpp = 0;
-                    count = 0;
-                    weekIndex++;
+                    weeklyData.push({ fecha: `Semana ${weekIndex}`, vpp: currentWeekVpp / count });
+                    currentWeekVpp = 0; count = 0; weekIndex++;
                 }
             });
             renderTipChart(weeklyData, 'weekly');
-        } else {
-            renderTipChart(dailyVppData, 'daily');
-        }
+        } else { renderTipChart(dailyVppData, 'daily'); }
     }
 
     function renderTipChart(data, viewMode) {
-        // PROTECCIÓN 3: Verificar que el canvas exista
         const canvas = document.getElementById('tipChart');
         if (!canvas) return;
-        
         const ctx = canvas.getContext('2d');
-        
         let labels, values;
-        if(viewMode === 'weekly') {
-            labels = data.map(d => d.fecha);
-            values = data.map(d => d.vpp);
-        } else {
-            labels = data.map(d => formatDate(d.fecha).substring(0, 5));
-            values = data.map(d => d.vpp);
-        }
+        if(viewMode === 'weekly') { labels = data.map(d => d.fecha); values = data.map(d => d.vpp); } 
+        else { labels = data.map(d => formatDate(d.fecha).substring(0, 5)); values = data.map(d => d.vpp); }
 
         if (tipChart) tipChart.destroy();
         tipChart = new Chart(ctx, {
@@ -1332,17 +1346,14 @@ document.addEventListener('DOMContentLoaded', () => {
                 labels: labels,
                 datasets: [{
                     label: viewMode === 'weekly' ? 'Promedio VPP Semanal' : 'VPP Diario',
-                    data: values,
-                    borderColor: '#007bff',
-                    backgroundColor: 'rgba(0, 123, 255, 0.1)',
-                    fill: true, tension: 0.3
+                    data: values, borderColor: '#007bff', backgroundColor: 'rgba(0, 123, 255, 0.1)', fill: true, tension: 0.3
                 }]
             },
             options: { responsive: true, maintainAspectRatio: false }
         });
     }
 
-    // --- RECAUDACIÓN Y SYNC ---
+    // --- IMPORTACIÓN Y CÁLCULOS ---
     async function importarDesdeSheets(isSilent = false) {
         if (!loggedInUser) return;
         try {
@@ -1389,39 +1400,28 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         } catch (e) { console.error(e); }
     }
+    
+    function mostrarActualizandoEnCampos() {
+        const ids = ['valorPorPuntoDisplayPlanta', 'divisorDisplayPlanta', 'valorPorPuntoDisplayPT', 'divisorDisplayPT'];
+        ids.forEach(id => { const el = document.getElementById(id); if(el) el.textContent = 'Actualizando...'; });
+    }
 
     function cargarYMostrarMontos() {
         const userData = getUserData();
         const container = document.getElementById('tarjetasMontos');
         container.innerHTML = '';
-        
         let totalGeneral = 0; 
-        
         const fechas = Object.keys(userData.montosPorFecha).sort((a,b) => b.localeCompare(a));
-        
         fechas.forEach(fecha => {
             const totalDia = userData.montosPorFecha[fecha].reduce((s, m) => s + m.monto, 0);
-            
             totalGeneral += totalDia;
-            
             const tarjeta = document.createElement('div');
             tarjeta.className = 'tarjeta collapsed';
-            tarjeta.innerHTML = `<h3><span>${formatDate(fecha)}</span> <span class="total-in-header">$${formatNumberWithPoints(totalDia)}</span></h3>
-                                 <div class="montos-list">
-                                    ${userData.montosPorFecha[fecha].map(m => 
-                                        `<div class="monto-item"><span>${m.area}</span><span>$${formatNumberWithPoints(m.monto)}</span></div>`
-                                    ).join('')}
-                                 </div>`;
-            
-            tarjeta.querySelector('h3').addEventListener('click', () => {
-                tarjeta.classList.toggle('collapsed');
-            });
-            
+            tarjeta.innerHTML = `<h3><span>${formatDate(fecha)}</span> <span class="total-in-header">$${formatNumberWithPoints(totalDia)}</span></h3><div class="montos-list">${userData.montosPorFecha[fecha].map(m => `<div class="monto-item"><span>${m.area}</span><span>$${formatNumberWithPoints(m.monto)}</span></div>`).join('')}</div>`;
+            tarjeta.querySelector('h3').addEventListener('click', () => tarjeta.classList.toggle('collapsed'));
             container.appendChild(tarjeta);
         });
-
         document.getElementById('totalDiario').textContent = `Total recaudado: $${formatNumberWithPoints(totalGeneral)}`;
-        
         actualizarCalculoRetiro();
     }
 
@@ -1434,10 +1434,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const sub = vpp * p;
         const anticipos = (userData.anticipos || []).reduce((s, a) => s + a.monto, 0);
         const finalAmount = sub - anticipos;
-        
-        const totalRecaudado = Object.values(userData.montosPorFecha || {})
-                                     .flat()
-                                     .reduce((acc, item) => acc + item.monto, 0);
+        const totalRecaudado = Object.values(userData.montosPorFecha || {}).flat().reduce((acc, item) => acc + item.monto, 0);
 
         document.getElementById('puntosUsuarioDisplayPlanta').textContent = p;
         document.getElementById('totalMontoDividirPlanta').textContent = `$${formatNumberWithPoints(totalRecaudado)}`;
@@ -1448,10 +1445,7 @@ document.addEventListener('DOMContentLoaded', () => {
         
         const resultadoEl = document.getElementById('resultadoFinalPlanta');
         resultadoEl.textContent = `$${formatNumberWithPoints(finalAmount)}`;
-        // Color rojo si es negativo
-        if(finalAmount < 0) resultadoEl.classList.add('negative-value');
-        else resultadoEl.classList.remove('negative-value');
-        
+        if(finalAmount < 0) resultadoEl.classList.add('negative-value'); else resultadoEl.classList.remove('negative-value');
         renderAnticiposList('#anticipos-list-container-planta');
     }
 
@@ -1461,10 +1455,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const dias = userData.diasTrabajados || [];
         const pozo = dias.reduce((s, f) => s + (userData.montosPorFecha[f] || []).reduce((ds, m) => ds + m.monto, 0), 0);
         let div = 0;
-        if (dias.length) {
-            const ultimo = dias.sort((a,b) => b.localeCompare(a))[0];
-            div = divisoresDiariosExternos[ultimo] || 0;
-        }
+        if (dias.length) { const ultimo = dias.sort((a,b) => b.localeCompare(a))[0]; div = divisoresDiariosExternos[ultimo] || 0; }
         const vpp = div > 0 ? (pozo / div) : 0;
         const sub = vpp * p;
         const anticipos = (userData.anticipos || []).reduce((s, a) => s + a.monto, 0);
@@ -1478,10 +1469,7 @@ document.addEventListener('DOMContentLoaded', () => {
         
         const resultadoEl = document.getElementById('resultadoFinalPT');
         resultadoEl.textContent = `$${formatNumberWithPoints(finalAmount)}`;
-         // Color rojo si es negativo
-        if(finalAmount < 0) resultadoEl.classList.add('negative-value');
-        else resultadoEl.classList.remove('negative-value');
-        
+        if(finalAmount < 0) resultadoEl.classList.add('negative-value'); else resultadoEl.classList.remove('negative-value');
         renderAnticiposList('#anticipos-list-container-pt');
     }
 
@@ -1492,29 +1480,17 @@ document.addEventListener('DOMContentLoaded', () => {
         const anticipos = getUserData().anticipos || [];
         if (!anticipos.length) container.innerHTML = '<p style="color:#888;text-align:center;">No hay anticipos.</p>';
         else anticipos.forEach(a => {
-            container.innerHTML += `
-            <div class="anticipo-item">
-                <span>${formatDate(a.fecha)}</span>
-                <strong>$${formatNumberWithPoints(a.monto)}</strong>
-                <div class="actions">
-                    <button class="anticipo-item-btn edit-anticipo-btn" data-id="${a.id}" data-monto="${a.monto}" data-fecha="${a.fecha}">✏️</button>
-                    <button class="anticipo-item-btn delete-anticipo-btn" data-id="${a.id}">🗑️</button>
-                </div>
-            </div>`;
+            container.innerHTML += `<div class="anticipo-item"><span>${formatDate(a.fecha)}</span><strong>$${formatNumberWithPoints(a.monto)}</strong><div class="actions"><button class="anticipo-item-btn edit-anticipo-btn" data-id="${a.id}" data-monto="${a.monto}" data-fecha="${a.fecha}">✏️</button><button class="anticipo-item-btn delete-anticipo-btn" data-id="${a.id}">🗑️</button></div></div>`;
         });
-        
         container.querySelectorAll('.delete-anticipo-btn').forEach(btn => {
             btn.addEventListener('click', (e) => {
-                const id = e.target.closest('button').dataset.id;
                 if(confirm('¿Eliminar anticipo?')) {
-                    const ud = getUserData();
-                    ud.anticipos = ud.anticipos.filter(a => a.id != id);
-                    saveUserData(ud);
-                    actualizarCalculoRetiro();
+                    const id = e.target.closest('button').dataset.id;
+                    const ud = getUserData(); ud.anticipos = ud.anticipos.filter(a => a.id != id);
+                    saveUserData(ud); actualizarCalculoRetiro();
                 }
             });
         });
-
         container.querySelectorAll('.edit-anticipo-btn').forEach(btn => {
             btn.addEventListener('click', (e) => {
                 const btnEl = e.target.closest('button');
@@ -1530,143 +1506,79 @@ document.addEventListener('DOMContentLoaded', () => {
     async function fetchFromNotasScript(params) {
         const url = new URL(SCRIPT_URL_NOTAS);
         Object.keys(params).forEach(key => url.searchParams.append(key, params[key]));
-        try {
-            const response = await fetch(url);
-            if (!response.ok) throw new Error(`Error de red: ${response.statusText}`);
-            return await response.json();
-        } catch (error) {
-            console.error('Error al conectar con el servidor de notas.', error);
-            return { status: 'error', message: error.message };
-        }
+        try { const response = await fetch(url); return await response.json(); } 
+        catch (error) { console.error('Error notas', error); return { status: 'error' }; }
     }
-
     async function postToNotasScript(params, data) {
         const url = new URL(SCRIPT_URL_NOTAS);
         Object.keys(params).forEach(key => url.searchParams.append(key, params[key]));
-        try {
-            const response = await fetch(url, {
-                method: 'POST',
-                mode: 'no-cors', 
-                redirect: 'follow', 
-                headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-                body: JSON.stringify(data),
-            });
-            return { status: 'success' };
-        } catch (error) {
-            showToast('Error al enviar nota al servidor.', 'error');
-            return { status: 'error', message: error.message };
-        }
+        try { await fetch(url, { method: 'POST', mode: 'no-cors', headers: {'Content-Type': 'text/plain;charset=utf-8'}, body: JSON.stringify(data) }); return { status: 'success' }; } 
+        catch (error) { return { status: 'error' }; }
     }
-
     function checkForUnread(notes) {
         if (!loggedInUser) return;
         const notificationFab = document.getElementById('notification-fab');
-        const notificationCount = document.getElementById('note-notification-count');
-        const lastReadTimestamp = parseInt(localStorage.getItem(`lastReadTimestamp_${loggedInUser.id}`), 10) || 0;
-        const unreadAdminNotes = notes.filter(note => note.autor.toLowerCase() === 'admin' && new Date(note.fecha).getTime() > lastReadTimestamp);
-        const unreadCount = unreadAdminNotes.length;
-        if (unreadCount > 0) {
-            notificationCount.textContent = unreadCount;
-            notificationFab.style.display = 'flex';
-        } else {
-            notificationFab.style.display = 'none';
-        }
+        const countEl = document.getElementById('note-notification-count');
+        const lastRead = parseInt(localStorage.getItem(`lastReadTimestamp_${loggedInUser.id}`), 10) || 0;
+        const unread = notes.filter(n => n.autor.toLowerCase() === 'admin' && new Date(n.fecha).getTime() > lastRead).length;
+        if (unread > 0) { countEl.textContent = unread; notificationFab.style.display = 'flex'; } 
+        else { notificationFab.style.display = 'none'; }
     }
-
     async function cargarNotas() {
         if(!loggedInUser) return;
         const container = document.getElementById('admin-notes-container');
-        const isInitialLoad = !container.querySelector('.note-card') && !container.querySelector('.loading-indicator');
-        if (isInitialLoad) {
-            container.innerHTML = `<div class="loading-indicator"><i class="fas fa-spinner fa-spin"></i><span>Cargando mensajes...</span></div>`;
-        }
+        if (!container.querySelector('.note-card') && !container.querySelector('.loading-indicator')) container.innerHTML = `<div class="loading-indicator"><i class="fas fa-spinner fa-spin"></i><span>Cargando...</span></div>`;
         const response = await fetchFromNotasScript({ action: 'getNotes' });
         if (response.status === 'success' && response.data) {
             allFetchedNotes = response.data;
             allFetchedNotes.sort((a, b) => new Date(a.fecha) - new Date(b.fecha));
-
-            const container = document.getElementById('admin-notes-container');
             container.innerHTML = '';
             allFetchedNotes.forEach(note => {
-                const card = document.createElement('div');
-                card.className = 'note-card';
+                const card = document.createElement('div'); card.className = 'note-card';
                 card.innerHTML = `<div class="note-header"><strong>${note.autor}</strong> - ${formatNoteDate(note.fecha)}</div><div class="note-body">${note.mensaje}</div>`;
                 container.appendChild(card);
             });
             container.scrollTop = container.scrollHeight;
+            checkForUnread(allFetchedNotes);
         }
     }
+    function markNotesAsRead() { if(allFetchedNotes.length && loggedInUser) localStorage.setItem(`lastReadTimestamp_${loggedInUser.id}`, Date.now()); document.getElementById('notification-fab').style.display = 'none'; }
     
-    function markNotesAsRead() { /* Lógica de timestamp si se desea */ }
-
     document.getElementById('sendResponseBtn').addEventListener('click', async () => {
         const input = document.getElementById('responseMessage');
-        const sendBtn = document.getElementById('sendResponseBtn');
-        const mensajeTexto = input.value.trim(); 
-
-        if (!mensajeTexto) return;
-
-        const originalText = sendBtn.innerHTML;
-        sendBtn.disabled = true;
-        sendBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Enviando...';
-
+        const msg = input.value.trim();
+        if (!msg) return;
+        const btn = document.getElementById('sendResponseBtn');
+        const originalText = btn.innerHTML; btn.disabled = true; btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+        
         const container = document.getElementById('admin-notes-container');
-        const card = document.createElement('div');
-        card.className = 'note-card user-note';
-        card.style.opacity = '0.7'; 
-        card.innerHTML = `<div class="note-header"><strong>${loggedInUser.nombre} ${loggedInUser.apellido}</strong> - Ahora</div><div class="note-body">${mensajeTexto}</div>`;
-        container.appendChild(card);
-        container.scrollTop = container.scrollHeight;
+        const card = document.createElement('div'); card.className = 'note-card user-note'; card.style.opacity = '0.7';
+        card.innerHTML = `<div class="note-header"><strong>Yo</strong> - Ahora</div><div class="note-body">${msg}</div>`;
+        container.appendChild(card); container.scrollTop = container.scrollHeight; input.value = '';
 
-        input.value = '';
-
-        try {
-            const authorName = `${loggedInUser.nombre} ${loggedInUser.apellido}`;
-            await postToNotasScript({ action: 'addNote' }, { autor: authorName, mensaje: mensajeTexto });
-            
-            card.style.opacity = '1';
-            showToast("Mensaje enviado");
-
-        } catch (e) {
-            console.error("Error al enviar nota:", e);
-            showToast("Error de conexión, pero se intentó enviar", "warning");
-            card.style.opacity = '1'; 
-        } finally {
-            sendBtn.disabled = false;
-            sendBtn.innerHTML = originalText;
-        }
+        await postToNotasScript({ action: 'addNote' }, { autor: `${loggedInUser.nombre} ${loggedInUser.apellido}`, mensaje: msg });
+        card.style.opacity = '1'; showToast("Enviado"); btn.disabled = false; btn.innerHTML = originalText;
     });
-    
+
+    // --- CALENDARIO (Part-Time) ---
     function renderCalendar(container) {
-        const today = new Date();
-        const year = today.getFullYear();
-        const month = today.getMonth(); 
-        const firstDay = new Date(year, month, 1);
-        const lastDay = new Date(year, month + 1, 0);
-        const daysInMonth = lastDay.getDate();
-        const startingDay = (firstDay.getDay() + 6) % 7; 
-        
+        const today = new Date(), year = today.getFullYear(), month = today.getMonth();
+        const firstDay = new Date(year, month, 1), lastDay = new Date(year, month + 1, 0);
+        const daysInMonth = lastDay.getDate(), startingDay = (firstDay.getDay() + 6) % 7; 
         const monthNames = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"];
-        const dayNames = ["Lu", "Ma", "Mi", "Ju", "Vi", "Sa", "Do"];
         
-        let html = `<div class="calendar-header"><span>${monthNames[month]} ${year}</span></div>`;
-        html += `<div class="calendar-grid">`;
-        dayNames.forEach(d => html += `<div class="day-name">${d}</div>`);
-        
-        for (let i = 0; i < startingDay; i++) {
-            html += `<div class="day empty"></div>`;
-        }
+        let html = `<div class="calendar-header"><span>${monthNames[month]} ${year}</span></div><div class="calendar-grid">`;
+        ["Lu", "Ma", "Mi", "Ju", "Vi", "Sa", "Do"].forEach(d => html += `<div class="day-name">${d}</div>`);
+        for (let i = 0; i < startingDay; i++) html += `<div class="day empty"></div>`;
         
         const userData = getUserData();
         const workedDays = new Set(userData.diasTrabajados || []);
 
         for (let i = 1; i <= daysInMonth; i++) {
             const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(i).padStart(2, '0')}`;
-            const isMarked = workedDays.has(dateStr);
-            html += `<div class="day ${isMarked ? 'marked' : ''}" data-date="${dateStr}">${i}</div>`;
+            html += `<div class="day ${workedDays.has(dateStr) ? 'marked' : ''}" data-date="${dateStr}">${i}</div>`;
         }
-        html += `</div>`;
-        container.innerHTML = html;
+        html += `</div>`; container.innerHTML = html;
         
         container.querySelectorAll('.day:not(.empty)').forEach(dayEl => {
             dayEl.addEventListener('click', () => {
@@ -1675,299 +1587,192 @@ document.addEventListener('DOMContentLoaded', () => {
                 let wDays = new Set(ud.diasTrabajados || []);
                 if (wDays.has(date)) wDays.delete(date); else wDays.add(date);
                 ud.diasTrabajados = Array.from(wDays);
-                saveUserData(ud);
-                renderCalendar(container);
-                actualizarCalculoRetiro();
+                saveUserData(ud); renderCalendar(container); actualizarCalculoRetiro();
             });
         });
     }
 
-    // --- EVENT LISTENERS DE MODALES ---
-    
-    // 1. ANTICIPOS
+    // --- MODALES GESTIÓN ANTICIPOS ---
     const addAnticipoModal = document.getElementById('addAnticipoModal');
     document.getElementById('registrarAnticipoBtn').addEventListener('click', () => {
         document.getElementById('addAnticipoMontoInput').value = '';
         document.getElementById('addAnticipoFechaInput').value = getTodayDateString();
-        addAnticipoModal.style.display = 'flex';
-        document.getElementById('addAnticipoMontoInput').focus();
+        addAnticipoModal.style.display = 'flex'; document.getElementById('addAnticipoMontoInput').focus();
     });
     document.getElementById('cancelAddAnticipoBtn').addEventListener('click', () => addAnticipoModal.style.display = 'none');
-    
     document.getElementById('saveAddAnticipoBtn').addEventListener('click', () => {
         const montoRaw = document.getElementById('addAnticipoMontoInput').dataset.cleanValue || document.getElementById('addAnticipoMontoInput').value;
         const monto = parseInt(montoRaw);
         const fecha = document.getElementById('addAnticipoFechaInput').value;
-        
-        if (!monto || !fecha) { showToast('Complete los campos', 'error'); return; }
-        
+        if (!monto || !fecha) { showToast('Datos incompletos', 'error'); return; }
         const userData = getUserData();
         userData.anticipos.push({ id: Date.now(), monto, fecha });
-        saveUserData(userData);
-        actualizarCalculoRetiro();
-        addAnticipoModal.style.display = 'none';
-        showToast('Anticipo registrado');
+        saveUserData(userData); actualizarCalculoRetiro(); addAnticipoModal.style.display = 'none'; showToast('Registrado');
     });
 
-    // 2. EDITAR ANTICIPO
     document.getElementById('cancelEditAnticipoBtn').addEventListener('click', () => document.getElementById('editAnticipoModal').style.display = 'none');
     document.getElementById('saveEditAnticipoBtn').addEventListener('click', () => {
         const montoRaw = document.getElementById('editAnticipoMontoInput').dataset.cleanValue || document.getElementById('editAnticipoMontoInput').value;
         const monto = parseInt(montoRaw);
         const fecha = document.getElementById('editAnticipoFechaInput').value;
-        
-        if (!monto || !fecha) return;
-        
         const userData = getUserData();
         const idx = userData.anticipos.findIndex(a => a.id == currentEditAnticipoId);
         if (idx !== -1) {
-            userData.anticipos[idx].monto = monto;
-            userData.anticipos[idx].fecha = fecha;
-            saveUserData(userData);
-            actualizarCalculoRetiro();
-            document.getElementById('editAnticipoModal').style.display = 'none';
-            showToast('Anticipo actualizado');
+            userData.anticipos[idx].monto = monto; userData.anticipos[idx].fecha = fecha;
+            saveUserData(userData); actualizarCalculoRetiro(); document.getElementById('editAnticipoModal').style.display = 'none'; showToast('Actualizado');
         }
     });
-    
-    // 3. EDITAR PUNTOS
+
+    // --- EDICIÓN PUNTOS ---
     const editPuntosModal = document.getElementById('editPuntosModal');
-    document.getElementById('editPuntosBtn').addEventListener('click', () => {
-        document.getElementById('editPuntosInput').value = loggedInUser.puntos;
-        editPuntosModal.style.display = 'flex';
-    });
+    document.getElementById('editPuntosBtn').addEventListener('click', () => { document.getElementById('editPuntosInput').value = loggedInUser.puntos; editPuntosModal.style.display = 'flex'; });
     document.getElementById('cancelEditPuntosBtn').addEventListener('click', () => editPuntosModal.style.display = 'none');
     document.getElementById('saveEditPuntosBtn').addEventListener('click', async () => {
         const newPuntos = parseFloat(document.getElementById('editPuntosInput').value);
         if (newPuntos > 0) {
             loggedInUser.puntos = newPuntos;
             localStorage.setItem('loggedInUser', JSON.stringify(loggedInUser));
-            
-            const appData = getAppData();
-            if(appData.usuarios[loggedInUser.id]) {
-                appData.usuarios[loggedInUser.id].puntos = newPuntos;
-                saveAppData(appData);
-            }
-            
-            populateUserDataSection();
-            actualizarCalculoRetiro();
-            editPuntosModal.style.display = 'none';
-            
+            const appData = getAppData(); if(appData.usuarios[loggedInUser.id]) { appData.usuarios[loggedInUser.id].puntos = newPuntos; saveAppData(appData); }
+            populateUserDataSection(); actualizarCalculoRetiro(); editPuntosModal.style.display = 'none';
             await enviarDatosLoginASheets(loggedInUser);
         }
     });
 
-    // 4. DIVISOR PART TIME (MANUAL)
+    // --- DIVISOR PT MANUAL ---
     const divisorPTModal = document.getElementById('divisorPTModal');
     const registrarDivisorPTBtn = document.getElementById('registrarDivisorPTBtn');
     if(registrarDivisorPTBtn) {
         registrarDivisorPTBtn.addEventListener('click', () => {
             const userData = getUserData();
             const dias = (userData.diasTrabajados || []).sort().reverse();
-            let currentDiv = 0;
-            if(dias.length > 0) currentDiv = divisoresDiariosExternos[dias[0]] || 0;
-            
+            let currentDiv = 0; if(dias.length > 0) currentDiv = divisoresDiariosExternos[dias[0]] || 0;
             document.getElementById('divisorPTInput').value = currentDiv;
             divisorPTModal.style.display = 'flex';
         });
     }
     document.getElementById('cancelDivisorPTBtn').addEventListener('click', () => divisorPTModal.style.display = 'none');
-    document.getElementById('saveDivisorPTBtn').addEventListener('click', () => {
-         showToast('El divisor se actualiza automáticamente desde la hoja de cálculo.', 'info');
-         divisorPTModal.style.display = 'none';
-    });
-    
-    // 5. REINICIAR MES
+    document.getElementById('saveDivisorPTBtn').addEventListener('click', () => { showToast('Divisor es automático.', 'info'); divisorPTModal.style.display = 'none'; });
+
+    // --- REINICIO MES ---
     document.getElementById('resetMesBtn').addEventListener('click', () => {
-        if(confirm('¿Estás seguro de reiniciar el mes? Se borrarán anticipos y días marcados (Part Time). Los montos globales se mantienen.')) {
-            const ud = getUserData();
-            ud.anticipos = [];
-            ud.diasTrabajados = [];
-            saveUserData(ud);
-            if (loggedInUser.tipo !== 'Planta') {
-                 const cal = document.getElementById('calendar-container');
-                 if(cal) renderCalendar(cal);
-            }
-            actualizarCalculoRetiro();
-            showToast('Mes reiniciado.');
+        if(confirm('¿Reiniciar mes? Se borrarán anticipos y días marcados.')) {
+            const ud = getUserData(); ud.anticipos = []; ud.diasTrabajados = []; saveUserData(ud);
+            if (loggedInUser.tipo !== 'Planta') { const cal = document.getElementById('calendar-container'); if(cal) renderCalendar(cal); }
+            actualizarCalculoRetiro(); showToast('Mes reiniciado.');
         }
     });
 
-    // --- INICIALIZACIÓN ---
+    // --- EXPORTAR / IMPORTAR DATOS ---
+    document.getElementById('exportDataBtn').addEventListener('click', () => {
+        const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(getAppData()));
+        const downloadAnchorNode = document.createElement('a');
+        downloadAnchorNode.setAttribute("href", dataStr);
+        downloadAnchorNode.setAttribute("download", "respaldo_propinas.json");
+        document.body.appendChild(downloadAnchorNode); downloadAnchorNode.click(); downloadAnchorNode.remove();
+    });
+    
+    document.getElementById('importDataBtn').addEventListener('click', () => {
+        if(confirm('Al importar se sobrescribirán los datos actuales. ¿Continuar?')) document.getElementById('importFileInput').click();
+    });
+    
+    document.getElementById('importFileInput').addEventListener('change', (event) => {
+        const file = event.target.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            try {
+                const importedData = JSON.parse(e.target.result);
+                if (importedData && importedData.usuarios && importedData.userData) {
+                    saveAppData(importedData); showToast('Datos restaurados. Recargando...', 'success');
+                    setTimeout(() => location.reload(), 1500);
+                } else { showToast('Archivo inválido', 'error'); }
+            } catch(ex) { showToast('Error al leer archivo', 'error'); }
+        };
+        reader.readAsText(file);
+    });
+
+    // --- INITIALIZATION ---
     function initApp() {
         divisoresDiariosExternos = JSON.parse(localStorage.getItem('cachedDivisores')) || {};
         const lastPanel = localStorage.getItem('activePanel') || 'retirosPropinaSection';
-        
-        actualizarCalculoRetiro();
         activatePanel(lastPanel);
 
-        if (loggedInUser.tipo === 'Planta') {
-            document.getElementById('vistaPlanta').style.display = 'block';
-        } else {
-            document.getElementById('vistaPartTime').style.display = 'block';
-            const calendarContainer = document.getElementById('calendar-container');
-            if(calendarContainer) renderCalendar(calendarContainer);
-        }
+        if (loggedInUser.tipo === 'Planta') document.getElementById('vistaPlanta').style.display = 'block';
+        else { document.getElementById('vistaPartTime').style.display = 'block'; const cal = document.getElementById('calendar-container'); if(cal) renderCalendar(cal); }
 
         const syncFinancials = async () => {
              mostrarActualizandoEnCampos(); 
-            try {
-                await importarDesdeSheets(true);
-                if(loggedInUser.tipo === 'Planta') await obtenerYActualizarValorPorPuntoExterno();
-                await obtenerDivisoresExternos(true);
-            } catch(e) { console.error("Error sync financial", e); }
-            finally {
-                cargarYMostrarMontos();
-                actualizarCalculoRetiro();
+            try { await importarDesdeSheets(true); if(loggedInUser.tipo === 'Planta') await obtenerYActualizarValorPorPuntoExterno(); await obtenerDivisoresExternos(true); } 
+            catch(e) { console.error("Error sync", e); } finally { cargarYMostrarMontos(); actualizarCalculoRetiro(); }
+        };
+        const syncNotes = () => cargarNotas();
+
+        syncNotes(); syncFinancials();
+        if (notesInterval) clearInterval(notesInterval); notesInterval = setInterval(syncNotes, 15000);
+        if (sheetsInterval) clearInterval(sheetsInterval); sheetsInterval = setInterval(syncFinancials, 300000);
+        
+        document.getElementById('logoutBtn').onclick = () => { 
+            if (localStorage.getItem('loggedInUser')) {
+                showToast('Cerrando sesión...', 'info');
+                if (notesInterval) clearInterval(notesInterval);
+                localStorage.removeItem('loggedInUser'); loggedInUser = null;
+                setTimeout(() => location.reload(), 1500);
             }
         };
-
-        const syncNotes = () => {
-            cargarNotas();
-        };
-
-        syncNotes();
-        syncFinancials();
-
-        if (notesInterval) clearInterval(notesInterval);
-        notesInterval = setInterval(syncNotes, 15000); // 15 Segundos
-
-        if (sheetsInterval) clearInterval(sheetsInterval);
-        sheetsInterval = setInterval(syncFinancials, 300000); // 5 Minutos
         
-        document.getElementById('logoutBtn').onclick = () => { localStorage.removeItem('loggedInUser'); location.reload(); };
-        
-        // --- BOTÓN SINCRONIZAR ACTUALIZADO ---
         document.getElementById('importarDesdeSheetsBtn').onclick = async function() {
-             const btn = this;
-             const originalText = btn.textContent;
-             btn.textContent = 'Sincronizando...';
-             btn.disabled = true;
-
-             try {
-                await importarDesdeSheets(false);
-                // Forzar actualización visual
-                cargarYMostrarMontos();
-                actualizarCalculoRetiro();
-                showToast('Sincronización completada');
-             } catch(e) {
-                showToast('Error al sincronizar', 'error');
-             } finally {
-                btn.textContent = originalText;
-                btn.disabled = false;
-             }
+             const btn = this; const originalText = btn.textContent; btn.textContent = 'Sincronizando...'; btn.disabled = true;
+             try { await importarDesdeSheets(false); cargarYMostrarMontos(); actualizarCalculoRetiro(); showToast('Sincronizado'); } 
+             catch(e) { showToast('Error sync', 'error'); } finally { btn.textContent = originalText; btn.disabled = false; }
         };
     }
 
-    // --- Inactividad ---
-    function resetInactivityTimer() {
-        if (localStorage.getItem('loggedInUser')) {
-            lastActivityTime = Date.now();
-        }
-    }
-    
+    // --- INACTIVIDAD ---
+    function resetInactivityTimer() { if (localStorage.getItem('loggedInUser')) lastActivityTime = Date.now(); }
     function checkInactivity() {
         if (!localStorage.getItem('loggedInUser')) return; 
-        
-        const currentTime = Date.now();
-        const INACTIVITY_LIMIT = 660000; // 11 minutos
-        
-        if (currentTime - lastActivityTime > INACTIVITY_LIMIT) {
-            showToast('Sesión cerrada por inactividad (11 min).', 'info');
-            logout();
-        }
+        if (Date.now() - lastActivityTime > 660000) { showToast('Sesión cerrada por inactividad.', 'info'); document.getElementById('logoutBtn').click(); }
     }
-
-    ['mousemove', 'mousedown', 'keypress', 'touchmove', 'scroll', 'click'].forEach(evt => {
-        document.addEventListener(evt, resetInactivityTimer, true);
-    });
-    
+    ['mousemove', 'mousedown', 'keypress', 'touchmove', 'scroll', 'click'].forEach(evt => document.addEventListener(evt, resetInactivityTimer, true));
     setInterval(checkInactivity, 10000); 
 
     setupNumericInputFormatting(document.getElementById('addAnticipoMontoInput'));
     setupNumericInputFormatting(document.getElementById('editAnticipoMontoInput'));
 
-    // --- DATOS USUARIO ---
+    // --- DATOS USUARIO UI ---
     function populateUserDataSection() {
         if (!loggedInUser) return;
         document.getElementById('userDataNombre').textContent = `${loggedInUser.nombre} ${loggedInUser.apellido}`;
         document.getElementById('userDataContrato').textContent = loggedInUser.tipo;
         document.getElementById('puntosValueDisplay').textContent = loggedInUser.puntos;
-        
         const fechaIngresoEl = document.getElementById('userDataFechaIngreso');
-        if (loggedInUser.dia && loggedInUser.mes) {
-            fechaIngresoEl.textContent = `${String(loggedInUser.dia).padStart(2, '0')}/${String(loggedInUser.mes).padStart(2, '0')}/${loggedInUser.anio}`;
-        } else {
-            fechaIngresoEl.textContent = loggedInUser.anio || 'N/A';
-        }
+        if (loggedInUser.dia && loggedInUser.mes) fechaIngresoEl.textContent = `${String(loggedInUser.dia).padStart(2, '0')}/${String(loggedInUser.mes).padStart(2, '0')}/${loggedInUser.anio}`;
+        else fechaIngresoEl.textContent = loggedInUser.anio || 'N/A';
     }
 
-    // --- CAMBIAR CONTRASEÑA ---
+    // --- CAMBIAR CONTRASEÑA (LOGUEADO) ---
     const changePassModal = document.getElementById('changePasswordModal');
     const changePassInput = document.getElementById('newPasswordLoggedInInput');
     
-    document.getElementById('changePasswordBtn').addEventListener('click', () => {
-        changePassInput.value = ''; 
-        changePassModal.style.display = 'flex';
-        changePassInput.focus();
-    });
-
-    document.getElementById('cancelChangePasswordBtn').addEventListener('click', () => {
-        changePassModal.style.display = 'none';
-    });
-
+    document.getElementById('changePasswordBtn').addEventListener('click', () => { changePassInput.value = ''; changePassModal.style.display = 'flex'; changePassInput.focus(); });
+    document.getElementById('cancelChangePasswordBtn').addEventListener('click', () => changePassModal.style.display = 'none');
     document.getElementById('saveNewPasswordLoggedInBtn').addEventListener('click', async () => {
         const newPass = changePassInput.value.trim();
-        
-        if (!newPass) { showToast('La contraseña no puede estar vacía.', 'error'); return; }
-        if (newPass.length < 4) { showToast('La contraseña es muy corta.', 'error'); return; }
-
-        const saveBtn = document.getElementById('saveNewPasswordLoggedInBtn');
-        const originalText = saveBtn.textContent;
-        saveBtn.textContent = 'Guardando...';
-        saveBtn.disabled = true;
-
+        if (!newPass || newPass.length < 4) { showToast('Contraseña muy corta.', 'error'); return; }
+        const btn = document.getElementById('saveNewPasswordLoggedInBtn'); btn.textContent = 'Guardando...'; btn.disabled = true;
         try {
             loggedInUser.password = newPass;
             localStorage.setItem('loggedInUser', JSON.stringify(loggedInUser));
-
-            const appData = getAppData();
-            if (appData.usuarios[loggedInUser.id]) {
-                appData.usuarios[loggedInUser.id].password = newPass;
-                appData.usuarios[loggedInUser.id].telefono = loggedInUser.telefono || appData.usuarios[loggedInUser.id].telefono;
-                saveAppData(appData);
-            }
-            
-            await enviarDatosLoginASheets(loggedInUser);
-
-            showToast('Contraseña actualizada con éxito.');
-            changePassModal.style.display = 'none';
-            
-            updateRecentLogins(loggedInUser); 
-            displayRecentLogins();
-
-        } catch (error) {
-            console.error(error);
-            showToast('Error al guardar. Inténtalo de nuevo.', 'error');
-        } finally {
-            saveBtn.textContent = originalText;
-            saveBtn.disabled = false;
-        }
+            const appData = getAppData(); if (appData.usuarios[loggedInUser.id]) { appData.usuarios[loggedInUser.id].password = newPass; saveAppData(appData); }
+            await enviarDatosLoginASheets(loggedInUser); showToast('Contraseña actualizada.'); changePassModal.style.display = 'none'; updateRecentLogins(loggedInUser); displayRecentLogins();
+        } catch (error) { showToast('Error al guardar.', 'error'); } finally { btn.textContent = 'Guardar Cambios'; btn.disabled = false; }
     });
-    
-    // --- LÓGICA OJITO VER CONTRASEÑA ---
+
     document.querySelectorAll('.password-toggle-icon').forEach(icon => {
         icon.addEventListener('click', () => {
             const input = icon.previousElementSibling;
-            if (input.type === 'password') {
-                input.type = 'text';
-                icon.classList.remove('fa-eye');
-                icon.classList.add('fa-eye-slash');
-            } else {
-                input.type = 'password';
-                icon.classList.remove('fa-eye-slash');
-                icon.classList.add('fa-eye');
-            }
+            if (input.type === 'password') { input.type = 'text'; icon.classList.replace('fa-eye', 'fa-eye-slash'); } 
+            else { input.type = 'password'; icon.classList.replace('fa-eye-slash', 'fa-eye'); }
         });
     });
 
