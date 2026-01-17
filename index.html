@@ -199,7 +199,12 @@
     .day-name { font-weight: bold; color: var(--text-secondary); padding-bottom: 5px; }
     .day { padding: 8px; border-radius: 4px; background-color: var(--bg-content); cursor: pointer; border: 1px solid var(--border-color); }
     .day:hover { background-color: var(--bg-accent); }
+    /* Part Time Marcado: Verde (Trabajó) */
     .day.marked { background-color: var(--success-color); color: #fff; font-weight: bold; }
+    
+    /* Planta Marcado: Rojo (Ausente) */
+    .day.absent { background-color: var(--danger-color); color: #fff; font-weight: bold; text-decoration: line-through; }
+    
     .day.empty { background-color: transparent; border: none; cursor: default; }
 
     .modal-backdrop { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.6); display: flex; justify-content: center; align-items: center; z-index: 1000; }
@@ -474,7 +479,7 @@
                 <ul>
                     <li><strong>Retiro de Propina:</strong> ¡La nueva pantalla principal! Aquí ves el resultado final de todos los cálculos según tu tipo de contrato (Planta o Part-Time). Es el resumen que te dice cuánto debes retirar. Desde aquí puedes abrir las <strong>Estadísticas</strong> para ver gráficos y proyecciones.</li>
                     <li><strong>Montos por Noche:</strong> En esta sección puedes ver el desglose de todas las propinas recaudadas cada día del mes. Los datos se importan automáticamente y aquí puedes revisarlos en detalle.</li>
-                    <li><strong>Mis Datos:</strong> Aquí puedes verificar que tu información personal sea correcta, como tu nombre, tipo de contrato y, lo más importante, la <strong>cantidad de puntos</strong> que tienes asignados. También puedes cambiar tu contraseña y realizar respaldos de datos desde aquí.</li>
+                    <li><strong>Mis Datos:</strong> Aquí puedes verificar que tu información personal sea correcta, como tu nombre, tipo de contrato y, lo más importante, la <strong>cantidad de puntos</strong> que tienes asignados. También puedes editarlos desde la sección "Mis Datos". También puedes cambiar tu contraseña y realizar respaldos de datos desde aquí.</li>
                     <li><strong>Notas Admin:</strong> Un canal de comunicación directo para ver los mensajes del administrador y enviar respuestas.</li>
                 </ul>
 
@@ -489,14 +494,14 @@
 
                 <h3>Detalle de los Cálculos (Personal de Planta)</h3>
                 <div class="note">
-                    <p><strong>Paso A: Calcular el Valor por Punto</strong><br>La app toma el "Total Recaudado" del mes y lo divide por el "Divisor General".</p>
-                    <div class="formula">Valor por Punto = Total Recaudado / Divisor General</div>
+                    <p><strong>ATENCIÓN: Sistema de Ausencias</strong><br>Si marcas días como "No Trabajados" (rojo) en el calendario, el sistema calculará tu propina sumando solo los días que sí trabajaste. Si no marcas nada, se asume mes completo.</p>
+                
+                    <p><strong>Paso A: Calcular el Valor por Punto Diario</strong><br>Cada día tiene su propio valor según lo recaudado esa noche dividido por el divisor general de ese día.</p>
+                    
+                    <p><strong>Paso B: Sumar tus días trabajados</strong><br>El sistema suma el valor que te corresponde (Valor Punto Diario × Tus Puntos) de cada día que NO hayas marcado como falta.</p>
 
-                    <p><strong>Paso B: Calcular tu Subtotal</strong><br>Luego, multiplica ese "Valor por Punto" por "Mis Puntos".</p>
-                    <div class="formula">Subtotal = Valor por Punto × Mis Puntos</div>
-
-                    <p><strong>Paso C: Calcular el Total Final</strong><br>Finalmente, a tu subtotal se le restan los "Anticipos".</p>
-                    <div class="formula">Total a Retirar = Subtotal - Total Anticipos</div>
+                    <p><strong>Paso C: Calcular el Total Final</strong><br>Finalmente, a tu acumulado se le restan los "Anticipos" y se le suma el "Saldo Mes Anterior".</p>
+                    <div class="formula">Total a Retirar = Suma Días Trabajados - Total Anticipos + Saldo Mes Anterior</div>
                 </div>
 
                 <h3>Detalle de los Cálculos (Personal Part-Time)</h3>
@@ -506,7 +511,7 @@
                     <p><strong>Paso B: Calcular el Valor por Punto</strong><br>La app divide tu "Pozo Individual" por tu "Divisor Personal". Este divisor corresponde al divisor registrado en el <strong>último día</strong> que marcaste en el calendario.</p>
                     <div class="formula">Valor por Punto = Pozo Individual / Divisor Personal (Último Día)</div>
 
-                    <p><strong>Paso C y D: Calcular Subtotal y Total Final</strong><br>Finalmente, el "Valor por Punto" se multiplica por "Mis Puntos" y se restan tus "Anticipos".</p>
+                    <p><strong>Paso C y D: Calcular Subtotal y Total Final</strong><br>Finalmente, el "Valor por Punto" se multiplica por "Mis Puntos", se restan tus "Anticipos" y se suma el "Saldo Mes Anterior".</p>
                 </div>
 
                 <h3><i class="fas fa-comments"></i> Notas y Comunicación</h3>
@@ -583,16 +588,41 @@
       
       <section id="retirosPropinaSection" class="content-panel">
           <h2 id="titulo-retiro">Retiro de Propina</h2>
+          
+          <!-- SECCIÓN PLANTA -->
           <div id="vistaPlanta" style="display: none;">
+              <!-- Botón para abrir modal de calendario -->
+              <button id="openCalendarPlantaBtn" style="background-color: var(--bg-accent); color: var(--text-primary); border: 1px solid var(--border-color); width: 100%; margin-bottom: 20px; font-weight: bold; display: flex; justify-content: center; align-items: center; gap: 10px;">
+                  <i class="fas fa-calendar-times" style="color: var(--danger-color);"></i> Gestionar Días No Trabajados / Ausencias
+              </button>
+              
               <div class="retiro-container">
                   <div class="calculation-item"><strong>Mis Puntos:</strong> <span id="puntosUsuarioDisplayPlanta">0</span></div>
                   <hr>
-                  <div class="calculation-item"><strong>Total Recaudado:</strong> <span id="totalMontoDividirPlanta">$0</span></div>
+                  <div class="calculation-item"><strong>Total Recaudado (Mes):</strong> <span id="totalMontoDividirPlanta">$0</span></div>
+                  
+                  <!-- RESTAURADO: Divisor y Valor por Punto -->
                   <div class="calculation-item"><strong>Divisor Registrado (Último):</strong> <span id="divisorDisplayPlanta">No registrado</span></div>
-                  <div class="calculation-item" style="color: var(--info-color); font-weight: bold;"><strong>Valor por Punto:</strong> <span id="valorPorPuntoDisplayPlanta">$0</span></div>
+                  <div class="calculation-item" style="color: var(--info-color); font-weight: bold;"><strong>Valor por Punto (Promedio Real):</strong> <span id="valorPorPuntoDisplayPlanta">$0</span></div>
                   <hr>
-                  <div class="calculation-item"><strong>Subtotal (Puntos x Valor):</strong> <span id="subtotalDisplayPlanta">$0</span></div>
+
+                  <div class="calculation-item"><strong>Días Descontados:</strong> <span id="diasDescontadosPlanta" style="color: var(--danger-color); font-weight:bold;">0</span></div>
+                  <div class="calculation-item"><strong>Monto Descontado:</strong> <span id="montoDescontadoPlanta" style="color: var(--danger-color); font-weight:bold;">$0</span></div>
+                  
+                  <div class="calculation-item" style="color: var(--info-color); font-weight: bold;"><strong>Subtotal Acumulado:</strong> <span id="subtotalDisplayPlanta">$0</span></div>
+                  <div class="calculation-item" style="font-size: 0.8em; color: #777;">(Suma de días trabajados × valor diario)</div>
+                  <hr>
                   <div class="calculation-item"><strong>Total Anticipos:</strong> <span id="anticiposDisplayPlanta">-$0</span></div>
+                  
+                  <!-- Saldo Mes Anterior (Planta) -->
+                  <div class="calculation-item" style="color: var(--success-color);">
+                      <strong>Saldo Mes Anterior:</strong>
+                      <span>
+                          <span id="saldoAnteriorDisplayPlanta">$0</span>
+                          <button class="edit-btn-inline" id="btnEditSaldoPlanta">✏️</button>
+                      </span>
+                  </div>
+
                   <div id="anticipos-list-container-planta" class="anticipos-list-container"></div>
                   <div class="calculation-item final-calculation">
                       <strong class="total-result">Total a Retirar:</strong> 
@@ -600,6 +630,8 @@
                   </div>
               </div>
           </div>
+
+          <!-- SECCIÓN PART TIME -->
           <div id="vistaPartTime" style="display: none;">
               <div class="part-time-layout">
                   <div class="calendar-section">
@@ -620,6 +652,16 @@
                           <hr>
                           <div class="calculation-item"><strong>Subtotal:</strong> <span id="subtotalDisplayPT">$0</span></div>
                           <div class="calculation-item"><strong>Total Anticipos:</strong> <span id="anticiposDisplayPT">-$0</span></div>
+
+                          <!-- Saldo Mes Anterior (Part Time) -->
+                          <div class="calculation-item" style="color: var(--success-color);">
+                              <strong>Saldo Mes Anterior:</strong>
+                              <span>
+                                  <span id="saldoAnteriorDisplayPT">$0</span>
+                                  <button class="edit-btn-inline" id="btnEditSaldoPT">✏️</button>
+                              </span>
+                          </div>
+
                           <div id="anticipos-list-container-pt" class="anticipos-list-container"></div>
                           <div class="calculation-item final-calculation">
                               <strong class="total-result">Total a Retirar:</strong> 
@@ -731,6 +773,22 @@
     </div>
 </div>
 
+<!-- Modal Calendario Planta -->
+<div id="calendarPlantaModal" class="modal-backdrop" style="display: none;">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h4>Marcar Días NO Trabajados</h4>
+            <button id="closeCalendarPlantaBtn" class="modal-close-btn">&times;</button>
+        </div>
+        <div class="modal-body">
+            <p style="font-size: 0.9em; color: #666; margin-bottom: 15px;">
+                Selecciona en <strong style="color: var(--danger-color);">ROJO</strong> los días que faltaste o tuviste licencia. Esos días <strong>NO</strong> se sumarán a tu pago.
+            </p>
+            <div id="calendar-container-planta"></div>
+        </div>
+    </div>
+</div>
+
 <div id="addAnticipoModal" class="modal-backdrop" style="display: none;">
     <div class="modal-content">
         <div class="modal-header"><h4>Registrar Anticipo</h4></div>
@@ -761,6 +819,24 @@
         </div>
     </div>
 </div>
+
+<!-- Modal Saldo Anterior -->
+<div id="saldoAnteriorModal" class="modal-backdrop" style="display: none;">
+    <div class="modal-content">
+        <div class="modal-header"><h4>Saldo Mes Anterior</h4></div>
+        <div class="modal-body">
+            <p style="font-size: 0.9em; color: #666;">Ingresa un monto positivo si te quedó saldo a favor del mes pasado. Este monto se sumará a tu total a retirar.</p>
+            <label for="saldoAnteriorInput">Monto:</label>
+            <input type="number" id="saldoAnteriorInput" placeholder="0" required />
+        </div>
+        <div class="modal-footer">
+            <button class="reset-button" id="cancelSaldoBtn">Cancelar</button>
+            <button id="saveSaldoBtn" style="background-color: var(--success-color);">Guardar Saldo</button>
+        </div>
+    </div>
+</div>
+
+
 <div id="divisorModal" class="modal-backdrop" style="display: none;">
     <div class="modal-content">
         <div class="modal-header"><h4>Registrar Divisor General</h4></div>
@@ -880,6 +956,11 @@ document.addEventListener('DOMContentLoaded', () => {
             icon.classList.replace('fa-sun', 'fa-moon');
         }
     });
+    
+    // --- EVENTO CLIC NOTIFICACIÓN ---
+    document.getElementById('notification-fab').addEventListener('click', () => {
+        activatePanel('notasSection');
+    });
 
     // --- URLs de los scripts (Google Apps Script) ---
     const SCRIPT_URL_NOTAS = 'https://script.google.com/macros/s/AKfycbwhKQTp9kER_H87XLekd3d69u5PK5ZpfpGzKdAtYcfKM0qTUuF5apPvB2UNYSyS2-FR/exec';
@@ -913,9 +994,14 @@ document.addEventListener('DOMContentLoaded', () => {
         const appData = getAppData();
         const userId = loggedInUser.id;
         if (!appData.userData[userId]) {
-            appData.userData[userId] = { montosPorFecha: {}, anticipos: [], divisor: 0, diasTrabajados: [], divisorPartTime: 1, divisorDelDia: null };
+            // Se agrega diasAusencia para personal de planta
+            appData.userData[userId] = { montosPorFecha: {}, anticipos: [], divisor: 0, diasTrabajados: [], diasAusencia: [], divisorPartTime: 1, divisorDelDia: null, saldoAnterior: 0 };
             saveAppData(appData);
         }
+        // Asegurar compatibilidad
+        if (!appData.userData[userId].diasAusencia) appData.userData[userId].diasAusencia = [];
+        if (appData.userData[userId].saldoAnterior === undefined) appData.userData[userId].saldoAnterior = 0;
+        
         return appData.userData[userId];
     }
     function saveUserData(userData) {
@@ -1384,20 +1470,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
     async function obtenerYActualizarValorPorPuntoExterno() {
         if (!loggedInUser || loggedInUser.tipo !== 'Planta') return;
+        // Mantenemos esta llamada para sincronizar montos, aunque el cálculo ahora será local para excluir días
         try {
             const response = await fetch(`${SCRIPT_URL_RECAUDACION_EXTERNA}?action=get&v=${Date.now()}`);
             const result = await response.json();
-            if (result.status === 'success') {
-                const divRes = await fetch(`${SCRIPT_URL_RECAUDACION_EXTERNA}?action=getDivisores`);
-                const divisores = (await divRes.json()).data || {};
-                const totalesPorDia = result.data.reduce((acc, d) => { acc[d.fecha] = (acc[d.fecha] || 0) + d.monto; return acc; }, {});
-                const totalVpp = Object.keys(totalesPorDia).reduce((sum, f) => divisores[f] > 0 ? sum + (totalesPorDia[f]/divisores[f]) : sum, 0);
-                const fechasDiv = Object.keys(divisores).sort();
-                const userData = getUserData();
-                userData.divisor = totalVpp;
-                userData.divisorDelDia = fechasDiv.length ? divisores[fechasDiv[fechasDiv.length - 1]] : null;
-                saveUserData(userData);
-            }
+            // Ya no usamos el VPP global como única fuente de verdad, sino la suma de días
         } catch (e) { console.error(e); }
     }
     
@@ -1429,19 +1506,62 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function actualizarCalculoPlanta() {
         const userData = getUserData();
-        const p = loggedInUser.puntos || 0;
-        const vpp = userData.divisor || 0;
-        const sub = vpp * p;
-        const anticipos = (userData.anticipos || []).reduce((s, a) => s + a.monto, 0);
-        const finalAmount = sub - anticipos;
-        const totalRecaudado = Object.values(userData.montosPorFecha || {}).flat().reduce((acc, item) => acc + item.monto, 0);
+        const puntosUsuario = loggedInUser.puntos || 0;
+        const diasAusentes = new Set(userData.diasAusencia || []);
+        
+        let subtotalAcumulado = 0;
+        let totalRecaudadoMes = 0;
+        let montoDescontado = 0;
+        let ultimoDivisor = 0;
+        
+        // Obtenemos todas las fechas disponibles con montos
+        const fechasConMontos = Object.keys(userData.montosPorFecha).sort();
+        
+        // Buscar el último divisor registrado
+        if (fechasConMontos.length > 0) {
+             const ultimaFecha = fechasConMontos[fechasConMontos.length - 1];
+             ultimoDivisor = divisoresDiariosExternos[ultimaFecha] || 0;
+        }
+        
+        fechasConMontos.forEach(fecha => {
+            const montoDia = userData.montosPorFecha[fecha].reduce((sum, item) => sum + item.monto, 0);
+            totalRecaudadoMes += montoDia;
+            
+            const divisorDia = divisoresDiariosExternos[fecha] || 0;
+            if (divisorDia > 0) {
+                const valorPuntoDia = montoDia / divisorDia;
+                const gananciaDia = valorPuntoDia * puntosUsuario;
 
-        document.getElementById('puntosUsuarioDisplayPlanta').textContent = p;
-        document.getElementById('totalMontoDividirPlanta').textContent = `$${formatNumberWithPoints(totalRecaudado)}`;
-        document.getElementById('divisorDisplayPlanta').textContent = formatNumberWithPoints(userData.divisorDelDia || 0);
-        document.getElementById('valorPorPuntoDisplayPlanta').textContent = `$${formatNumberWithPoints(vpp)}`;
-        document.getElementById('subtotalDisplayPlanta').textContent = `$${formatNumberWithPoints(sub)}`;
+                // Si el usuario marcó este día como ausente
+                if (diasAusentes.has(fecha)) {
+                    montoDescontado += gananciaDia;
+                } else {
+                    subtotalAcumulado += gananciaDia;
+                }
+            }
+        });
+
+        // Calcular Valor Promedio Real por punto
+        const valorPromedioPunto = puntosUsuario > 0 ? (subtotalAcumulado / puntosUsuario) : 0;
+
+        const anticipos = (userData.anticipos || []).reduce((s, a) => s + a.monto, 0);
+        const saldoAnterior = userData.saldoAnterior || 0;
+        const finalAmount = subtotalAcumulado - anticipos + saldoAnterior;
+
+        document.getElementById('puntosUsuarioDisplayPlanta').textContent = puntosUsuario;
+        document.getElementById('totalMontoDividirPlanta').textContent = `$${formatNumberWithPoints(totalRecaudadoMes)}`;
+        
+        // Restaurar campos solicitados
+        document.getElementById('divisorDisplayPlanta').textContent = formatNumberWithPoints(ultimoDivisor);
+        document.getElementById('valorPorPuntoDisplayPlanta').textContent = `$${formatNumberWithPoints(valorPromedioPunto)}`;
+
+        // Actualizar UI de descuentos
+        document.getElementById('diasDescontadosPlanta').textContent = diasAusentes.size;
+        document.getElementById('montoDescontadoPlanta').textContent = `$${formatNumberWithPoints(montoDescontado)}`;
+        
+        document.getElementById('subtotalDisplayPlanta').textContent = `$${formatNumberWithPoints(subtotalAcumulado)}`;
         document.getElementById('anticiposDisplayPlanta').textContent = `-$${formatNumberWithPoints(anticipos)}`;
+        document.getElementById('saldoAnteriorDisplayPlanta').textContent = `+$${formatNumberWithPoints(saldoAnterior)}`;
         
         const resultadoEl = document.getElementById('resultadoFinalPlanta');
         resultadoEl.textContent = `$${formatNumberWithPoints(finalAmount)}`;
@@ -1459,13 +1579,15 @@ document.addEventListener('DOMContentLoaded', () => {
         const vpp = div > 0 ? (pozo / div) : 0;
         const sub = vpp * p;
         const anticipos = (userData.anticipos || []).reduce((s, a) => s + a.monto, 0);
-        const finalAmount = sub - anticipos;
+        const saldoAnterior = userData.saldoAnterior || 0;
+        const finalAmount = sub - anticipos + saldoAnterior;
         
         document.getElementById('puntosUsuarioDisplayPT').textContent = p;
         document.getElementById('pozoIndividualDisplayPT').textContent = `$${formatNumberWithPoints(pozo)}`;
         document.getElementById('divisorDisplayPT').textContent = formatNumberWithPoints(div);
         document.getElementById('valorPorPuntoDisplayPT').textContent = `$${formatNumberWithPoints(vpp)}`;
         document.getElementById('subtotalDisplayPT').textContent = `$${formatNumberWithPoints(sub)}`;
+        document.getElementById('saldoAnteriorDisplayPT').textContent = `+$${formatNumberWithPoints(saldoAnterior)}`;
         
         const resultadoEl = document.getElementById('resultadoFinalPT');
         resultadoEl.textContent = `$${formatNumberWithPoints(finalAmount)}`;
@@ -1560,8 +1682,60 @@ document.addEventListener('DOMContentLoaded', () => {
         card.style.opacity = '1'; showToast("Enviado"); btn.disabled = false; btn.innerHTML = originalText;
     });
 
-    // --- CALENDARIO (Part-Time) ---
-    function renderCalendar(container) {
+    // --- GESTIÓN MODAL CALENDARIO PLANTA ---
+    const calendarPlantaModal = document.getElementById('calendarPlantaModal');
+    const openCalendarPlantaBtn = document.getElementById('openCalendarPlantaBtn');
+    const closeCalendarPlantaBtn = document.getElementById('closeCalendarPlantaBtn');
+
+    if (openCalendarPlantaBtn) {
+        openCalendarPlantaBtn.addEventListener('click', () => {
+             const calPlanta = document.getElementById('calendar-container-planta');
+             if (calPlanta) renderCalendar(calPlanta, true);
+             calendarPlantaModal.style.display = 'flex';
+        });
+    }
+    if (closeCalendarPlantaBtn) {
+        closeCalendarPlantaBtn.addEventListener('click', () => {
+            calendarPlantaModal.style.display = 'none';
+        });
+    }
+
+    // --- GESTIÓN SALDO ANTERIOR (MODAL) ---
+    const saldoAnteriorModal = document.getElementById('saldoAnteriorModal');
+    const btnEditSaldoPlanta = document.getElementById('btnEditSaldoPlanta');
+    const btnEditSaldoPT = document.getElementById('btnEditSaldoPT');
+    const saldoAnteriorInput = document.getElementById('saldoAnteriorInput');
+
+    function openSaldoModal() {
+        const userData = getUserData();
+        saldoAnteriorInput.value = userData.saldoAnterior || '';
+        saldoAnteriorModal.style.display = 'flex';
+        saldoAnteriorInput.focus();
+    }
+
+    if (btnEditSaldoPlanta) btnEditSaldoPlanta.addEventListener('click', openSaldoModal);
+    if (btnEditSaldoPT) btnEditSaldoPT.addEventListener('click', openSaldoModal);
+
+    document.getElementById('cancelSaldoBtn').addEventListener('click', () => {
+        saldoAnteriorModal.style.display = 'none';
+    });
+
+    document.getElementById('saveSaldoBtn').addEventListener('click', () => {
+        const monto = parseFloat(saldoAnteriorInput.value);
+        if (isNaN(monto)) return;
+        
+        const userData = getUserData();
+        userData.saldoAnterior = monto;
+        saveUserData(userData);
+        
+        saldoAnteriorModal.style.display = 'none';
+        actualizarCalculoRetiro();
+        showToast('Saldo actualizado');
+    });
+
+
+    // --- CALENDARIO (Part-Time y Planta) ---
+    function renderCalendar(container, isPlanta = false) {
         const today = new Date(), year = today.getFullYear(), month = today.getMonth();
         const firstDay = new Date(year, month, 1), lastDay = new Date(year, month + 1, 0);
         const daysInMonth = lastDay.getDate(), startingDay = (firstDay.getDay() + 6) % 7; 
@@ -1572,11 +1746,25 @@ document.addEventListener('DOMContentLoaded', () => {
         for (let i = 0; i < startingDay; i++) html += `<div class="day empty"></div>`;
         
         const userData = getUserData();
-        const workedDays = new Set(userData.diasTrabajados || []);
+        
+        // Determinar qué días marcar según el tipo de usuario
+        let markedDays;
+        if (isPlanta) {
+            markedDays = new Set(userData.diasAusencia || []);
+        } else {
+            markedDays = new Set(userData.diasTrabajados || []);
+        }
 
         for (let i = 1; i <= daysInMonth; i++) {
             const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(i).padStart(2, '0')}`;
-            html += `<div class="day ${workedDays.has(dateStr) ? 'marked' : ''}" data-date="${dateStr}">${i}</div>`;
+            const isMarked = markedDays.has(dateStr);
+            let classModifier = '';
+            
+            if (isMarked) {
+                classModifier = isPlanta ? 'absent' : 'marked';
+            }
+            
+            html += `<div class="day ${classModifier}" data-date="${dateStr}">${i}</div>`;
         }
         html += `</div>`; container.innerHTML = html;
         
@@ -1584,10 +1772,20 @@ document.addEventListener('DOMContentLoaded', () => {
             dayEl.addEventListener('click', () => {
                 const date = dayEl.dataset.date;
                 const ud = getUserData();
-                let wDays = new Set(ud.diasTrabajados || []);
-                if (wDays.has(date)) wDays.delete(date); else wDays.add(date);
-                ud.diasTrabajados = Array.from(wDays);
-                saveUserData(ud); renderCalendar(container); actualizarCalculoRetiro();
+                
+                if (isPlanta) {
+                     let absDays = new Set(ud.diasAusencia || []);
+                     if (absDays.has(date)) absDays.delete(date); else absDays.add(date);
+                     ud.diasAusencia = Array.from(absDays);
+                } else {
+                     let wDays = new Set(ud.diasTrabajados || []);
+                     if (wDays.has(date)) wDays.delete(date); else wDays.add(date);
+                     ud.diasTrabajados = Array.from(wDays);
+                }
+                
+                saveUserData(ud); 
+                renderCalendar(container, isPlanta); 
+                actualizarCalculoRetiro();
             });
         });
     }
@@ -1655,9 +1853,22 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- REINICIO MES ---
     document.getElementById('resetMesBtn').addEventListener('click', () => {
-        if(confirm('¿Reiniciar mes? Se borrarán anticipos y días marcados.')) {
-            const ud = getUserData(); ud.anticipos = []; ud.diasTrabajados = []; saveUserData(ud);
-            if (loggedInUser.tipo !== 'Planta') { const cal = document.getElementById('calendar-container'); if(cal) renderCalendar(cal); }
+        if(confirm('¿Reiniciar mes? Se borrarán anticipos, días marcados y saldo anterior.')) {
+            const ud = getUserData(); 
+            ud.anticipos = []; 
+            ud.diasTrabajados = []; 
+            ud.diasAusencia = []; 
+            ud.saldoAnterior = 0; // Reiniciar saldo anterior también
+            saveUserData(ud);
+            
+            // Recargar calendarios
+            if (loggedInUser.tipo === 'Planta') {
+                 const cal = document.getElementById('calendar-container-planta'); 
+                 if(cal) renderCalendar(cal, true);
+            } else { 
+                 const cal = document.getElementById('calendar-container'); 
+                 if(cal) renderCalendar(cal, false); 
+            }
             actualizarCalculoRetiro(); showToast('Mes reiniciado.');
         }
     });
@@ -1697,8 +1908,16 @@ document.addEventListener('DOMContentLoaded', () => {
         const lastPanel = localStorage.getItem('activePanel') || 'retirosPropinaSection';
         activatePanel(lastPanel);
 
-        if (loggedInUser.tipo === 'Planta') document.getElementById('vistaPlanta').style.display = 'block';
-        else { document.getElementById('vistaPartTime').style.display = 'block'; const cal = document.getElementById('calendar-container'); if(cal) renderCalendar(cal); }
+        if (loggedInUser.tipo === 'Planta') {
+            document.getElementById('vistaPlanta').style.display = 'block';
+            // Renderizar calendario aunque esté oculto en el modal para que esté listo
+            const calPlanta = document.getElementById('calendar-container-planta');
+            if (calPlanta) renderCalendar(calPlanta, true); 
+        } else { 
+            document.getElementById('vistaPartTime').style.display = 'block'; 
+            const cal = document.getElementById('calendar-container'); 
+            if(cal) renderCalendar(cal, false); 
+        }
 
         const syncFinancials = async () => {
              mostrarActualizandoEnCampos(); 
