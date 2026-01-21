@@ -55,43 +55,15 @@
     
     /* --- MENÚ TOGGLE --- */
     .menu-toggle {
-        position: fixed;
-        top: 15px;
-        left: 15px;
-        z-index: 1002;
-        width: 45px;
-        height: 50px;
-        background-color: var(--secondary-color);
-        border: none;
-        border-radius: 8px;
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-        align-items: center;
-        cursor: pointer;
-        box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-        transition: left 0.3s ease;
-        padding: 5px 0;
+        position: fixed; top: 15px; left: 15px; z-index: 1002;
+        width: 45px; height: 50px; background-color: var(--secondary-color);
+        border: none; border-radius: 8px; display: flex; flex-direction: column;
+        justify-content: center; align-items: center; cursor: pointer;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.1); transition: left 0.3s ease; padding: 5px 0;
     }
-    .menu-toggle span.bar { 
-        display: block; 
-        width: 22px; 
-        height: 2px; 
-        background-color: white; 
-        margin: 2px 0; 
-        transition: all 0.3s ease; 
-    }
-    .menu-toggle-label {
-        color: white;
-        font-size: 9px;
-        font-weight: bold;
-        margin-top: 3px;
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
-    }
-
+    .menu-toggle span.bar { display: block; width: 22px; height: 2px; background-color: white; margin: 2px 0; transition: all 0.3s ease; }
+    .menu-toggle-label { color: white; font-size: 9px; font-weight: bold; margin-top: 3px; text-transform: uppercase; letter-spacing: 0.5px; }
     .side-menu.open + .main-container .menu-toggle { left: calc(var(--menu-width) + 15px); }
-    
     .menu-toggle.active span.bar:nth-child(1) { transform: translateY(6px) rotate(45deg); }
     .menu-toggle.active span.bar:nth-child(2) { opacity: 0; }
     .menu-toggle.active span.bar:nth-child(3) { transform: translateY(-6px) rotate(-45deg); }
@@ -119,27 +91,10 @@
         .side-menu { transform: translateX(0); }
     }
     
-    .app-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 20px;
-        flex-wrap: wrap;
-        gap: 10px;
-        padding-left: 50px;
-    }
-     @media (min-width: 992px) {
-        .app-header {
-            padding-left: 0;
-        }
-    }
-    .app-header h1 {
-        margin: 0;
-        font-size: 1.8em;
-    }
-    .user-info-cluster {
-        text-align: right;
-    }
+    .app-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 10px; padding-left: 50px; }
+    @media (min-width: 992px) { .app-header { padding-left: 0; } }
+    .app-header h1 { margin: 0; font-size: 1.8em; }
+    .user-info-cluster { text-align: right; }
 
     #toast-container { position: fixed; top: 20px; right: 20px; z-index: 2000; display: flex; flex-direction: column; align-items: flex-end; gap: 10px; }
     .toast { background-color: var(--success-color); color: white; padding: 15px 20px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); font-size: 1em; opacity: 0; transform: translateX(100%); transition: all 0.4s ease; }
@@ -178,7 +133,6 @@
     .calculation-item strong { color: var(--text-primary); }
     .final-calculation { border-top: 2px solid var(--border-color); padding-top: 15px; margin-top: 15px; }
     .total-result { font-size: 1.8em; font-weight: bold; color: var(--primary-color); }
-    
     .negative-value { color: var(--danger-color) !important; }
 
     .retiro-actions { display: flex; gap: 10px; margin-top: 20px; flex-wrap: wrap; }
@@ -199,12 +153,8 @@
     .day-name { font-weight: bold; color: var(--text-secondary); padding-bottom: 5px; }
     .day { padding: 8px; border-radius: 4px; background-color: var(--bg-content); cursor: pointer; border: 1px solid var(--border-color); }
     .day:hover { background-color: var(--bg-accent); }
-    /* Part Time Marcado: Verde (Trabajó) */
     .day.marked { background-color: var(--success-color); color: #fff; font-weight: bold; }
-    
-    /* Planta Marcado: Rojo (Ausente) */
     .day.absent { background-color: var(--danger-color); color: #fff; font-weight: bold; text-decoration: line-through; }
-    
     .day.empty { background-color: transparent; border: none; cursor: default; }
 
     .modal-backdrop { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.6); display: flex; justify-content: center; align-items: center; z-index: 1000; }
@@ -217,17 +167,8 @@
     .modal-body input { width: 100%; box-sizing: border-box; margin-bottom: 10px; padding: 10px; }
     .modal-footer { display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px; }
     
-    #statsModal .modal-content {
-        max-width: 90%;
-        width: 800px;
-        height: 80vh;
-    }
-    @media (max-width: 820px) {
-      #statsModal .modal-content {
-          width: 95%;
-          max-width: 95%;
-      }
-    }
+    #statsModal .modal-content { max-width: 90%; width: 800px; height: 80vh; }
+    @media (max-width: 820px) { #statsModal .modal-content { width: 95%; max-width: 95%; } }
     
     .password-wrapper { position: relative; width: 100%; flex-grow: 1; }
     .password-wrapper input { width: 100%; box-sizing: border-box; padding-right: 40px; }
@@ -276,157 +217,42 @@
     .fab { width: 50px; height: 50px; background-color: var(--secondary-color); color: white; border: none; border-radius: 50%; display: flex; justify-content: center; align-items: center; font-size: 1.5em; box-shadow: 0 4px 12px rgba(0,0,0,0.15); cursor: pointer; transition: transform 0.2s ease, background-color 0.2s; position: relative; }
     .fab:hover { transform: scale(1.1); }
     
-    #notification-fab {
-        background-color: var(--danger-color);
-        animation: blink 1.5s infinite ease-in-out;
-    }
-    #notification-fab:hover {
-        background-color: #c82333;
-    }
-    @keyframes blink {
-        0%, 100% { transform: scale(1); opacity: 1; }
-        50% { transform: scale(1.1); opacity: 0.8; }
-    }
-    #note-notification-count {
-        position: absolute;
-        top: -5px;
-        right: -5px;
-        background-color: var(--primary-color);
-        color: white;
-        width: 22px;
-        height: 22px;
-        border-radius: 50%;
-        font-size: 12px;
-        font-weight: bold;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        border: 2px solid var(--bg-content);
-    }
+    #notification-fab { background-color: var(--danger-color); animation: blink 1.5s infinite ease-in-out; }
+    #notification-fab:hover { background-color: #c82333; }
+    @keyframes blink { 0%, 100% { transform: scale(1); opacity: 1; } 50% { transform: scale(1.1); opacity: 0.8; } }
+    #note-notification-count { position: absolute; top: -5px; right: -5px; background-color: var(--primary-color); color: white; width: 22px; height: 22px; border-radius: 50%; font-size: 12px; font-weight: bold; display: flex; justify-content: center; align-items: center; border: 2px solid var(--bg-content); }
     
-    .loading-indicator {
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        padding: 40px;
-        gap: 10px;
-        color: var(--text-secondary);
-        font-size: 1.1em;
-        animation: fadeIn 0.5s;
-    }
-    .loading-indicator i {
-        font-size: 1.5em;
-    }
+    .loading-indicator { display: flex; justify-content: center; align-items: center; padding: 40px; gap: 10px; color: var(--text-secondary); font-size: 1.1em; animation: fadeIn 0.5s; }
+    .loading-indicator i { font-size: 1.5em; }
 
     #admin-notes-container { display: flex; flex-direction: column; gap: 15px; max-height: 50vh; overflow-y: auto; padding: 10px; border: 1px solid var(--border-color); border-radius: 8px; margin-bottom: 20px;}
     .note-card { background-color: var(--bg-accent); border-radius: 8px; padding: 15px; border-left: 5px solid var(--primary-color); max-width: 80%; }
     .note-header { font-size: 0.85em; color: var(--text-secondary); border-bottom: 1px solid var(--border-color); padding-bottom: 8px; margin-bottom: 10px; }
     .note-header .author { font-weight: bold; color: var(--primary-color); text-transform: capitalize; }
     .note-body { font-size: 1em; line-height: 1.5; white-space: pre-wrap; word-wrap: break-word; }
-    
-    .note-card.user-note {
-        align-self: flex-end;
-        border-left: none;
-        border-right: 5px solid var(--secondary-color);
-        background-color: #e8f5e9;
-    }
-    body.dark-mode .note-card.user-note {
-        background-color: #2a3b2b;
-    }
+    .note-card.user-note { align-self: flex-end; border-left: none; border-right: 5px solid var(--secondary-color); background-color: #e8f5e9; }
+    body.dark-mode .note-card.user-note { background-color: #2a3b2b; }
     
     #responseForm textarea { width: 100%; box-sizing: border-box; resize: vertical; min-height: 80px; }
     #sendResponseBtn { width: 100%; }
 
-    /* Login Form Layout Adjustments */
-    #loginForm {
-        display: flex;
-        flex-direction: column;
-        gap: 15px;
-    }
-    .form-row, .form-row-date {
-        display: flex;
-        gap: 10px;
-        width: 100%;
-    }
-    
-    #loginForm > input,
-    #loginForm > .password-wrapper,
-    #loginForm > button,
-    #loginForm > a {
-        width: 100%;
-        box-sizing: border-box;
-    }
+    #loginForm { display: flex; flex-direction: column; gap: 15px; }
+    .form-row, .form-row-date { display: flex; gap: 10px; width: 100%; }
+    #loginForm > input, #loginForm > .password-wrapper, #loginForm > button, #loginForm > a { width: 100%; box-sizing: border-box; }
+    .form-row > input, .form-row > select, .form-row-date > select, .form-row-date > input { flex: 1; min-width: 0; }
+    .form-row-date > input { flex: 1.5; }
+    .form-row-date > label { flex-grow: 0; flex-shrink: 0; align-self: center; font-size: 0.9em; color: var(--text-secondary); }
 
-    .form-row > input,
-    .form-row > select,
-    .form-row-date > select,
-    .form-row-date > input {
-        flex: 1;
-        min-width: 0; 
-    }
-     .form-row-date > input {
-        flex: 1.5; 
-    }
-    .form-row-date > label {
-        flex-grow: 0;
-        flex-shrink: 0; 
-        align-self: center;
-        font-size: 0.9em;
-        color: var(--text-secondary);
-    }
-
-    /* --- Statistics Styles (used inside modal) --- */
-    .stat-cards {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-        gap: 15px;
-        margin-bottom: 25px;
-    }
-    .stat-card {
-        background-color: var(--bg-accent);
-        padding: 20px;
-        border-radius: 8px;
-        text-align: center;
-    }
-    .stat-card .label {
-        font-size: 0.9em;
-        color: var(--text-secondary);
-        margin-bottom: 8px;
-        display: block;
-    }
-    .stat-card .value {
-        font-size: 1.8em;
-        font-weight: bold;
-        color: var(--primary-color);
-    }
-    .stat-card .value.projection {
-        color: var(--secondary-color);
-    }
-    .stat-card .disclaimer {
-        font-size: 0.75em;
-        margin-top: 10px;
-        color: var(--text-secondary);
-    }
-    .chart-controls {
-        display: flex;
-        justify-content: center;
-        gap: 10px;
-        margin-bottom: 20px;
-    }
-    .chart-controls button {
-        flex-grow: 0;
-        padding: 8px 16px;
-    }
-    .chart-controls button.active {
-        background-color: var(--primary-color);
-    }
-    .chart-container {
-        position: relative;
-        height: 40vh;
-        min-height: 300px;
-        width: 100%;
-    }
-
+    .stat-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 25px; }
+    .stat-card { background-color: var(--bg-accent); padding: 20px; border-radius: 8px; text-align: center; }
+    .stat-card .label { font-size: 0.9em; color: var(--text-secondary); margin-bottom: 8px; display: block; }
+    .stat-card .value { font-size: 1.8em; font-weight: bold; color: var(--primary-color); }
+    .stat-card .value.projection { color: var(--secondary-color); }
+    .stat-card .disclaimer { font-size: 0.75em; margin-top: 10px; color: var(--text-secondary); }
+    .chart-controls { display: flex; justify-content: center; gap: 10px; margin-bottom: 20px; }
+    .chart-controls button { flex-grow: 0; padding: 8px 16px; }
+    .chart-controls button.active { background-color: var(--primary-color); }
+    .chart-container { position: relative; height: 40vh; min-height: 300px; width: 100%; }
   </style>
 </head>
 <body>
@@ -434,7 +260,6 @@
 <nav id="sideMenu" class="side-menu"></nav>
 
 <div id="mainContainer" class="main-container">
-    <!-- BOTÓN MENÚ CON ETIQUETA NUEVA -->
     <button id="menuToggle" class="menu-toggle" style="display: none;">
         <span class="bar"></span>
         <span class="bar"></span>
@@ -455,85 +280,30 @@
                 <div class="note">
                     <strong>Si es tu Primera Vez (Registro):</strong>
                     <ol>
-                        <li>Completa <strong>todos</strong> los campos del formulario (nombre, tipo de contrato, puntos, etc.).</li>
+                        <li>Completa <strong>todos</strong> los campos del formulario.</li>
                         <li>Crea una contraseña segura.</li>
-                        <li>Presiona "Ingresar o Registrar". Tu cuenta se creará y se te pedirá un número de teléfono para protegerla.</li>
+                        <li>Presiona "Ingresar o Registrar".</li>
                     </ol>
                 </div>
-                <div class="note">
-                    <strong>Si ya Tienes una Cuenta (Ingreso):</strong>
-                    <ul>
-                        <li>Usa el "Acceso Rápido" para rellenar tus datos o ingrésalos manually.</li>
-                        <li>Escribe tu contraseña y presiona "Ingresar o Registrar".</li>
-                    </ul>
-                </div>
-                 <div class="note">
-                    <strong>¿Olvidaste tu Contraseña?</strong>
-                    <p>Haz clic en el enlace "¿Olvidaste tu contraseña?", ingresa el número de teléfono que registraste y sigue los pasos para crear una nueva.</p>
-                </div>
             </div>
-
             <div id="help-content-main" class="help-content-section">
                 <h3>Explicación de las Secciones</h3>
-                <p>La aplicación se divide en varias partes clave para que organices tu información:</p>
                 <ul>
-                    <li><strong>Retiro de Propina:</strong> ¡La nueva pantalla principal! Aquí ves el resultado final de todos los cálculos según tu tipo de contrato (Planta o Part-Time). Es el resumen que te dice cuánto debes retirar. Desde aquí puedes abrir las <strong>Estadísticas</strong> para ver gráficos y proyecciones.</li>
-                    <li><strong>Montos por Noche:</strong> En esta sección puedes ver el desglose de todas las propinas recaudadas cada día del mes. Los datos se importan automáticamente y aquí puedes revisarlos en detalle.</li>
-                    <li><strong>Mis Datos:</strong> Aquí puedes verificar que tu información personal sea correcta, como tu nombre, tipo de contrato y, lo más importante, la <strong>cantidad de puntos</strong> que tienes asignados. También puedes editarlos desde la sección "Mis Datos". También puedes cambiar tu contraseña y realizar respaldos de datos desde aquí.</li>
-                    <li><strong>Notas Admin:</strong> Un canal de comunicación directo para ver los mensajes del administrador y enviar respuestas.</li>
+                    <li><strong>Retiro de Propina:</strong> Aquí ves el resultado final de todos los cálculos.</li>
+                    <li><strong>Montos por Noche:</strong> Desglose de todas las propinas recaudadas.</li>
+                    <li><strong>Mis Datos:</strong> Información personal y respaldo.</li>
+                    <li><strong>Notas Admin:</strong> Canal de comunicación con el administrador.</li>
                 </ul>
-
-                <h3>Conceptos Clave del Cálculo</h3>
-                <p>Para entender los cálculos, primero debes conocer estos términos:</p>
-                <ul>
-                    <li><strong>Puntos:</strong> Son los puntos que tienes asignados personalmente. Puedes editarlos desde la sección "Mis Datos".</li>
-                    <li><strong>Total Recaudado:</strong> Es la suma de todos los montos de propina del mes.</li>
-                    <li><strong>Divisor:</strong> Es el total de puntos que participan en la repartición (General para Planta, Personal para Part-Time).</li>
-                    <li><strong>Anticipos:</strong> Dinero que retiraste por adelantado y que se descuenta del total.</li>
-                </ul>
-
-                <h3>Detalle de los Cálculos (Personal de Planta)</h3>
-                <div class="note">
-                    <p><strong>ATENCIÓN: Sistema de Ausencias</strong><br>Si marcas días como "No Trabajados" (rojo) en el calendario, el sistema calculará tu propina sumando solo los días que sí trabajaste. Si no marcas nada, se asume mes completo.</p>
-                
-                    <p><strong>Paso A: Calcular el Valor por Punto Diario</strong><br>Cada día tiene su propio valor según lo recaudado esa noche dividido por el divisor general de ese día.</p>
-                    
-                    <p><strong>Paso B: Sumar tus días trabajados</strong><br>El sistema suma el valor que te corresponde (Valor Punto Diario × Tus Puntos) de cada día que NO hayas marcado como falta.</p>
-
-                    <p><strong>Paso C: Calcular el Total Final</strong><br>Finalmente, a tu acumulado se le restan los "Anticipos" y se le suma el "Saldo Mes Anterior".</p>
-                    <div class="formula">Total a Retirar = Suma Días Trabajados - Total Anticipos + Saldo Mes Anterior</div>
-                </div>
-
-                <h3>Detalle de los Cálculos (Personal Part-Time)</h3>
-                <div class="note">
-                    <p><strong>Paso A: Marcar Días y Calcular Pozo</strong><br>En el calendario, debes marcar los días que trabajaste para que la app sume las propinas de <strong>solo esos días</strong> en tu "Pozo Individual".</p>
-
-                    <p><strong>Paso B: Calcular el Valor por Punto</strong><br>La app divide tu "Pozo Individual" por tu "Divisor Personal". Este divisor corresponde al divisor registrado en el <strong>último día</strong> que marcaste en el calendario.</p>
-                    <div class="formula">Valor por Punto = Pozo Individual / Divisor Personal (Último Día)</div>
-
-                    <p><strong>Paso C y D: Calcular Subtotal y Total Final</strong><br>Finalmente, el "Valor por Punto" se multiplica por "Mis Puntos", se restan tus "Anticipos" y se suma el "Saldo Mes Anterior".</p>
-                </div>
-
-                <h3><i class="fas fa-comments"></i> Notas y Comunicación</h3>
-                <div class="note">
-                    <p>La sección <strong>"Notas Admin"</strong> es tu canal directo para comunicarte con la administración.</p>
-                    <ul>
-                        <li><strong>Enviar Mensajes:</strong> Escribe tu consulta o respuesta en el cuadro de texto y presiona "Enviar".</li>
-                        <li><strong>Notificaciones:</strong> Cuando recibas un mensaje nuevo del administrador, verás un <strong>icono de nota parpadeante</strong> <i class="fas fa-envelope-open-text" style="color: var(--danger-color);"></i> en la esquina inferior derecha, con un número que indica cuántos mensajes nuevos tienes.</li>
-                        <li><strong>Marcar como Leído:</strong> Para quitar la notificación, simplemente entra a la sección "Notas Admin" desde el menú.</li>
-                    </ul>
-                </div>
             </div>
         </div>
     </div>
+    
     <div id="login-container">
       <section id="loginSection">
         <h2>Ingresar a tu Registro</h2>
-        
         <section id="quickAccessSection" style="display: none; padding: 10px; box-shadow: none;">
             <h4 style="text-align: center; margin:0 0 15px 0; font-size: 1em; color: #555;">Acceso Rápido</h4>
-            <div id="quickAccessUsers" class="quick-access-container">
-            </div>
+            <div id="quickAccessUsers" class="quick-access-container"></div>
         </section>
         <form id="loginForm">
             <div class="form-row">
@@ -588,41 +358,27 @@
       
       <section id="retirosPropinaSection" class="content-panel">
           <h2 id="titulo-retiro">Retiro de Propina</h2>
-          
-          <!-- SECCIÓN PLANTA -->
+          <!-- VISTA PLANTA -->
           <div id="vistaPlanta" style="display: none;">
-              <!-- Botón para abrir modal de calendario -->
               <button id="openCalendarPlantaBtn" style="background-color: var(--bg-accent); color: var(--text-primary); border: 1px solid var(--border-color); width: 100%; margin-bottom: 20px; font-weight: bold; display: flex; justify-content: center; align-items: center; gap: 10px;">
-                  <i class="fas fa-calendar-times" style="color: var(--danger-color);"></i> Gestionar Días No Trabajados / Ausencias
+                  <i class="fas fa-calendar-times" style="color: var(--danger-color);"></i> Gestionar Días No Trabajados
               </button>
-              
               <div class="retiro-container">
                   <div class="calculation-item"><strong>Mis Puntos:</strong> <span id="puntosUsuarioDisplayPlanta">0</span></div>
                   <hr>
                   <div class="calculation-item"><strong>Total Recaudado (Mes):</strong> <span id="totalMontoDividirPlanta">$0</span></div>
-                  
-                  <!-- RESTAURADO: Divisor y Valor por Punto -->
                   <div class="calculation-item"><strong>Divisor Registrado (Último):</strong> <span id="divisorDisplayPlanta">No registrado</span></div>
-                  <div class="calculation-item" style="color: var(--info-color); font-weight: bold;"><strong>Valor por Punto (Promedio Real):</strong> <span id="valorPorPuntoDisplayPlanta">$0</span></div>
+                  <div class="calculation-item" style="color: var(--info-color); font-weight: bold;"><strong>Valor por Punto:</strong> <span id="valorPorPuntoDisplayPlanta">$0</span></div>
                   <hr>
-
                   <div class="calculation-item"><strong>Días Descontados:</strong> <span id="diasDescontadosPlanta" style="color: var(--danger-color); font-weight:bold;">0</span></div>
                   <div class="calculation-item"><strong>Monto Descontado:</strong> <span id="montoDescontadoPlanta" style="color: var(--danger-color); font-weight:bold;">$0</span></div>
-                  
                   <div class="calculation-item" style="color: var(--info-color); font-weight: bold;"><strong>Subtotal Acumulado:</strong> <span id="subtotalDisplayPlanta">$0</span></div>
-                  <div class="calculation-item" style="font-size: 0.8em; color: #777;">(Suma de días trabajados × valor diario)</div>
                   <hr>
                   <div class="calculation-item"><strong>Total Anticipos:</strong> <span id="anticiposDisplayPlanta">-$0</span></div>
-                  
-                  <!-- Saldo Mes Anterior (Planta) -->
                   <div class="calculation-item" style="color: var(--success-color);">
                       <strong>Saldo Mes Anterior:</strong>
-                      <span>
-                          <span id="saldoAnteriorDisplayPlanta">$0</span>
-                          <button class="edit-btn-inline" id="btnEditSaldoPlanta">✏️</button>
-                      </span>
+                      <span><span id="saldoAnteriorDisplayPlanta">$0</span><button class="edit-btn-inline" id="btnEditSaldoPlanta">✏️</button></span>
                   </div>
-
                   <div id="anticipos-list-container-planta" class="anticipos-list-container"></div>
                   <div class="calculation-item final-calculation">
                       <strong class="total-result">Total a Retirar:</strong> 
@@ -630,8 +386,7 @@
                   </div>
               </div>
           </div>
-
-          <!-- SECCIÓN PART TIME -->
+          <!-- VISTA PART TIME -->
           <div id="vistaPartTime" style="display: none;">
               <div class="part-time-layout">
                   <div class="calendar-section">
@@ -642,32 +397,21 @@
                       <div class="retiro-container-pt">
                           <div class="calculation-item"><strong>Mis Puntos:</strong> <span id="puntosUsuarioDisplayPT">0</span></div>
                           <hr>
-                          <div class="calculation-item"><strong>Días trabajados:</strong> <span id="diasTrabajadosDisplayPT">0</span></div>
                           <div class="calculation-item"><strong>Pozo Individual:</strong> <span id="pozoIndividualDisplayPT">$0</span></div>
-                          <div class="calculation-item">
-                               <strong title="Corresponde al divisor del último día de trabajo que marcaste en el calendario.">Divisor Personal (Auto):</strong>
-                               <span id="divisorDisplayPT">0</span>
-                          </div>
+                          <div class="calculation-item"><strong>Divisor Personal:</strong> <span id="divisorDisplayPT">0</span></div>
                           <div class="calculation-item" style="color: var(--info-color); font-weight: bold;"><strong>Valor por Punto:</strong> <span id="valorPorPuntoDisplayPT">$0</span></div>
                           <hr>
                           <div class="calculation-item"><strong>Subtotal:</strong> <span id="subtotalDisplayPT">$0</span></div>
                           <div class="calculation-item"><strong>Total Anticipos:</strong> <span id="anticiposDisplayPT">-$0</span></div>
-
-                          <!-- Saldo Mes Anterior (Part Time) -->
                           <div class="calculation-item" style="color: var(--success-color);">
                               <strong>Saldo Mes Anterior:</strong>
-                              <span>
-                                  <span id="saldoAnteriorDisplayPT">$0</span>
-                                  <button class="edit-btn-inline" id="btnEditSaldoPT">✏️</button>
-                              </span>
+                              <span><span id="saldoAnteriorDisplayPT">$0</span><button class="edit-btn-inline" id="btnEditSaldoPT">✏️</button></span>
                           </div>
-
                           <div id="anticipos-list-container-pt" class="anticipos-list-container"></div>
                           <div class="calculation-item final-calculation">
                               <strong class="total-result">Total a Retirar:</strong> 
                               <span id="resultadoFinalPT" class="total-result">$0</span>
                           </div>
-                          <button id="registrarDivisorPTBtn" style="width:100%; margin-top:10px; display: none;">Editar Divisor Personal</button>
                       </div>
                   </div>
               </div>
@@ -689,48 +433,26 @@
       <section id="datosUsuarioSection" class="content-panel">
           <h2>Mis Datos</h2>
           <div class="user-data-container">
-              <div class="data-item">
-                  <span class="data-item-label">Nombre Completo</span>
-                  <span id="userDataNombre" class="data-item-value"></span>
-              </div>
-              <div class="data-item">
-                  <span class="data-item-label">Tipo de Contrato</span>
-                  <span id="userDataContrato" class="data-item-value"></span>
-              </div>
-              <div class="data-item">
-                  <span class="data-item-label">Puntos Asignados</span>
-                  <span id="userDataPuntos" class="data-item-value">
-                      <span id="puntosValueDisplay"></span>
-                      <button id="editPuntosBtn" class="edit-btn-inline" title="Editar Puntos">✏️</button>
-                  </span>
-              </div>
-              <div class="data-item">
-                  <span class="data-item-label">Fecha de Ingreso</span>
-                  <span id="userDataFechaIngreso" class="data-item-value"></span>
-              </div>
+              <div class="data-item"><span class="data-item-label">Nombre Completo</span><span id="userDataNombre" class="data-item-value"></span></div>
+              <div class="data-item"><span class="data-item-label">Tipo de Contrato</span><span id="userDataContrato" class="data-item-value"></span></div>
+              <div class="data-item"><span class="data-item-label">Puntos Asignados</span><span id="userDataPuntos" class="data-item-value"><span id="puntosValueDisplay"></span><button id="editPuntosBtn" class="edit-btn-inline" title="Editar Puntos">✏️</button></span></div>
+              <div class="data-item"><span class="data-item-label">Fecha de Ingreso</span><span id="userDataFechaIngreso" class="data-item-value"></span></div>
           </div>
           <button id="changePasswordBtn">Cambiar Contraseña</button>
-          
           <div style="margin-top: 30px; border-top: 1px solid var(--border-color); padding-top: 20px;">
               <h3>Respaldo y Recuperación</h3>
-              <p style="font-size: 0.9em; color: var(--text-secondary);">Guarda una copia de seguridad de todos los datos de la aplicación (incluyendo todos los usuarios registrados en este dispositivo) o restaura desde un archivo previo.</p>
               <div style="display: flex; gap: 10px; margin-top: 15px;">
-                  <button id="exportDataBtn" style="background-color: var(--info-color);">
-                      <i class="fas fa-download"></i> Exportar Datos (JSON)
-                  </button>
-                  <button id="importDataBtn" style="background-color: var(--edit-color); color: #212529;">
-                      <i class="fas fa-upload"></i> Importar Datos (JSON)
-                  </button>
+                  <button id="exportDataBtn" style="background-color: var(--info-color);"><i class="fas fa-download"></i> Exportar</button>
+                  <button id="importDataBtn" style="background-color: var(--edit-color); color: #212529;"><i class="fas fa-upload"></i> Importar</button>
               </div>
           </div>
       </section>
       
       <section id="notasSection" class="content-panel">
-          <h2>Comunicación con Administración</h2>
-          <div id="admin-notes-container">
-              </div>
+          <h2>Comunicación</h2>
+          <div id="admin-notes-container"></div>
           <form id="responseForm" style="margin-top: 20px;">
-              <textarea id="responseMessage" placeholder="Escribe tu respuesta o consulta aquí..." rows="4"></textarea>
+              <textarea id="responseMessage" placeholder="Escribe aquí..." rows="4"></textarea>
               <button type="button" id="sendResponseBtn">Enviar Respuesta</button>
           </form>
       </section>
@@ -738,208 +460,56 @@
 </div>
 
 <div class="fab-container">
-    <button id="notification-fab" class="fab" title="Nuevas Notas" style="display: none;">
-        <i class="fas fa-envelope-open-text"></i>
-        <span id="note-notification-count"></span>
-    </button>
-    <button id="theme-toggle" class="fab" title="Cambiar Tema">
-        <i class="fas fa-moon"></i>
-    </button>
+    <button id="notification-fab" class="fab" title="Nuevas Notas" style="display: none;"><i class="fas fa-envelope-open-text"></i><span id="note-notification-count"></span></button>
+    <button id="theme-toggle" class="fab" title="Cambiar Tema"><i class="fas fa-moon"></i></button>
 </div>
 
-
-<footer>
-    CarlosPN Interactive®
-</footer>
-
+<footer>CarlosPN Interactive®</footer>
 <div id="toast-container"></div>
 
+<!-- MODALES -->
 <div id="statsModal" class="modal-backdrop" style="display: none;">
     <div class="modal-content">
-        <div class="modal-header">
-            <h4>Estadísticas y Proyecciones</h4>
-            <button id="closeStatsModalBtn" class="modal-close-btn">&times;</button>
-        </div>
-        <div class="modal-body">
-            <div class="stat-cards" id="statCardsContainer"></div>
-            <div class="chart-controls">
-                <button id="dailyViewBtn" class="active">Vista Diaria</button>
-                <button id="weeklyViewBtn">Vista Semanal</button>
-            </div>
-            <div class="chart-container">
-                <canvas id="tipChart"></canvas>
-            </div>
-        </div>
+        <div class="modal-header"><h4>Estadísticas</h4><button id="closeStatsModalBtn" class="modal-close-btn">&times;</button></div>
+        <div class="modal-body"><div class="stat-cards" id="statCardsContainer"></div><div class="chart-controls"><button id="dailyViewBtn" class="active">Diaria</button><button id="weeklyViewBtn">Semanal</button></div><div class="chart-container"><canvas id="tipChart"></canvas></div></div>
     </div>
 </div>
-
-<!-- Modal Calendario Planta -->
 <div id="calendarPlantaModal" class="modal-backdrop" style="display: none;">
     <div class="modal-content">
-        <div class="modal-header">
-            <h4>Marcar Días NO Trabajados</h4>
-            <button id="closeCalendarPlantaBtn" class="modal-close-btn">&times;</button>
-        </div>
-        <div class="modal-body">
-            <p style="font-size: 0.9em; color: #666; margin-bottom: 15px;">
-                Selecciona en <strong style="color: var(--danger-color);">ROJO</strong> los días que faltaste o tuviste licencia. Esos días <strong>NO</strong> se sumarán a tu pago.
-            </p>
-            <div id="calendar-container-planta"></div>
-        </div>
+        <div class="modal-header"><h4>Marcar Ausencias</h4><button id="closeCalendarPlantaBtn" class="modal-close-btn">&times;</button></div>
+        <div class="modal-body"><div id="calendar-container-planta"></div></div>
     </div>
 </div>
-
 <div id="addAnticipoModal" class="modal-backdrop" style="display: none;">
-    <div class="modal-content">
-        <div class="modal-header"><h4>Registrar Anticipo</h4></div>
-        <div class="modal-body">
-            <label for="addAnticipoMontoInput">Monto:</label>
-            <input type="text" id="addAnticipoMontoInput" inputmode="numeric" required />
-            <label for="addAnticipoFechaInput">Fecha:</label>
-            <input type="date" id="addAnticipoFechaInput" required />
-        </div>
-        <div class="modal-footer">
-            <button class="reset-button" id="cancelAddAnticipoBtn">Cancelar</button>
-            <button id="saveAddAnticipoBtn">Guardar</button>
-        </div>
-    </div>
+    <div class="modal-content"><div class="modal-header"><h4>Registrar Anticipo</h4></div><div class="modal-body"><label>Monto:</label><input type="text" id="addAnticipoMontoInput" inputmode="numeric"/><label>Fecha:</label><input type="date" id="addAnticipoFechaInput"/></div><div class="modal-footer"><button class="reset-button" id="cancelAddAnticipoBtn">Cancelar</button><button id="saveAddAnticipoBtn">Guardar</button></div></div>
 </div>
 <div id="editAnticipoModal" class="modal-backdrop" style="display: none;">
-    <div class="modal-content">
-        <div class="modal-header"><h4>Editar Anticipo</h4></div>
-        <div class="modal-body">
-            <label for="editAnticipoMontoInput">Monto:</label>
-            <input type="text" id="editAnticipoMontoInput" inputmode="numeric" required />
-            <label for="editAnticipoFechaInput">Fecha:</label>
-            <input type="date" id="editAnticipoFechaInput" required />
-        </div>
-        <div class="modal-footer">
-            <button class="reset-button" id="cancelEditAnticipoBtn">Cancelar</button>
-            <button class="edit-button-modal" id="saveEditAnticipoBtn">Guardar Cambios</button>
-        </div>
-    </div>
+    <div class="modal-content"><div class="modal-header"><h4>Editar Anticipo</h4></div><div class="modal-body"><label>Monto:</label><input type="text" id="editAnticipoMontoInput" inputmode="numeric"/><label>Fecha:</label><input type="date" id="editAnticipoFechaInput"/></div><div class="modal-footer"><button class="reset-button" id="cancelEditAnticipoBtn">Cancelar</button><button class="edit-button-modal" id="saveEditAnticipoBtn">Guardar</button></div></div>
 </div>
-
-<!-- Modal Saldo Anterior -->
 <div id="saldoAnteriorModal" class="modal-backdrop" style="display: none;">
-    <div class="modal-content">
-        <div class="modal-header"><h4>Saldo Mes Anterior</h4></div>
-        <div class="modal-body">
-            <p style="font-size: 0.9em; color: #666;">Ingresa un monto positivo si te quedó saldo a favor del mes pasado. Este monto se sumará a tu total a retirar.</p>
-            <label for="saldoAnteriorInput">Monto:</label>
-            <input type="number" id="saldoAnteriorInput" placeholder="0" required />
-        </div>
-        <div class="modal-footer">
-            <button class="reset-button" id="cancelSaldoBtn">Cancelar</button>
-            <button id="saveSaldoBtn" style="background-color: var(--success-color);">Guardar Saldo</button>
-        </div>
-    </div>
-</div>
-
-
-<div id="divisorModal" class="modal-backdrop" style="display: none;">
-    <div class="modal-content">
-        <div class="modal-header"><h4>Registrar Divisor General</h4></div>
-        <div class="modal-body">
-            <label for="divisorInput">Divisor:</label>
-            <input type="text" id="divisorInput" inputmode="numeric" required />
-        </div>
-        <div class="modal-footer">
-            <button class="reset-button" id="cancelDivisorBtn">Cancelar</button>
-            <button id="saveDivisorBtn">Guardar</button>
-        </div>
-    </div>
+    <div class="modal-content"><div class="modal-header"><h4>Saldo Mes Anterior</h4></div><div class="modal-body"><label>Monto:</label><input type="number" id="saldoAnteriorInput" placeholder="0"/></div><div class="modal-footer"><button class="reset-button" id="cancelSaldoBtn">Cancelar</button><button id="saveSaldoBtn" style="background-color: var(--success-color);">Guardar</button></div></div>
 </div>
 <div id="divisorPTModal" class="modal-backdrop" style="display: none;">
-    <div class="modal-content">
-        <div class="modal-header"><h4>Editar Divisor Personal</h4></div>
-        <div class="modal-body">
-            <label for="divisorPTInput">Divisor:</label>
-            <input type="text" id="divisorPTInput" inputmode="numeric" required />
-        </div>
-        <div class="modal-footer">
-            <button class="reset-button" id="cancelDivisorPTBtn">Cancelar</button>
-            <button id="saveDivisorPTBtn">Guardar</button>
-        </div>
-    </div>
+    <div class="modal-content"><div class="modal-header"><h4>Editar Divisor</h4></div><div class="modal-body"><label>Divisor:</label><input type="text" id="divisorPTInput" inputmode="numeric"/></div><div class="modal-footer"><button class="reset-button" id="cancelDivisorPTBtn">Cancelar</button><button id="saveDivisorPTBtn">Guardar</button></div></div>
 </div>
-
 <div id="phoneModal" class="modal-backdrop" style="display: none;">
-    <div class="modal-content">
-        <div class="modal-header"><h4>¡Bienvenido(a)!</h4></div>
-        <div class="modal-body">
-            <p>Para proteger tu cuenta, por favor ingresa tu número de teléfono. Lo usaremos para cambiar tu contraseña si la olvidas.</p>
-            <label for="phoneInput">Número de Teléfono:</label>
-            <input type="tel" id="phoneInput" placeholder="Ej: 912345678" required />
-        </div>
-        <div class="modal-footer">
-            <button id="savePhoneBtn">Guardar y Continuar</button>
-        </div>
-    </div>
+    <div class="modal-content"><div class="modal-header"><h4>¡Bienvenido(a)!</h4></div><div class="modal-body"><p>Ingresa tu número para proteger tu cuenta.</p><label>Teléfono:</label><input type="tel" id="phoneInput" placeholder="Ej: 912345678"/></div><div class="modal-footer"><button id="savePhoneBtn">Guardar</button></div></div>
 </div>
 <div id="forgotPasswordModal" class="modal-backdrop" style="display: none;">
-    <div class="modal-content">
-        <div class="modal-header"><h4>Cambiar Contraseña</h4></div>
-        <div class="modal-body">
-            <div id="verifyPhoneContainer">
-                <p>Ingresa tu número de teléfono para verificar tu identidad.</p>
-                <label for="recoverPhoneInput">Número de Teléfono:</label>
-                <input type="tel" id="recoverPhoneInput" placeholder="Tu número de teléfono" required />
-                 <div id="recoveryResult"></div>
-            </div>
-            <div id="newPasswordContainer" style="display: none;">
-                <p>Verificación exitosa. Ahora puedes establecer tu nueva contraseña.</p>
-                <label for="newPasswordInput">Nueva Contraseña:</label>
-                <div class="password-wrapper">
-                    <input type="password" id="newPasswordInput" required />
-                    <i class="fas fa-eye password-toggle-icon"></i>
-                </div>
-            </div>
-        </div>
-        <div class="modal-footer">
-            <button class="reset-button" id="cancelForgotBtn">Cancelar</button>
-            <button id="verifyPhoneBtn">Verificar</button>
-            <button id="saveNewPasswordBtn" style="display: none;">Guardar Nueva Contraseña</button>
-        </div>
-    </div>
+    <div class="modal-content"><div class="modal-header"><h4>Recuperar Contraseña</h4></div><div class="modal-body"><div id="verifyPhoneContainer"><label>Teléfono:</label><input type="tel" id="recoverPhoneInput"/><div id="recoveryResult"></div></div><div id="newPasswordContainer" style="display: none;"><label>Nueva Contraseña:</label><div class="password-wrapper"><input type="password" id="newPasswordInput"/><i class="fas fa-eye password-toggle-icon"></i></div></div></div><div class="modal-footer"><button class="reset-button" id="cancelForgotBtn">Cancelar</button><button id="verifyPhoneBtn">Verificar</button><button id="saveNewPasswordBtn" style="display: none;">Guardar Nueva</button></div></div>
 </div>
 <div id="changePasswordModal" class="modal-backdrop" style="display: none;">
-    <div class="modal-content">
-        <div class="modal-header"><h4>Actualizar Contraseña</h4></div>
-        <div class="modal-body">
-             <label for="newPasswordLoggedInInput">Ingresa tu nueva contraseña:</label>
-             <div class="password-wrapper">
-                <input type="password" id="newPasswordLoggedInInput" required />
-                <i class="fas fa-eye password-toggle-icon"></i>
-             </div>
-        </div>
-        <div class="modal-footer">
-            <button class="reset-button" id="cancelChangePasswordBtn">Cancelar</button>
-            <button id="saveNewPasswordLoggedInBtn">Guardar Cambios</button>
-        </div>
-    </div>
+    <div class="modal-content"><div class="modal-header"><h4>Nueva Contraseña</h4></div><div class="modal-body"><label>Contraseña:</label><div class="password-wrapper"><input type="password" id="newPasswordLoggedInInput"/><i class="fas fa-eye password-toggle-icon"></i></div></div><div class="modal-footer"><button class="reset-button" id="cancelChangePasswordBtn">Cancelar</button><button id="saveNewPasswordLoggedInBtn">Guardar</button></div></div>
 </div>
-
 <div id="editPuntosModal" class="modal-backdrop" style="display: none;">
-    <div class="modal-content">
-        <div class="modal-header"><h4>Editar Puntos Asignados</h4></div>
-        <div class="modal-body">
-            <label for="editPuntosInput">Nueva cantidad de puntos:</label>
-            <input type="number" id="editPuntosInput" required />
-        </div>
-        <div class="modal-footer">
-            <button class="reset-button" id="cancelEditPuntosBtn">Cancelar</button>
-            <button id="saveEditPuntosBtn">Guardar Puntos</button>
-        </div>
-    </div>
+    <div class="modal-content"><div class="modal-header"><h4>Editar Puntos</h4></div><div class="modal-body"><label>Puntos:</label><input type="number" id="editPuntosInput"/></div><div class="modal-footer"><button class="reset-button" id="cancelEditPuntosBtn">Cancelar</button><button id="saveEditPuntosBtn">Guardar</button></div></div>
 </div>
 
 <input type="file" id="importFileInput" style="display: none;" accept="application/json">
 
-
 <script>
 document.addEventListener('DOMContentLoaded', () => {
-    // --- Modo Oscuro ---
+    // --- MODO OSCURO ---
     const themeToggleBtn = document.getElementById('theme-toggle');
     if (localStorage.getItem('theme') === 'dark') {
         document.body.classList.add('dark-mode');
@@ -950,26 +520,18 @@ document.addEventListener('DOMContentLoaded', () => {
         const isDark = document.body.classList.contains('dark-mode');
         localStorage.setItem('theme', isDark ? 'dark' : 'light');
         const icon = themeToggleBtn.querySelector('i');
-        if (isDark) {
-            icon.classList.replace('fa-moon', 'fa-sun');
-        } else {
-            icon.classList.replace('fa-sun', 'fa-moon');
-        }
+        if (isDark) { icon.classList.replace('fa-moon', 'fa-sun'); } 
+        else { icon.classList.replace('fa-sun', 'fa-moon'); }
     });
-    
-    // --- EVENTO CLIC NOTIFICACIÓN ---
-    document.getElementById('notification-fab').addEventListener('click', () => {
-        activatePanel('notasSection');
-    });
+    document.getElementById('notification-fab').addEventListener('click', () => { activatePanel('notasSection'); });
 
-    // --- URLs de los scripts (Google Apps Script) ---
+    // --- URLs ---
     const SCRIPT_URL_NOTAS = 'https://script.google.com/macros/s/AKfycbwhKQTp9kER_H87XLekd3d69u5PK5ZpfpGzKdAtYcfKM0qTUuF5apPvB2UNYSyS2-FR/exec';
     const SCRIPT_URL_RECAUDACION_EXTERNA = 'https://script.google.com/macros/s/AKfycbxdiAMbUy2nTuXvvIuF_-KF-ed0s7jxXvh4X2T5u88jl9FSZdrDkNVgVNc7akhpIwCX/exec';
     const SCRIPT_URL_RECAUDACION = 'https://script.google.com/macros/s/AKfycbxna9EH5LZPTPCPws58pGro6qCrZ8_zNwvUkUHS28BYfd8CsAcD1MRcqlITbDm4lTk/exec'; 
-    // ¡¡IMPORTANTE!! REEMPLAZA ESTA URL CON TU NUEVA URL DE GOOGLE APPS SCRIPT:
     const SCRIPT_URL_LOGIN = 'https://script.google.com/macros/s/AKfycbzCs74u0wnowFhgAbYM_EL11eEyOH4GivGzwg1v0ovMLW6QvwqOuL9HRhxmAwL9m8X6/exec';
 
-    // --- Variables Globales ---
+    // --- VARIABLES GLOBALES ---
     const loginContainer = document.getElementById('login-container');
     const mainContent = document.getElementById('main-content');
     const menuToggle = document.getElementById('menuToggle');
@@ -977,32 +539,29 @@ document.addEventListener('DOMContentLoaded', () => {
     
     let loggedInUser = null;
     let currentEditAnticipoId = null;
-    let pendingLoginUser = null; // Usuario que pasó login pero falta teléfono
-    let userToChangePasswordId = null; // ID para recuperación de contraseña
+    let pendingLoginUser = null; 
+    let userToChangePasswordId = null; 
     
     let notesInterval = null; 
     let sheetsInterval = null;
+    let statusCheckInterval = null; 
     let allFetchedNotes = [];
     let tipChart = null;
     let divisoresDiariosExternos = {};
     let lastActivityTime = Date.now(); 
 
-    // --- Funciones LocalStorage ---
+    // --- FUNCIONES LOCALSTORAGE ---
     function getAppData() { return JSON.parse(localStorage.getItem('appData')) || { usuarios: {}, userData: {} }; }
     function saveAppData(data) { localStorage.setItem('appData', JSON.stringify(data)); }
-    
     function getUserData() {
         const appData = getAppData();
         const userId = loggedInUser.id;
         if (!appData.userData[userId]) {
-            // Se agrega diasAusencia para personal de planta
             appData.userData[userId] = { montosPorFecha: {}, anticipos: [], divisor: 0, diasTrabajados: [], diasAusencia: [], divisorPartTime: 1, divisorDelDia: null, saldoAnterior: 0 };
             saveAppData(appData);
         }
-        // Asegurar compatibilidad
         if (!appData.userData[userId].diasAusencia) appData.userData[userId].diasAusencia = [];
         if (appData.userData[userId].saldoAnterior === undefined) appData.userData[userId].saldoAnterior = 0;
-        
         return appData.userData[userId];
     }
     function saveUserData(userData) {
@@ -1012,7 +571,7 @@ document.addEventListener('DOMContentLoaded', () => {
         saveAppData(appData);
     }
     
-    // --- Utilidades ---
+    // --- UTILIDADES ---
     function showToast(message, type = 'success') {
         const toastContainer = document.getElementById('toast-container');
         const toast = document.createElement('div');
@@ -1021,86 +580,71 @@ document.addEventListener('DOMContentLoaded', () => {
         setTimeout(() => toast.classList.add('show'), 10);
         setTimeout(() => { toast.classList.remove('show'); setTimeout(() => toast.remove(), 400); }, 3000);
     }
-
     function showLoadingOverlay(message = 'Verificando...') {
         let overlay = document.getElementById('loading-overlay');
         if (!overlay) {
-            overlay = document.createElement('div');
-            overlay.id = 'loading-overlay';
-            Object.assign(overlay.style, {
-                position: 'fixed', top: '0', left: '0', width: '100%', height: '100%',
-                backgroundColor: 'rgba(0, 0, 0, 0.7)', color: 'white',
-                display: 'flex', justifyContent: 'center', alignItems: 'center',
-                zIndex: '10000', fontSize: '1.5em', transition: 'opacity 0.3s'
-            });
+            overlay = document.createElement('div'); overlay.id = 'loading-overlay';
+            Object.assign(overlay.style, { position: 'fixed', top: '0', left: '0', width: '100%', height: '100%', backgroundColor: 'rgba(0,0,0,0.7)', color: 'white', display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: '10000', fontSize: '1.5em', transition: 'opacity 0.3s' });
             overlay.innerHTML = `<div style="text-align: center;"><i class="fas fa-spinner fa-spin" style="font-size: 2em; margin-bottom: 15px;"></i><div id="loading-message"></div></div>`;
             document.body.appendChild(overlay);
         }
-        overlay.querySelector('#loading-message').textContent = message;
-        overlay.style.opacity = '1'; overlay.style.display = 'flex';
+        overlay.querySelector('#loading-message').textContent = message; overlay.style.opacity = '1'; overlay.style.display = 'flex';
     }
-
-    function hideLoadingOverlay() {
-        const overlay = document.getElementById('loading-overlay');
-        if (overlay) {
-            overlay.style.opacity = '0';
-            setTimeout(() => { overlay.style.display = 'none'; }, 300);
-        }
-    }
-
-    function formatNumberWithPoints(value) { 
-        if (value === 'Actualizando...') return value;
-        if (value === null || value === undefined || isNaN(value)) { return "0"; } 
-        return Math.round(value).toString().replace(/\B(?=(\d{3})+(?!\d))/g, "."); 
-    }
+    function hideLoadingOverlay() { const overlay = document.getElementById('loading-overlay'); if (overlay) { overlay.style.opacity = '0'; setTimeout(() => { overlay.style.display = 'none'; }, 300); } }
+    function formatNumberWithPoints(value) { if (value === 'Actualizando...') return value; if (value === null || value === undefined || isNaN(value)) { return "0"; } return Math.round(value).toString().replace(/\B(?=(\d{3})+(?!\d))/g, "."); }
     function formatDate(dateString) { if (!dateString) return ''; const [year, month, day] = dateString.split('-'); return `${day}/${month}/${year}`; }
     function getTodayDateString() { return new Date().toISOString().split('T')[0]; }
     function setupNumericInputFormatting(el) { if(el) el.addEventListener('input', e => { let v = e.target.value.replace(/\./g, ''); e.target.dataset.cleanValue = (isNaN(v) || v === '') ? '' : v; e.target.value = (isNaN(v) || v === '') ? '' : formatNumberWithPoints(parseInt(v, 10)); }); }
     function formatNoteDate(isoString) { if (!isoString) return 'Fecha desconocida'; const date = new Date(isoString); return date.toLocaleString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' }); }
 
     async function enviarDatosLoginASheets(user) {
-      if (!user || !SCRIPT_URL_LOGIN.startsWith('https://')) {
-        return { status: 'success', message: 'Función desactivada localmente.' };
-      }
+      if (!user) return { status: 'success' };
       try {
-        const response = await fetch(SCRIPT_URL_LOGIN, {
-          method: 'POST',
-          headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-          body: JSON.stringify(user),
-        });
+        const response = await fetch(SCRIPT_URL_LOGIN, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify(user) });
         return await response.json();
-      } catch (error) {
-        return { status: 'error', message: 'Error de conexión.' };
-      }
+      } catch (error) { return { status: 'error', message: 'Error de conexión.' }; }
     }
 
-    // --- Menú y Navegación ---
+    // --- NUEVO: FUNCIÓN PARA VERIFICAR KICK/CIERRE REMOTO ---
+    async function verificarEstadoSesion() {
+        if (!loggedInUser) return;
+        try {
+            const response = await fetch(SCRIPT_URL_LOGIN + '?action=read&v=' + Date.now());
+            if (!response.ok) return;
+            const users = await response.json();
+            const me = users.find(u => String(u['ID de Usuario']).replace(/^'/, "").trim() === loggedInUser.id);
+
+            if (me && me.Estado === 'KICK') {
+                alert('Tu sesión ha sido cerrada por el administrador.');
+                await fetch(SCRIPT_URL_LOGIN, { method: 'POST', body: JSON.stringify({ action: 'updateStatus', id: loggedInUser.id, status: 'Activo' }) });
+                forceLogout();
+            }
+        } catch (e) { console.error("Error verificando sesión", e); }
+    }
+
+    function forceLogout() {
+        if (notesInterval) clearInterval(notesInterval);
+        if (sheetsInterval) clearInterval(sheetsInterval);
+        if (statusCheckInterval) clearInterval(statusCheckInterval);
+        localStorage.removeItem('loggedInUser'); 
+        loggedInUser = null;
+        location.reload();
+    }
+
+    // --- MENÚ Y NAVEGACIÓN ---
     const setupMenu = () => {
         sideMenu.innerHTML = '<div class="menu-header">Menú</div>';
-        const orderedSections = [
-            {id: 'retirosPropinaSection', title: 'Retiro de Propina'},
-            {id: 'montosSection', title: 'Montos por Noche'},
-            {id: 'datosUsuarioSection', title: 'Mis Datos'},
-            {id: 'notasSection', title: 'Notas Admin'}
-        ];
-        orderedSections.forEach(sectionInfo => {
-            const link = document.createElement('a');
-            link.href = '#'; link.textContent = sectionInfo.title; link.className = 'menu-link'; link.dataset.target = sectionInfo.id;
-            sideMenu.appendChild(link);
+        [{id: 'retirosPropinaSection', title: 'Retiro de Propina'}, {id: 'montosSection', title: 'Montos por Noche'}, {id: 'datosUsuarioSection', title: 'Mis Datos'}, {id: 'notasSection', title: 'Notas Admin'}].forEach(sectionInfo => {
+            const link = document.createElement('a'); link.href = '#'; link.textContent = sectionInfo.title; link.className = 'menu-link'; link.dataset.target = sectionInfo.id; sideMenu.appendChild(link);
         });
-        sideMenu.addEventListener('click', (e) => {
-            if (e.target.classList.contains('menu-link')) {
-                e.preventDefault(); activatePanel(e.target.dataset.target);
-            }
-        });
+        sideMenu.addEventListener('click', (e) => { if (e.target.classList.contains('menu-link')) { e.preventDefault(); activatePanel(e.target.dataset.target); } });
     };
 
     function activatePanel(panelId) {
         document.querySelectorAll('#main-content > section.content-panel').forEach(panel => panel.classList.remove('active'));
         const targetPanel = document.getElementById(panelId);
         if (targetPanel) {
-            targetPanel.classList.add('active');
-            localStorage.setItem('activePanel', panelId);
+            targetPanel.classList.add('active'); localStorage.setItem('activePanel', panelId);
             if (panelId === 'montosSection') cargarYMostrarMontos();
             if (panelId === 'notasSection') { cargarNotas(); markNotesAsRead(); }
             if (panelId === 'datosUsuarioSection') populateUserDataSection();
@@ -1111,904 +655,242 @@ document.addEventListener('DOMContentLoaded', () => {
         if(activeLink) activeLink.classList.add('active-link');
         if (window.innerWidth < 992) { sideMenu.classList.remove('open'); menuToggle.classList.remove('active'); }
     }
+    menuToggle.addEventListener('click', (e) => { e.stopPropagation(); sideMenu.classList.toggle('open'); menuToggle.classList.toggle('active'); });
+    document.addEventListener('click', (e) => { if (window.innerWidth < 992) { const menu = document.getElementById('sideMenu'); const btn = document.getElementById('menuToggle'); if (menu.classList.contains('open') && !menu.contains(e.target) && !btn.contains(e.target)) { menu.classList.remove('open'); btn.classList.remove('active'); } } });
 
-    menuToggle.addEventListener('click', (e) => {
-        e.stopPropagation(); sideMenu.classList.toggle('open'); menuToggle.classList.toggle('active');
-    });
-
-    // Cerrar menú al click fuera (Móvil)
-    document.addEventListener('click', (e) => {
-        if (window.innerWidth < 992) { 
-            const menu = document.getElementById('sideMenu');
-            const btn = document.getElementById('menuToggle');
-            if (menu.classList.contains('open') && !menu.contains(e.target) && !btn.contains(e.target)) {
-                menu.classList.remove('open');
-                btn.classList.remove('active');
-            }
-        }
-    });
-
-    // --- Ayuda ---
-    const helpBtn = document.getElementById('help-btn');
-    const helpPanel = document.getElementById('help-panel');
-    const closeHelpBtn = document.getElementById('close-help-btn');
-    helpBtn.addEventListener('click', () => {
-        helpPanel.classList.add('open');
-        document.querySelectorAll('.help-content-section').forEach(s => s.classList.remove('active-help'));
-        if (loggedInUser) {
-            document.getElementById('help-content-main').classList.add('active-help');
-            document.getElementById('help-title').textContent = 'Guía de Uso';
-        } else {
-            document.getElementById('help-content-login').classList.add('active-help');
-            document.getElementById('help-title').textContent = 'Ayuda de Acceso';
-        }
-    });
+    // --- AYUDA ---
+    const helpBtn = document.getElementById('help-btn'); const helpPanel = document.getElementById('help-panel'); const closeHelpBtn = document.getElementById('close-help-btn');
+    helpBtn.addEventListener('click', () => { helpPanel.classList.add('open'); document.querySelectorAll('.help-content-section').forEach(s => s.classList.remove('active-help')); if (loggedInUser) { document.getElementById('help-content-main').classList.add('active-help'); document.getElementById('help-title').textContent = 'Guía de Uso'; } else { document.getElementById('help-content-login').classList.add('active-help'); document.getElementById('help-title').textContent = 'Ayuda de Acceso'; } });
     closeHelpBtn.addEventListener('click', () => helpPanel.classList.remove('open'));
 
-    // --- LOGIN Y GESTIÓN DE SESIÓN ---
+    // --- LOGIN ---
     function checkLogin() {
         const user = JSON.parse(localStorage.getItem('loggedInUser'));
         if (user && user.id) {
-            loggedInUser = user;
-            loginContainer.style.display = 'none'; 
-            mainContent.style.display = 'block'; 
-            menuToggle.style.display = 'flex';
+            loggedInUser = user; loginContainer.style.display = 'none'; mainContent.style.display = 'block'; menuToggle.style.display = 'flex';
             document.getElementById('userInfo').textContent = `${user.nombre} ${user.apellido}`;
-            setupMenu(); initApp();
-            resetInactivityTimer();
-        } else {
-            loginContainer.style.display = 'block'; 
-            mainContent.style.display = 'none'; 
-            displayRecentLogins();
-        }
+            setupMenu(); initApp(); resetInactivityTimer();
+        } else { loginContainer.style.display = 'block'; mainContent.style.display = 'none'; displayRecentLogins(); }
     }
-
-    // --- Acceso Rápido ---
-    function updateRecentLogins(user) {
-        let recent = JSON.parse(localStorage.getItem('recentLogins')) || [];
-        recent = recent.filter(u => u.id !== user.id);
-        recent.unshift(user);
-        if (recent.length > 5) recent.pop();
-        localStorage.setItem('recentLogins', JSON.stringify(recent));
-    }
-
+    function updateRecentLogins(user) { let recent = JSON.parse(localStorage.getItem('recentLogins')) || []; recent = recent.filter(u => u.id !== user.id); recent.unshift(user); if (recent.length > 5) recent.pop(); localStorage.setItem('recentLogins', JSON.stringify(recent)); }
     function displayRecentLogins() {
-        const recentLogins = JSON.parse(localStorage.getItem('recentLogins')) || [];
-        const container = document.getElementById('quickAccessUsers');
-        const section = document.getElementById('quickAccessSection'); 
-        container.innerHTML = ''; 
+        const recentLogins = JSON.parse(localStorage.getItem('recentLogins')) || []; const container = document.getElementById('quickAccessUsers'); const section = document.getElementById('quickAccessSection'); container.innerHTML = ''; 
         if (recentLogins.length > 0) {
             section.style.display = 'block'; 
             recentLogins.forEach(user => {
-                const userDiv = document.createElement('div');
-                userDiv.className = 'quick-access-user';
+                const userDiv = document.createElement('div'); userDiv.className = 'quick-access-user';
                 userDiv.innerHTML = `<button class="delete-user-btn" data-user-id="${user.id}">&times;</button><div class="quick-access-avatar">${user.nombre.charAt(0).toUpperCase()}</div><div class="quick-access-name">${user.nombre}</div>`;
                 userDiv.addEventListener('click', (e) => {
-                    if(e.target.classList.contains('delete-user-btn')) {
-                        e.stopPropagation();
-                        if(confirm('¿Eliminar del acceso rápido?')) {
-                            let current = JSON.parse(localStorage.getItem('recentLogins')) || [];
-                            current = current.filter(u => u.id !== user.id);
-                            localStorage.setItem('recentLogins', JSON.stringify(current));
-                            displayRecentLogins();
-                        }
-                        return;
-                    }
+                    if(e.target.classList.contains('delete-user-btn')) { e.stopPropagation(); if(confirm('¿Eliminar del acceso rápido?')) { let current = JSON.parse(localStorage.getItem('recentLogins')) || []; current = current.filter(u => u.id !== user.id); localStorage.setItem('recentLogins', JSON.stringify(current)); displayRecentLogins(); } return; }
                     const n = document.getElementById('loginNombre'), a = document.getElementById('loginApellido'), c = document.getElementById('loginTipoContrato'), s = document.getElementById('loginSeccion'), d = document.getElementById('loginDia'), m = document.getElementById('loginMes'), y = document.getElementById('loginAnio'), p = document.getElementById('loginPuntos'), pw = document.getElementById('loginPassword');
-                    if(n) n.value = user.nombre || ''; if(a) a.value = user.apellido || ''; if(c) c.value = user.tipo || ''; if(s) s.value = user.seccion || ''; if(d) d.value = user.dia || ''; if(m) m.value = user.mes || ''; if(y) y.value = user.anio || ''; if(p) p.value = user.puntos || '';
-                    if(pw) { pw.value = ''; pw.focus(); }
-                });
-                container.appendChild(userDiv);
+                    if(n) n.value = user.nombre || ''; if(a) a.value = user.apellido || ''; if(c) c.value = user.tipo || ''; if(s) s.value = user.seccion || ''; if(d) d.value = user.dia || ''; if(m) m.value = user.mes || ''; if(y) y.value = user.anio || ''; if(p) p.value = user.puntos || ''; if(pw) { pw.value = ''; pw.focus(); }
+                }); container.appendChild(userDiv);
             });
         } else { section.style.display = 'none'; }
     }
 
-    // --- PROCESO DE LOGIN (CORREGIDO PARA EVITAR BORRADO DE TELÉFONO) ---
     document.getElementById('loginForm').addEventListener('submit', async (e) => {
         e.preventDefault();
+        const rawNombre = document.getElementById('loginNombre').value.trim(); const rawApellido = document.getElementById('loginApellido').value.trim(); const generatedId = `${rawNombre.toLowerCase()}-${rawApellido.toLowerCase()}`;
+        const appData = getAppData(); const localUser = appData.usuarios[generatedId];
+        const user = { id: generatedId, nombre: rawNombre, apellido: rawApellido, tipo: document.getElementById('loginTipoContrato').value, seccion: document.getElementById('loginSeccion').value, dia: document.getElementById('loginDia').value, mes: document.getElementById('loginMes').value, anio: document.getElementById('loginAnio').value, puntos: parseFloat(document.getElementById('loginPuntos').value), password: document.getElementById('loginPassword').value, telefono: (localUser && localUser.telefono) ? localUser.telefono : '' };
         
-        // 1. Calculamos el ID primero para buscar datos locales
-        const rawNombre = document.getElementById('loginNombre').value.trim();
-        const rawApellido = document.getElementById('loginApellido').value.trim();
-        const generatedId = `${rawNombre.toLowerCase()}-${rawApellido.toLowerCase()}`;
-        
-        // 2. Buscamos en la memoria local si ya existe este usuario y tiene teléfono
-        const appData = getAppData();
-        const localUser = appData.usuarios[generatedId];
-        const telefonoGuardado = (localUser && localUser.telefono) ? localUser.telefono : '';
-
-        const user = {
-            id: generatedId,
-            nombre: rawNombre,
-            apellido: rawApellido,
-            tipo: document.getElementById('loginTipoContrato').value,
-            seccion: document.getElementById('loginSeccion').value,
-            dia: document.getElementById('loginDia').value,
-            mes: document.getElementById('loginMes').value,
-            anio: document.getElementById('loginAnio').value,
-            puntos: parseFloat(document.getElementById('loginPuntos').value),
-            password: document.getElementById('loginPassword').value,
-            telefono: telefonoGuardado // Usamos el teléfono guardado si existe
-        };
-        
-        showLoadingOverlay();
-        const res = await enviarDatosLoginASheets(user);
-        hideLoadingOverlay();
+        showLoadingOverlay(); const res = await enviarDatosLoginASheets(user); hideLoadingOverlay();
         
         if (res.status === 'success') {
-            const appData = getAppData();
-            const existingUser = appData.usuarios[user.id];
-            
-            // Protección extra: Si el usuario local ya tenía teléfono, lo mantenemos
-            if(!user.telefono && existingUser && existingUser.telefono){
-                user.telefono = existingUser.telefono;
-            }
-            
-            // Si después de todo NO tiene teléfono, interrumpimos para pedirlo
-            if(!user.telefono) {
-                pendingLoginUser = user;
-                document.getElementById('phoneModal').style.display = 'flex';
-                // No guardamos sesión ni recargamos todavía
-                return;
-            }
-            
-            // Flujo normal de login exitoso
-            appData.usuarios[user.id] = user;
-            saveAppData(appData);
-            updateRecentLogins(user); 
-            localStorage.setItem('loggedInUser', JSON.stringify(user));
-            location.reload();
-        } else { 
-            showToast(res.message, 'error'); 
-        }
+            if(!user.telefono && appData.usuarios[user.id] && appData.usuarios[user.id].telefono) user.telefono = appData.usuarios[user.id].telefono;
+            if(!user.telefono) { pendingLoginUser = user; document.getElementById('phoneModal').style.display = 'flex'; return; }
+            appData.usuarios[user.id] = user; saveAppData(appData); updateRecentLogins(user); localStorage.setItem('loggedInUser', JSON.stringify(user)); location.reload();
+        } else { showToast(res.message, 'error'); }
     });
 
-    // --- GUARDAR TELÉFONO (MODAL) ---
     document.getElementById('savePhoneBtn').addEventListener('click', async () => {
-        const phoneVal = document.getElementById('phoneInput').value.trim();
-        if(!phoneVal) { showToast('Por favor, ingresa tu número.', 'error'); return; }
-        
-        if(pendingLoginUser) {
-            const btn = document.getElementById('savePhoneBtn');
-            btn.textContent = 'Guardando...';
-            btn.disabled = true;
-
-            pendingLoginUser.telefono = phoneVal;
-            
-            // Guardar local
-            const appData = getAppData();
-            appData.usuarios[pendingLoginUser.id] = pendingLoginUser;
-            saveAppData(appData);
-            
-            // Actualizar Sheets con el teléfono nuevo
-            await enviarDatosLoginASheets(pendingLoginUser);
-            
-            localStorage.setItem('loggedInUser', JSON.stringify(pendingLoginUser));
-            updateRecentLogins(pendingLoginUser);
-            location.reload();
-        }
+        const phoneVal = document.getElementById('phoneInput').value.trim(); if(!phoneVal) { showToast('Por favor, ingresa tu número.', 'error'); return; }
+        if(pendingLoginUser) { const btn = document.getElementById('savePhoneBtn'); btn.textContent = 'Guardando...'; btn.disabled = true; pendingLoginUser.telefono = phoneVal; const appData = getAppData(); appData.usuarios[pendingLoginUser.id] = pendingLoginUser; saveAppData(appData); await enviarDatosLoginASheets(pendingLoginUser); localStorage.setItem('loggedInUser', JSON.stringify(pendingLoginUser)); updateRecentLogins(pendingLoginUser); location.reload(); }
     });
 
-    // --- RECUPERACIÓN DE CONTRASEÑA ---
-    const forgotPasswordLink = document.getElementById('forgotPasswordLink');
-    if (forgotPasswordLink) {
-        forgotPasswordLink.addEventListener('click', (e) => {
-            e.preventDefault();
-            document.getElementById('forgotPasswordModal').style.display = 'flex';
-            document.getElementById('verifyPhoneContainer').style.display = 'block';
-            document.getElementById('newPasswordContainer').style.display = 'none';
-            document.getElementById('verifyPhoneBtn').style.display = 'inline-flex';
-            document.getElementById('saveNewPasswordBtn').style.display = 'none';
-            document.getElementById('recoveryResult').style.display = 'none';
-            document.getElementById('recoverPhoneInput').value = '';
-            document.getElementById('newPasswordInput').value = '';
-            userToChangePasswordId = null;
-        });
-    }
-
-    document.getElementById('cancelForgotBtn').addEventListener('click', () => {
-        document.getElementById('forgotPasswordModal').style.display = 'none';
-    });
-
+    // --- RECUPERACIÓN ---
+    const forgotPasswordLink = document.getElementById('forgotPasswordLink'); if (forgotPasswordLink) { forgotPasswordLink.addEventListener('click', (e) => { e.preventDefault(); document.getElementById('forgotPasswordModal').style.display = 'flex'; document.getElementById('verifyPhoneContainer').style.display = 'block'; document.getElementById('newPasswordContainer').style.display = 'none'; document.getElementById('verifyPhoneBtn').style.display = 'inline-flex'; document.getElementById('saveNewPasswordBtn').style.display = 'none'; document.getElementById('recoveryResult').style.display = 'none'; document.getElementById('recoverPhoneInput').value = ''; document.getElementById('newPasswordInput').value = ''; userToChangePasswordId = null; }); }
+    document.getElementById('cancelForgotBtn').addEventListener('click', () => { document.getElementById('forgotPasswordModal').style.display = 'none'; });
     document.getElementById('verifyPhoneBtn').addEventListener('click', () => {
-        const phoneInput = document.getElementById('recoverPhoneInput').value.trim();
-        const resultDiv = document.getElementById('recoveryResult');
-        
-        if (!phoneInput) {
-            resultDiv.textContent = "Ingresa un número."; resultDiv.className = "error"; resultDiv.style.display = "block"; return;
-        }
-
-        const appData = getAppData();
-        const usuarios = Object.values(appData.usuarios || {});
-        const foundUser = usuarios.find(u => u.telefono === phoneInput);
-
-        if (foundUser) {
-            userToChangePasswordId = foundUser.id;
-            resultDiv.textContent = `Hola ${foundUser.nombre}. Puedes cambiar tu clave.`;
-            resultDiv.className = "success"; resultDiv.style.display = "block";
-            setTimeout(() => {
-                document.getElementById('verifyPhoneContainer').style.display = 'none';
-                document.getElementById('newPasswordContainer').style.display = 'block';
-                document.getElementById('verifyPhoneBtn').style.display = 'none';
-                document.getElementById('saveNewPasswordBtn').style.display = 'inline-flex';
-            }, 1000);
-        } else {
-            resultDiv.textContent = "Número no encontrado."; resultDiv.className = "error"; resultDiv.style.display = "block";
-        }
+        const phoneInput = document.getElementById('recoverPhoneInput').value.trim(); const resultDiv = document.getElementById('recoveryResult');
+        if (!phoneInput) { resultDiv.textContent = "Ingresa un número."; resultDiv.className = "error"; resultDiv.style.display = "block"; return; }
+        const appData = getAppData(); const usuarios = Object.values(appData.usuarios || {}); const foundUser = usuarios.find(u => u.telefono === phoneInput);
+        if (foundUser) { userToChangePasswordId = foundUser.id; resultDiv.textContent = `Hola ${foundUser.nombre}. Puedes cambiar tu clave.`; resultDiv.className = "success"; resultDiv.style.display = "block"; setTimeout(() => { document.getElementById('verifyPhoneContainer').style.display = 'none'; document.getElementById('newPasswordContainer').style.display = 'block'; document.getElementById('verifyPhoneBtn').style.display = 'none'; document.getElementById('saveNewPasswordBtn').style.display = 'inline-flex'; }, 1000); } else { resultDiv.textContent = "Número no encontrado."; resultDiv.className = "error"; resultDiv.style.display = "block"; }
     });
-
     document.getElementById('saveNewPasswordBtn').addEventListener('click', async () => {
-        const newPass = document.getElementById('newPasswordInput').value.trim();
-        if (!newPass || newPass.length < 4) { showToast("Contraseña muy corta.", "error"); return; }
-        if (!userToChangePasswordId) { location.reload(); return; }
-
-        const btn = document.getElementById('saveNewPasswordBtn');
-        btn.textContent = "Guardando..."; btn.disabled = true;
-
-        try {
-            const appData = getAppData();
-            if (appData.usuarios[userToChangePasswordId]) {
-                appData.usuarios[userToChangePasswordId].password = newPass;
-                saveAppData(appData); 
-                await enviarDatosLoginASheets(appData.usuarios[userToChangePasswordId]);
-                showToast("Contraseña restablecida.");
-                document.getElementById('forgotPasswordModal').style.display = 'none';
-            }
-        } catch (e) { showToast("Error al guardar.", "error"); } 
-        finally { btn.textContent = "Guardar Nueva Contraseña"; btn.disabled = false; }
+        const newPass = document.getElementById('newPasswordInput').value.trim(); if (!newPass || newPass.length < 4) { showToast("Contraseña muy corta.", "error"); return; }
+        const btn = document.getElementById('saveNewPasswordBtn'); btn.textContent = "Guardando..."; btn.disabled = true;
+        try { const appData = getAppData(); if (appData.usuarios[userToChangePasswordId]) { appData.usuarios[userToChangePasswordId].password = newPass; saveAppData(appData); await enviarDatosLoginASheets(appData.usuarios[userToChangePasswordId]); showToast("Contraseña restablecida."); document.getElementById('forgotPasswordModal').style.display = 'none'; } } catch (e) { showToast("Error al guardar.", "error"); } finally { btn.textContent = "Guardar Nueva Contraseña"; btn.disabled = false; }
     });
 
     // --- ESTADÍSTICAS ---
     const statsModal = document.getElementById('statsModal');
-    document.getElementById('openStatsModalBtn').addEventListener('click', () => {
-        updateStatisticsUI('daily');
-        document.getElementById('dailyViewBtn').classList.add('active');
-        document.getElementById('weeklyViewBtn').classList.remove('active');
-        statsModal.style.display = 'flex';
-    });
+    document.getElementById('openStatsModalBtn').addEventListener('click', () => { updateStatisticsUI('daily'); document.getElementById('dailyViewBtn').classList.add('active'); document.getElementById('weeklyViewBtn').classList.remove('active'); statsModal.style.display = 'flex'; });
     document.getElementById('closeStatsModalBtn').addEventListener('click', () => statsModal.style.display = 'none');
-    
-    document.getElementById('dailyViewBtn').addEventListener('click', () => {
-        document.getElementById('dailyViewBtn').classList.add('active');
-        document.getElementById('weeklyViewBtn').classList.remove('active');
-        updateStatisticsUI('daily');
-    });
-    
-    document.getElementById('weeklyViewBtn').addEventListener('click', () => {
-        document.getElementById('weeklyViewBtn').classList.add('active');
-        document.getElementById('dailyViewBtn').classList.remove('active');
-        updateStatisticsUI('weekly');
-    });
+    document.getElementById('dailyViewBtn').addEventListener('click', () => { document.getElementById('dailyViewBtn').classList.add('active'); document.getElementById('weeklyViewBtn').classList.remove('active'); updateStatisticsUI('daily'); });
+    document.getElementById('weeklyViewBtn').addEventListener('click', () => { document.getElementById('weeklyViewBtn').classList.add('active'); document.getElementById('dailyViewBtn').classList.remove('active'); updateStatisticsUI('weekly'); });
 
     function updateStatisticsUI(view = 'daily') {
-        const today = new Date();
-        const day = today.getDate();
-        let startDate, endDate;
-        if (day >= 15) { startDate = new Date(today.getFullYear(), today.getMonth(), 15); endDate = new Date(today.getFullYear(), today.getMonth() + 1, 14); } 
-        else { startDate = new Date(today.getFullYear(), today.getMonth() - 1, 15); endDate = new Date(today.getFullYear(), today.getMonth(), 14); }
-
-        const userData = getUserData();
-        if (!userData) return;
-        const montosPorFecha = userData.montosPorFecha || {};
-        const startDateStr = startDate.toISOString().split('T')[0];
-        const endDateStr = endDate.toISOString().split('T')[0];
+        const today = new Date(); const day = today.getDate(); let startDate, endDate;
+        if (day >= 15) { startDate = new Date(today.getFullYear(), today.getMonth(), 15); endDate = new Date(today.getFullYear(), today.getMonth() + 1, 14); } else { startDate = new Date(today.getFullYear(), today.getMonth() - 1, 15); endDate = new Date(today.getFullYear(), today.getMonth(), 14); }
+        const userData = getUserData(); if (!userData) return;
+        const montosPorFecha = userData.montosPorFecha || {}; const startDateStr = startDate.toISOString().split('T')[0]; const endDateStr = endDate.toISOString().split('T')[0];
         const fechasDelCiclo = Object.keys(montosPorFecha).filter(f => f >= startDateStr && f <= endDateStr).sort();
-
         let vppAcumulado = 0, poolAcumulado = 0, dailyVppData = [];
         fechasDelCiclo.forEach(fecha => {
-            const poolDia = montosPorFecha[fecha].reduce((sum, m) => sum + m.monto, 0);
-            const divisorDia = divisoresDiariosExternos[fecha] || 0;
-            const vppDia = divisorDia > 0 ? (poolDia / divisorDia) : 0;
-            poolAcumulado += poolDia; vppAcumulado += vppDia;
-            dailyVppData.push({ fecha, vpp: vppDia, pool: poolDia });
+            const poolDia = montosPorFecha[fecha].reduce((sum, m) => sum + m.monto, 0); const divisorDia = divisoresDiariosExternos[fecha] || 0;
+            const vppDia = divisorDia > 0 ? (poolDia / divisorDia) : 0; poolAcumulado += poolDia; vppAcumulado += vppDia; dailyVppData.push({ fecha, vpp: vppDia, pool: poolDia });
         });
-
-        const diasTranscurridos = dailyVppData.length;
-        const promedioVppDiario = diasTranscurridos > 0 ? vppAcumulado / diasTranscurridos : 0;
-        const vppProyectado = promedioVppDiario * 30;
-        const gananciaProyectada = vppProyectado * loggedInUser.puntos;
-
-        const statContainer = document.getElementById('statCardsContainer');
-        if (statContainer) {
-            statContainer.innerHTML = `
-                <div class="stat-card"><span class="label">VPP Acumulado</span><span class="value">$${formatNumberWithPoints(vppAcumulado)}</span></div>
-                <div class="stat-card"><span class="label">Pool Total Acumulado</span><span class="value">$${formatNumberWithPoints(poolAcumulado)}</span></div>
-                <div class="stat-card"><span class="label">VPP Proyectado (Mes)</span><span class="value projection">$${formatNumberWithPoints(vppProyectado)}</span></div>
-                <div class="stat-card"><span class="label">Ganancia Est.</span><span class="value" style="color:var(--secondary-color)">$${formatNumberWithPoints(gananciaProyectada)}</span><p class="disclaimer">*Calculado sobre tus ${loggedInUser.puntos} puntos.</p></div>
-            `;
-        }
-
-        if (view === 'weekly') {
-            const weeklyData = [];
-            let currentWeekVpp = 0, count = 0, weekIndex = 1;
-            dailyVppData.forEach((d, index) => {
-                currentWeekVpp += d.vpp; count++;
-                if (count === 7 || index === dailyVppData.length - 1) {
-                    weeklyData.push({ fecha: `Semana ${weekIndex}`, vpp: currentWeekVpp / count });
-                    currentWeekVpp = 0; count = 0; weekIndex++;
-                }
-            });
-            renderTipChart(weeklyData, 'weekly');
-        } else { renderTipChart(dailyVppData, 'daily'); }
+        const diasTranscurridos = dailyVppData.length; const promedioVppDiario = diasTranscurridos > 0 ? vppAcumulado / diasTranscurridos : 0; const vppProyectado = promedioVppDiario * 30; const gananciaProyectada = vppProyectado * loggedInUser.puntos;
+        const statContainer = document.getElementById('statCardsContainer'); if (statContainer) { statContainer.innerHTML = `<div class="stat-card"><span class="label">VPP Acumulado</span><span class="value">$${formatNumberWithPoints(vppAcumulado)}</span></div><div class="stat-card"><span class="label">Pool Total Acumulado</span><span class="value">$${formatNumberWithPoints(poolAcumulado)}</span></div><div class="stat-card"><span class="label">VPP Proyectado (Mes)</span><span class="value projection">$${formatNumberWithPoints(vppProyectado)}</span></div><div class="stat-card"><span class="label">Ganancia Est.</span><span class="value" style="color:var(--secondary-color)">$${formatNumberWithPoints(gananciaProyectada)}</span><p class="disclaimer">*Calculado sobre tus ${loggedInUser.puntos} puntos.</p></div>`; }
+        if (view === 'weekly') { const weeklyData = []; let currentWeekVpp = 0, count = 0, weekIndex = 1; dailyVppData.forEach((d, index) => { currentWeekVpp += d.vpp; count++; if (count === 7 || index === dailyVppData.length - 1) { weeklyData.push({ fecha: `Semana ${weekIndex}`, vpp: currentWeekVpp / count }); currentWeekVpp = 0; count = 0; weekIndex++; } }); renderTipChart(weeklyData, 'weekly'); } else { renderTipChart(dailyVppData, 'daily'); }
     }
-
     function renderTipChart(data, viewMode) {
-        const canvas = document.getElementById('tipChart');
-        if (!canvas) return;
-        const ctx = canvas.getContext('2d');
-        let labels, values;
-        if(viewMode === 'weekly') { labels = data.map(d => d.fecha); values = data.map(d => d.vpp); } 
-        else { labels = data.map(d => formatDate(d.fecha).substring(0, 5)); values = data.map(d => d.vpp); }
-
-        if (tipChart) tipChart.destroy();
-        tipChart = new Chart(ctx, {
-            type: 'line',
-            data: {
-                labels: labels,
-                datasets: [{
-                    label: viewMode === 'weekly' ? 'Promedio VPP Semanal' : 'VPP Diario',
-                    data: values, borderColor: '#007bff', backgroundColor: 'rgba(0, 123, 255, 0.1)', fill: true, tension: 0.3
-                }]
-            },
-            options: { responsive: true, maintainAspectRatio: false }
-        });
+        const canvas = document.getElementById('tipChart'); if (!canvas) return; const ctx = canvas.getContext('2d');
+        let labels, values; if(viewMode === 'weekly') { labels = data.map(d => d.fecha); values = data.map(d => d.vpp); } else { labels = data.map(d => formatDate(d.fecha).substring(0, 5)); values = data.map(d => d.vpp); }
+        if (tipChart) tipChart.destroy(); tipChart = new Chart(ctx, { type: 'line', data: { labels: labels, datasets: [{ label: viewMode === 'weekly' ? 'Promedio VPP Semanal' : 'VPP Diario', data: values, borderColor: '#007bff', backgroundColor: 'rgba(0, 123, 255, 0.1)', fill: true, tension: 0.3 }] }, options: { responsive: true, maintainAspectRatio: false } });
     }
 
     // --- IMPORTACIÓN Y CÁLCULOS ---
-    async function importarDesdeSheets(isSilent = false) {
-        if (!loggedInUser) return;
-        try {
-            const response = await fetch(`${SCRIPT_URL_RECAUDACION}?action=get`);
-            const result = await response.json();
-            if (result.status === 'success') {
-                const userData = getUserData();
-                userData.montosPorFecha = {};
-                result.data.forEach(dato => {
-                    if (!userData.montosPorFecha[dato.fecha]) userData.montosPorFecha[dato.fecha] = [];
-                    userData.montosPorFecha[dato.fecha].push({ area: dato.tipo, monto: parseFloat(dato.monto) });
-                });
-                saveUserData(userData);
-            }
-        } catch (e) { console.error(e); }
-    }
-
-    async function obtenerDivisoresExternos(isSilent = true) {
-        try {
-            const res = await fetch(`${SCRIPT_URL_RECAUDACION_EXTERNA}?action=getDivisores`);
-            const result = await res.json();
-            if (result.status === 'success') {
-                divisoresDiariosExternos = result.data;
-                localStorage.setItem('cachedDivisores', JSON.stringify(divisoresDiariosExternos));
-            }
-        } catch (e) { console.error(e); }
-    }
-
-    async function obtenerYActualizarValorPorPuntoExterno() {
-        if (!loggedInUser || loggedInUser.tipo !== 'Planta') return;
-        // Mantenemos esta llamada para sincronizar montos, aunque el cálculo ahora será local para excluir días
-        try {
-            const response = await fetch(`${SCRIPT_URL_RECAUDACION_EXTERNA}?action=get&v=${Date.now()}`);
-            const result = await response.json();
-            // Ya no usamos el VPP global como única fuente de verdad, sino la suma de días
-        } catch (e) { console.error(e); }
-    }
-    
-    function mostrarActualizandoEnCampos() {
-        const ids = ['valorPorPuntoDisplayPlanta', 'divisorDisplayPlanta', 'valorPorPuntoDisplayPT', 'divisorDisplayPT'];
-        ids.forEach(id => { const el = document.getElementById(id); if(el) el.textContent = 'Actualizando...'; });
-    }
+    async function importarDesdeSheets(isSilent = false) { if (!loggedInUser) return; try { const response = await fetch(`${SCRIPT_URL_RECAUDACION}?action=get`); const result = await response.json(); if (result.status === 'success') { const userData = getUserData(); userData.montosPorFecha = {}; result.data.forEach(dato => { if (!userData.montosPorFecha[dato.fecha]) userData.montosPorFecha[dato.fecha] = []; userData.montosPorFecha[dato.fecha].push({ area: dato.tipo, monto: parseFloat(dato.monto) }); }); saveUserData(userData); } } catch (e) { console.error(e); } }
+    async function obtenerDivisoresExternos(isSilent = true) { try { const res = await fetch(`${SCRIPT_URL_RECAUDACION_EXTERNA}?action=getDivisores`); const result = await res.json(); if (result.status === 'success') { divisoresDiariosExternos = result.data; localStorage.setItem('cachedDivisores', JSON.stringify(divisoresDiariosExternos)); } } catch (e) { console.error(e); } }
+    async function obtenerYActualizarValorPorPuntoExterno() { if (!loggedInUser || loggedInUser.tipo !== 'Planta') return; try { await fetch(`${SCRIPT_URL_RECAUDACION_EXTERNA}?action=get&v=${Date.now()}`); } catch (e) { console.error(e); } }
+    function mostrarActualizandoEnCampos() { ['valorPorPuntoDisplayPlanta', 'divisorDisplayPlanta', 'valorPorPuntoDisplayPT', 'divisorDisplayPT'].forEach(id => { const el = document.getElementById(id); if(el) el.textContent = 'Actualizando...'; }); }
 
     function cargarYMostrarMontos() {
-        const userData = getUserData();
-        const container = document.getElementById('tarjetasMontos');
-        container.innerHTML = '';
-        let totalGeneral = 0; 
+        const userData = getUserData(); const container = document.getElementById('tarjetasMontos'); container.innerHTML = ''; let totalGeneral = 0; 
         const fechas = Object.keys(userData.montosPorFecha).sort((a,b) => b.localeCompare(a));
         fechas.forEach(fecha => {
-            const totalDia = userData.montosPorFecha[fecha].reduce((s, m) => s + m.monto, 0);
-            totalGeneral += totalDia;
-            const tarjeta = document.createElement('div');
-            tarjeta.className = 'tarjeta collapsed';
+            const totalDia = userData.montosPorFecha[fecha].reduce((s, m) => s + m.monto, 0); totalGeneral += totalDia;
+            const tarjeta = document.createElement('div'); tarjeta.className = 'tarjeta collapsed';
             tarjeta.innerHTML = `<h3><span>${formatDate(fecha)}</span> <span class="total-in-header">$${formatNumberWithPoints(totalDia)}</span></h3><div class="montos-list">${userData.montosPorFecha[fecha].map(m => `<div class="monto-item"><span>${m.area}</span><span>$${formatNumberWithPoints(m.monto)}</span></div>`).join('')}</div>`;
-            tarjeta.querySelector('h3').addEventListener('click', () => tarjeta.classList.toggle('collapsed'));
-            container.appendChild(tarjeta);
-        });
-        document.getElementById('totalDiario').textContent = `Total recaudado: $${formatNumberWithPoints(totalGeneral)}`;
-        actualizarCalculoRetiro();
+            tarjeta.querySelector('h3').addEventListener('click', () => tarjeta.classList.toggle('collapsed')); container.appendChild(tarjeta);
+        }); document.getElementById('totalDiario').textContent = `Total recaudado: $${formatNumberWithPoints(totalGeneral)}`; actualizarCalculoRetiro();
     }
 
     function actualizarCalculoRetiro() { if (!loggedInUser) return; loggedInUser.tipo === 'Planta' ? actualizarCalculoPlanta() : actualizarCalculoPartTime(); }
 
     function actualizarCalculoPlanta() {
-        const userData = getUserData();
-        const puntosUsuario = loggedInUser.puntos || 0;
-        const diasAusentes = new Set(userData.diasAusencia || []);
-        
-        let subtotalAcumulado = 0;
-        let totalRecaudadoMes = 0;
-        let montoDescontado = 0;
-        let ultimoDivisor = 0;
-        
-        // Obtenemos todas las fechas disponibles con montos
+        const userData = getUserData(); const puntosUsuario = loggedInUser.puntos || 0; const diasAusentes = new Set(userData.diasAusencia || []);
+        let subtotalAcumulado = 0; let totalRecaudadoMes = 0; let montoDescontado = 0; let ultimoDivisor = 0;
         const fechasConMontos = Object.keys(userData.montosPorFecha).sort();
-        
-        // Buscar el último divisor registrado
-        if (fechasConMontos.length > 0) {
-             const ultimaFecha = fechasConMontos[fechasConMontos.length - 1];
-             ultimoDivisor = divisoresDiariosExternos[ultimaFecha] || 0;
-        }
-        
+        if (fechasConMontos.length > 0) { ultimoDivisor = divisoresDiariosExternos[fechasConMontos[fechasConMontos.length - 1]] || 0; }
         fechasConMontos.forEach(fecha => {
-            const montoDia = userData.montosPorFecha[fecha].reduce((sum, item) => sum + item.monto, 0);
-            totalRecaudadoMes += montoDia;
-            
+            const montoDia = userData.montosPorFecha[fecha].reduce((sum, item) => sum + item.monto, 0); totalRecaudadoMes += montoDia;
             const divisorDia = divisoresDiariosExternos[fecha] || 0;
             if (divisorDia > 0) {
-                const valorPuntoDia = montoDia / divisorDia;
-                const gananciaDia = valorPuntoDia * puntosUsuario;
-
-                // Si el usuario marcó este día como ausente
-                if (diasAusentes.has(fecha)) {
-                    montoDescontado += gananciaDia;
-                } else {
-                    subtotalAcumulado += gananciaDia;
-                }
+                const valorPuntoDia = montoDia / divisorDia; const gananciaDia = valorPuntoDia * puntosUsuario;
+                if (diasAusentes.has(fecha)) { montoDescontado += gananciaDia; } else { subtotalAcumulado += gananciaDia; }
             }
         });
-
-        // Calcular Valor Promedio Real por punto
-        const valorPromedioPunto = puntosUsuario > 0 ? (subtotalAcumulado / puntosUsuario) : 0;
-
-        const anticipos = (userData.anticipos || []).reduce((s, a) => s + a.monto, 0);
-        const saldoAnterior = userData.saldoAnterior || 0;
-        const finalAmount = subtotalAcumulado - anticipos + saldoAnterior;
-
-        document.getElementById('puntosUsuarioDisplayPlanta').textContent = puntosUsuario;
-        document.getElementById('totalMontoDividirPlanta').textContent = `$${formatNumberWithPoints(totalRecaudadoMes)}`;
-        
-        // Restaurar campos solicitados
-        document.getElementById('divisorDisplayPlanta').textContent = formatNumberWithPoints(ultimoDivisor);
-        document.getElementById('valorPorPuntoDisplayPlanta').textContent = `$${formatNumberWithPoints(valorPromedioPunto)}`;
-
-        // Actualizar UI de descuentos
-        document.getElementById('diasDescontadosPlanta').textContent = diasAusentes.size;
-        document.getElementById('montoDescontadoPlanta').textContent = `$${formatNumberWithPoints(montoDescontado)}`;
-        
-        document.getElementById('subtotalDisplayPlanta').textContent = `$${formatNumberWithPoints(subtotalAcumulado)}`;
-        document.getElementById('anticiposDisplayPlanta').textContent = `-$${formatNumberWithPoints(anticipos)}`;
-        document.getElementById('saldoAnteriorDisplayPlanta').textContent = `+$${formatNumberWithPoints(saldoAnterior)}`;
-        
-        const resultadoEl = document.getElementById('resultadoFinalPlanta');
-        resultadoEl.textContent = `$${formatNumberWithPoints(finalAmount)}`;
-        if(finalAmount < 0) resultadoEl.classList.add('negative-value'); else resultadoEl.classList.remove('negative-value');
+        const valorPromedioPunto = puntosUsuario > 0 ? (subtotalAcumulado / puntosUsuario) : 0; const anticipos = (userData.anticipos || []).reduce((s, a) => s + a.monto, 0); const saldoAnterior = userData.saldoAnterior || 0; const finalAmount = subtotalAcumulado - anticipos + saldoAnterior;
+        document.getElementById('puntosUsuarioDisplayPlanta').textContent = puntosUsuario; document.getElementById('totalMontoDividirPlanta').textContent = `$${formatNumberWithPoints(totalRecaudadoMes)}`; document.getElementById('divisorDisplayPlanta').textContent = formatNumberWithPoints(ultimoDivisor); document.getElementById('valorPorPuntoDisplayPlanta').textContent = `$${formatNumberWithPoints(valorPromedioPunto)}`; document.getElementById('diasDescontadosPlanta').textContent = diasAusentes.size; document.getElementById('montoDescontadoPlanta').textContent = `$${formatNumberWithPoints(montoDescontado)}`; document.getElementById('subtotalDisplayPlanta').textContent = `$${formatNumberWithPoints(subtotalAcumulado)}`; document.getElementById('anticiposDisplayPlanta').textContent = `-$${formatNumberWithPoints(anticipos)}`; document.getElementById('saldoAnteriorDisplayPlanta').textContent = `+$${formatNumberWithPoints(saldoAnterior)}`;
+        const resultadoEl = document.getElementById('resultadoFinalPlanta'); resultadoEl.textContent = `$${formatNumberWithPoints(finalAmount)}`; if(finalAmount < 0) resultadoEl.classList.add('negative-value'); else resultadoEl.classList.remove('negative-value');
         renderAnticiposList('#anticipos-list-container-planta');
     }
 
     function actualizarCalculoPartTime() {
-        const userData = getUserData();
-        const p = loggedInUser.puntos || 0;
-        const dias = userData.diasTrabajados || [];
+        const userData = getUserData(); const p = loggedInUser.puntos || 0; const dias = userData.diasTrabajados || [];
         const pozo = dias.reduce((s, f) => s + (userData.montosPorFecha[f] || []).reduce((ds, m) => ds + m.monto, 0), 0);
-        let div = 0;
-        if (dias.length) { const ultimo = dias.sort((a,b) => b.localeCompare(a))[0]; div = divisoresDiariosExternos[ultimo] || 0; }
-        const vpp = div > 0 ? (pozo / div) : 0;
-        const sub = vpp * p;
-        const anticipos = (userData.anticipos || []).reduce((s, a) => s + a.monto, 0);
-        const saldoAnterior = userData.saldoAnterior || 0;
-        const finalAmount = sub - anticipos + saldoAnterior;
-        
-        document.getElementById('puntosUsuarioDisplayPT').textContent = p;
-        document.getElementById('pozoIndividualDisplayPT').textContent = `$${formatNumberWithPoints(pozo)}`;
-        document.getElementById('divisorDisplayPT').textContent = formatNumberWithPoints(div);
-        document.getElementById('valorPorPuntoDisplayPT').textContent = `$${formatNumberWithPoints(vpp)}`;
-        document.getElementById('subtotalDisplayPT').textContent = `$${formatNumberWithPoints(sub)}`;
-        document.getElementById('saldoAnteriorDisplayPT').textContent = `+$${formatNumberWithPoints(saldoAnterior)}`;
-        
-        const resultadoEl = document.getElementById('resultadoFinalPT');
-        resultadoEl.textContent = `$${formatNumberWithPoints(finalAmount)}`;
-        if(finalAmount < 0) resultadoEl.classList.add('negative-value'); else resultadoEl.classList.remove('negative-value');
+        let div = 0; if (dias.length) { const ultimo = dias.sort((a,b) => b.localeCompare(a))[0]; div = divisoresDiariosExternos[ultimo] || 0; }
+        const vpp = div > 0 ? (pozo / div) : 0; const sub = vpp * p; const anticipos = (userData.anticipos || []).reduce((s, a) => s + a.monto, 0); const saldoAnterior = userData.saldoAnterior || 0; const finalAmount = sub - anticipos + saldoAnterior;
+        document.getElementById('puntosUsuarioDisplayPT').textContent = p; document.getElementById('pozoIndividualDisplayPT').textContent = `$${formatNumberWithPoints(pozo)}`; document.getElementById('divisorDisplayPT').textContent = formatNumberWithPoints(div); document.getElementById('valorPorPuntoDisplayPT').textContent = `$${formatNumberWithPoints(vpp)}`; document.getElementById('subtotalDisplayPT').textContent = `$${formatNumberWithPoints(sub)}`; document.getElementById('saldoAnteriorDisplayPT').textContent = `+$${formatNumberWithPoints(saldoAnterior)}`;
+        const resultadoEl = document.getElementById('resultadoFinalPT'); resultadoEl.textContent = `$${formatNumberWithPoints(finalAmount)}`; if(finalAmount < 0) resultadoEl.classList.add('negative-value'); else resultadoEl.classList.remove('negative-value');
         renderAnticiposList('#anticipos-list-container-pt');
     }
 
     function renderAnticiposList(selector) {
-        const container = document.querySelector(selector);
-        if (!container) return;
-        container.innerHTML = '';
-        const anticipos = getUserData().anticipos || [];
+        const container = document.querySelector(selector); if (!container) return; container.innerHTML = ''; const anticipos = getUserData().anticipos || [];
         if (!anticipos.length) container.innerHTML = '<p style="color:#888;text-align:center;">No hay anticipos.</p>';
-        else anticipos.forEach(a => {
-            container.innerHTML += `<div class="anticipo-item"><span>${formatDate(a.fecha)}</span><strong>$${formatNumberWithPoints(a.monto)}</strong><div class="actions"><button class="anticipo-item-btn edit-anticipo-btn" data-id="${a.id}" data-monto="${a.monto}" data-fecha="${a.fecha}">✏️</button><button class="anticipo-item-btn delete-anticipo-btn" data-id="${a.id}">🗑️</button></div></div>`;
-        });
-        container.querySelectorAll('.delete-anticipo-btn').forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                if(confirm('¿Eliminar anticipo?')) {
-                    const id = e.target.closest('button').dataset.id;
-                    const ud = getUserData(); ud.anticipos = ud.anticipos.filter(a => a.id != id);
-                    saveUserData(ud); actualizarCalculoRetiro();
-                }
-            });
-        });
-        container.querySelectorAll('.edit-anticipo-btn').forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                const btnEl = e.target.closest('button');
-                currentEditAnticipoId = btnEl.dataset.id;
-                document.getElementById('editAnticipoMontoInput').value = formatNumberWithPoints(btnEl.dataset.monto);
-                document.getElementById('editAnticipoFechaInput').value = btnEl.dataset.fecha;
-                document.getElementById('editAnticipoModal').style.display = 'flex';
-            });
-        });
+        else anticipos.forEach(a => { container.innerHTML += `<div class="anticipo-item"><span>${formatDate(a.fecha)}</span><strong>$${formatNumberWithPoints(a.monto)}</strong><div class="actions"><button class="anticipo-item-btn edit-anticipo-btn" data-id="${a.id}" data-monto="${a.monto}" data-fecha="${a.fecha}">✏️</button><button class="anticipo-item-btn delete-anticipo-btn" data-id="${a.id}">🗑️</button></div></div>`; });
+        container.querySelectorAll('.delete-anticipo-btn').forEach(btn => { btn.addEventListener('click', (e) => { if(confirm('¿Eliminar anticipo?')) { const id = e.target.closest('button').dataset.id; const ud = getUserData(); ud.anticipos = ud.anticipos.filter(a => a.id != id); saveUserData(ud); actualizarCalculoRetiro(); } }); });
+        container.querySelectorAll('.edit-anticipo-btn').forEach(btn => { btn.addEventListener('click', (e) => { const btnEl = e.target.closest('button'); currentEditAnticipoId = btnEl.dataset.id; document.getElementById('editAnticipoMontoInput').value = formatNumberWithPoints(btnEl.dataset.monto); document.getElementById('editAnticipoFechaInput').value = btnEl.dataset.fecha; document.getElementById('editAnticipoModal').style.display = 'flex'; }); });
     }
 
     // --- NOTAS ADMIN ---
-    async function fetchFromNotasScript(params) {
-        const url = new URL(SCRIPT_URL_NOTAS);
-        Object.keys(params).forEach(key => url.searchParams.append(key, params[key]));
-        try { const response = await fetch(url); return await response.json(); } 
-        catch (error) { console.error('Error notas', error); return { status: 'error' }; }
-    }
-    async function postToNotasScript(params, data) {
-        const url = new URL(SCRIPT_URL_NOTAS);
-        Object.keys(params).forEach(key => url.searchParams.append(key, params[key]));
-        try { await fetch(url, { method: 'POST', mode: 'no-cors', headers: {'Content-Type': 'text/plain;charset=utf-8'}, body: JSON.stringify(data) }); return { status: 'success' }; } 
-        catch (error) { return { status: 'error' }; }
-    }
-    function checkForUnread(notes) {
-        if (!loggedInUser) return;
-        const notificationFab = document.getElementById('notification-fab');
-        const countEl = document.getElementById('note-notification-count');
-        const lastRead = parseInt(localStorage.getItem(`lastReadTimestamp_${loggedInUser.id}`), 10) || 0;
-        const unread = notes.filter(n => n.autor.toLowerCase() === 'admin' && new Date(n.fecha).getTime() > lastRead).length;
-        if (unread > 0) { countEl.textContent = unread; notificationFab.style.display = 'flex'; } 
-        else { notificationFab.style.display = 'none'; }
-    }
-    async function cargarNotas() {
-        if(!loggedInUser) return;
-        const container = document.getElementById('admin-notes-container');
-        if (!container.querySelector('.note-card') && !container.querySelector('.loading-indicator')) container.innerHTML = `<div class="loading-indicator"><i class="fas fa-spinner fa-spin"></i><span>Cargando...</span></div>`;
-        const response = await fetchFromNotasScript({ action: 'getNotes' });
-        if (response.status === 'success' && response.data) {
-            allFetchedNotes = response.data;
-            allFetchedNotes.sort((a, b) => new Date(a.fecha) - new Date(b.fecha));
-            container.innerHTML = '';
-            allFetchedNotes.forEach(note => {
-                const card = document.createElement('div'); card.className = 'note-card';
-                card.innerHTML = `<div class="note-header"><strong>${note.autor}</strong> - ${formatNoteDate(note.fecha)}</div><div class="note-body">${note.mensaje}</div>`;
-                container.appendChild(card);
-            });
-            container.scrollTop = container.scrollHeight;
-            checkForUnread(allFetchedNotes);
-        }
-    }
+    async function fetchFromNotasScript(params) { const url = new URL(SCRIPT_URL_NOTAS); Object.keys(params).forEach(key => url.searchParams.append(key, params[key])); try { const response = await fetch(url); return await response.json(); } catch (error) { console.error('Error notas', error); return { status: 'error' }; } }
+    async function postToNotasScript(params, data) { const url = new URL(SCRIPT_URL_NOTAS); Object.keys(params).forEach(key => url.searchParams.append(key, params[key])); try { await fetch(url, { method: 'POST', mode: 'no-cors', headers: {'Content-Type': 'text/plain;charset=utf-8'}, body: JSON.stringify(data) }); return { status: 'success' }; } catch (error) { return { status: 'error' }; } }
+    function checkForUnread(notes) { if (!loggedInUser) return; const notificationFab = document.getElementById('notification-fab'); const countEl = document.getElementById('note-notification-count'); const lastRead = parseInt(localStorage.getItem(`lastReadTimestamp_${loggedInUser.id}`), 10) || 0; const unread = notes.filter(n => n.autor.toLowerCase() === 'admin' && new Date(n.fecha).getTime() > lastRead).length; if (unread > 0) { countEl.textContent = unread; notificationFab.style.display = 'flex'; } else { notificationFab.style.display = 'none'; } }
+    async function cargarNotas() { if(!loggedInUser) return; const container = document.getElementById('admin-notes-container'); if (!container.querySelector('.note-card') && !container.querySelector('.loading-indicator')) container.innerHTML = `<div class="loading-indicator"><i class="fas fa-spinner fa-spin"></i><span>Cargando...</span></div>`; const response = await fetchFromNotasScript({ action: 'getNotes' }); if (response.status === 'success' && response.data) { allFetchedNotes = response.data; allFetchedNotes.sort((a, b) => new Date(a.fecha) - new Date(b.fecha)); container.innerHTML = ''; allFetchedNotes.forEach(note => { const card = document.createElement('div'); card.className = 'note-card'; card.innerHTML = `<div class="note-header"><strong>${note.autor}</strong> - ${formatNoteDate(note.fecha)}</div><div class="note-body">${note.mensaje}</div>`; container.appendChild(card); }); container.scrollTop = container.scrollHeight; checkForUnread(allFetchedNotes); } }
     function markNotesAsRead() { if(allFetchedNotes.length && loggedInUser) localStorage.setItem(`lastReadTimestamp_${loggedInUser.id}`, Date.now()); document.getElementById('notification-fab').style.display = 'none'; }
-    
-    document.getElementById('sendResponseBtn').addEventListener('click', async () => {
-        const input = document.getElementById('responseMessage');
-        const msg = input.value.trim();
-        if (!msg) return;
-        const btn = document.getElementById('sendResponseBtn');
-        const originalText = btn.innerHTML; btn.disabled = true; btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
-        
-        const container = document.getElementById('admin-notes-container');
-        const card = document.createElement('div'); card.className = 'note-card user-note'; card.style.opacity = '0.7';
-        card.innerHTML = `<div class="note-header"><strong>Yo</strong> - Ahora</div><div class="note-body">${msg}</div>`;
-        container.appendChild(card); container.scrollTop = container.scrollHeight; input.value = '';
+    document.getElementById('sendResponseBtn').addEventListener('click', async () => { const input = document.getElementById('responseMessage'); const msg = input.value.trim(); if (!msg) return; const btn = document.getElementById('sendResponseBtn'); const originalText = btn.innerHTML; btn.disabled = true; btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>'; const container = document.getElementById('admin-notes-container'); const card = document.createElement('div'); card.className = 'note-card user-note'; card.style.opacity = '0.7'; card.innerHTML = `<div class="note-header"><strong>Yo</strong> - Ahora</div><div class="note-body">${msg}</div>`; container.appendChild(card); container.scrollTop = container.scrollHeight; input.value = ''; await postToNotasScript({ action: 'addNote' }, { autor: `${loggedInUser.nombre} ${loggedInUser.apellido}`, mensaje: msg }); card.style.opacity = '1'; showToast("Enviado"); btn.disabled = false; btn.innerHTML = originalText; });
 
-        await postToNotasScript({ action: 'addNote' }, { autor: `${loggedInUser.nombre} ${loggedInUser.apellido}`, mensaje: msg });
-        card.style.opacity = '1'; showToast("Enviado"); btn.disabled = false; btn.innerHTML = originalText;
-    });
+    // --- MODALES Y ACCIONES ---
+    const calendarPlantaModal = document.getElementById('calendarPlantaModal'); const openCalendarPlantaBtn = document.getElementById('openCalendarPlantaBtn'); const closeCalendarPlantaBtn = document.getElementById('closeCalendarPlantaBtn');
+    if (openCalendarPlantaBtn) openCalendarPlantaBtn.addEventListener('click', () => { const calPlanta = document.getElementById('calendar-container-planta'); if (calPlanta) renderCalendar(calPlanta, true); calendarPlantaModal.style.display = 'flex'; });
+    if (closeCalendarPlantaBtn) closeCalendarPlantaBtn.addEventListener('click', () => calendarPlantaModal.style.display = 'none');
 
-    // --- GESTIÓN MODAL CALENDARIO PLANTA ---
-    const calendarPlantaModal = document.getElementById('calendarPlantaModal');
-    const openCalendarPlantaBtn = document.getElementById('openCalendarPlantaBtn');
-    const closeCalendarPlantaBtn = document.getElementById('closeCalendarPlantaBtn');
+    const saldoAnteriorModal = document.getElementById('saldoAnteriorModal'); const btnEditSaldoPlanta = document.getElementById('btnEditSaldoPlanta'); const btnEditSaldoPT = document.getElementById('btnEditSaldoPT'); const saldoAnteriorInput = document.getElementById('saldoAnteriorInput');
+    function openSaldoModal() { const userData = getUserData(); saldoAnteriorInput.value = userData.saldoAnterior || ''; saldoAnteriorModal.style.display = 'flex'; saldoAnteriorInput.focus(); }
+    if (btnEditSaldoPlanta) btnEditSaldoPlanta.addEventListener('click', openSaldoModal); if (btnEditSaldoPT) btnEditSaldoPT.addEventListener('click', openSaldoModal);
+    document.getElementById('cancelSaldoBtn').addEventListener('click', () => saldoAnteriorModal.style.display = 'none');
+    document.getElementById('saveSaldoBtn').addEventListener('click', () => { const monto = parseFloat(saldoAnteriorInput.value); if (isNaN(monto)) return; const userData = getUserData(); userData.saldoAnterior = monto; saveUserData(userData); saldoAnteriorModal.style.display = 'none'; actualizarCalculoRetiro(); showToast('Saldo actualizado'); });
 
-    if (openCalendarPlantaBtn) {
-        openCalendarPlantaBtn.addEventListener('click', () => {
-             const calPlanta = document.getElementById('calendar-container-planta');
-             if (calPlanta) renderCalendar(calPlanta, true);
-             calendarPlantaModal.style.display = 'flex';
-        });
-    }
-    if (closeCalendarPlantaBtn) {
-        closeCalendarPlantaBtn.addEventListener('click', () => {
-            calendarPlantaModal.style.display = 'none';
-        });
-    }
-
-    // --- GESTIÓN SALDO ANTERIOR (MODAL) ---
-    const saldoAnteriorModal = document.getElementById('saldoAnteriorModal');
-    const btnEditSaldoPlanta = document.getElementById('btnEditSaldoPlanta');
-    const btnEditSaldoPT = document.getElementById('btnEditSaldoPT');
-    const saldoAnteriorInput = document.getElementById('saldoAnteriorInput');
-
-    function openSaldoModal() {
-        const userData = getUserData();
-        saldoAnteriorInput.value = userData.saldoAnterior || '';
-        saldoAnteriorModal.style.display = 'flex';
-        saldoAnteriorInput.focus();
-    }
-
-    if (btnEditSaldoPlanta) btnEditSaldoPlanta.addEventListener('click', openSaldoModal);
-    if (btnEditSaldoPT) btnEditSaldoPT.addEventListener('click', openSaldoModal);
-
-    document.getElementById('cancelSaldoBtn').addEventListener('click', () => {
-        saldoAnteriorModal.style.display = 'none';
-    });
-
-    document.getElementById('saveSaldoBtn').addEventListener('click', () => {
-        const monto = parseFloat(saldoAnteriorInput.value);
-        if (isNaN(monto)) return;
-        
-        const userData = getUserData();
-        userData.saldoAnterior = monto;
-        saveUserData(userData);
-        
-        saldoAnteriorModal.style.display = 'none';
-        actualizarCalculoRetiro();
-        showToast('Saldo actualizado');
-    });
-
-
-    // --- CALENDARIO (Part-Time y Planta) ---
     function renderCalendar(container, isPlanta = false) {
-        const today = new Date(), year = today.getFullYear(), month = today.getMonth();
-        const firstDay = new Date(year, month, 1), lastDay = new Date(year, month + 1, 0);
-        const daysInMonth = lastDay.getDate(), startingDay = (firstDay.getDay() + 6) % 7; 
-        const monthNames = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"];
-        
+        const today = new Date(), year = today.getFullYear(), month = today.getMonth(); const firstDay = new Date(year, month, 1), lastDay = new Date(year, month + 1, 0); const daysInMonth = lastDay.getDate(), startingDay = (firstDay.getDay() + 6) % 7; const monthNames = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"];
         let html = `<div class="calendar-header"><span>${monthNames[month]} ${year}</span></div><div class="calendar-grid">`;
-        ["Lu", "Ma", "Mi", "Ju", "Vi", "Sa", "Do"].forEach(d => html += `<div class="day-name">${d}</div>`);
-        for (let i = 0; i < startingDay; i++) html += `<div class="day empty"></div>`;
-        
-        const userData = getUserData();
-        
-        // Determinar qué días marcar según el tipo de usuario
-        let markedDays;
-        if (isPlanta) {
-            markedDays = new Set(userData.diasAusencia || []);
-        } else {
-            markedDays = new Set(userData.diasTrabajados || []);
-        }
-
-        for (let i = 1; i <= daysInMonth; i++) {
-            const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(i).padStart(2, '0')}`;
-            const isMarked = markedDays.has(dateStr);
-            let classModifier = '';
-            
-            if (isMarked) {
-                classModifier = isPlanta ? 'absent' : 'marked';
-            }
-            
-            html += `<div class="day ${classModifier}" data-date="${dateStr}">${i}</div>`;
-        }
+        ["Lu", "Ma", "Mi", "Ju", "Vi", "Sa", "Do"].forEach(d => html += `<div class="day-name">${d}</div>`); for (let i = 0; i < startingDay; i++) html += `<div class="day empty"></div>`;
+        const userData = getUserData(); let markedDays; if (isPlanta) markedDays = new Set(userData.diasAusencia || []); else markedDays = new Set(userData.diasTrabajados || []);
+        for (let i = 1; i <= daysInMonth; i++) { const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(i).padStart(2, '0')}`; const isMarked = markedDays.has(dateStr); let classModifier = ''; if (isMarked) classModifier = isPlanta ? 'absent' : 'marked'; html += `<div class="day ${classModifier}" data-date="${dateStr}">${i}</div>`; }
         html += `</div>`; container.innerHTML = html;
-        
-        container.querySelectorAll('.day:not(.empty)').forEach(dayEl => {
-            dayEl.addEventListener('click', () => {
-                const date = dayEl.dataset.date;
-                const ud = getUserData();
-                
-                if (isPlanta) {
-                     let absDays = new Set(ud.diasAusencia || []);
-                     if (absDays.has(date)) absDays.delete(date); else absDays.add(date);
-                     ud.diasAusencia = Array.from(absDays);
-                } else {
-                     let wDays = new Set(ud.diasTrabajados || []);
-                     if (wDays.has(date)) wDays.delete(date); else wDays.add(date);
-                     ud.diasTrabajados = Array.from(wDays);
-                }
-                
-                saveUserData(ud); 
-                renderCalendar(container, isPlanta); 
-                actualizarCalculoRetiro();
-            });
-        });
+        container.querySelectorAll('.day:not(.empty)').forEach(dayEl => { dayEl.addEventListener('click', () => { const date = dayEl.dataset.date; const ud = getUserData(); if (isPlanta) { let absDays = new Set(ud.diasAusencia || []); if (absDays.has(date)) absDays.delete(date); else absDays.add(date); ud.diasAusencia = Array.from(absDays); } else { let wDays = new Set(ud.diasTrabajados || []); if (wDays.has(date)) wDays.delete(date); else wDays.add(date); ud.diasTrabajados = Array.from(wDays); } saveUserData(ud); renderCalendar(container, isPlanta); actualizarCalculoRetiro(); }); });
     }
 
-    // --- MODALES GESTIÓN ANTICIPOS ---
     const addAnticipoModal = document.getElementById('addAnticipoModal');
-    document.getElementById('registrarAnticipoBtn').addEventListener('click', () => {
-        document.getElementById('addAnticipoMontoInput').value = '';
-        document.getElementById('addAnticipoFechaInput').value = getTodayDateString();
-        addAnticipoModal.style.display = 'flex'; document.getElementById('addAnticipoMontoInput').focus();
-    });
+    document.getElementById('registrarAnticipoBtn').addEventListener('click', () => { document.getElementById('addAnticipoMontoInput').value = ''; document.getElementById('addAnticipoFechaInput').value = getTodayDateString(); addAnticipoModal.style.display = 'flex'; document.getElementById('addAnticipoMontoInput').focus(); });
     document.getElementById('cancelAddAnticipoBtn').addEventListener('click', () => addAnticipoModal.style.display = 'none');
-    document.getElementById('saveAddAnticipoBtn').addEventListener('click', () => {
-        const montoRaw = document.getElementById('addAnticipoMontoInput').dataset.cleanValue || document.getElementById('addAnticipoMontoInput').value;
-        const monto = parseInt(montoRaw);
-        const fecha = document.getElementById('addAnticipoFechaInput').value;
-        if (!monto || !fecha) { showToast('Datos incompletos', 'error'); return; }
-        const userData = getUserData();
-        userData.anticipos.push({ id: Date.now(), monto, fecha });
-        saveUserData(userData); actualizarCalculoRetiro(); addAnticipoModal.style.display = 'none'; showToast('Registrado');
-    });
+    document.getElementById('saveAddAnticipoBtn').addEventListener('click', () => { const montoRaw = document.getElementById('addAnticipoMontoInput').dataset.cleanValue || document.getElementById('addAnticipoMontoInput').value; const monto = parseInt(montoRaw); const fecha = document.getElementById('addAnticipoFechaInput').value; if (!monto || !fecha) { showToast('Datos incompletos', 'error'); return; } const userData = getUserData(); userData.anticipos.push({ id: Date.now(), monto, fecha }); saveUserData(userData); actualizarCalculoRetiro(); addAnticipoModal.style.display = 'none'; showToast('Registrado'); });
 
     document.getElementById('cancelEditAnticipoBtn').addEventListener('click', () => document.getElementById('editAnticipoModal').style.display = 'none');
-    document.getElementById('saveEditAnticipoBtn').addEventListener('click', () => {
-        const montoRaw = document.getElementById('editAnticipoMontoInput').dataset.cleanValue || document.getElementById('editAnticipoMontoInput').value;
-        const monto = parseInt(montoRaw);
-        const fecha = document.getElementById('editAnticipoFechaInput').value;
-        const userData = getUserData();
-        const idx = userData.anticipos.findIndex(a => a.id == currentEditAnticipoId);
-        if (idx !== -1) {
-            userData.anticipos[idx].monto = monto; userData.anticipos[idx].fecha = fecha;
-            saveUserData(userData); actualizarCalculoRetiro(); document.getElementById('editAnticipoModal').style.display = 'none'; showToast('Actualizado');
-        }
-    });
+    document.getElementById('saveEditAnticipoBtn').addEventListener('click', () => { const montoRaw = document.getElementById('editAnticipoMontoInput').dataset.cleanValue || document.getElementById('editAnticipoMontoInput').value; const monto = parseInt(montoRaw); const fecha = document.getElementById('editAnticipoFechaInput').value; const userData = getUserData(); const idx = userData.anticipos.findIndex(a => a.id == currentEditAnticipoId); if (idx !== -1) { userData.anticipos[idx].monto = monto; userData.anticipos[idx].fecha = fecha; saveUserData(userData); actualizarCalculoRetiro(); document.getElementById('editAnticipoModal').style.display = 'none'; showToast('Actualizado'); } });
 
-    // --- EDICIÓN PUNTOS ---
     const editPuntosModal = document.getElementById('editPuntosModal');
     document.getElementById('editPuntosBtn').addEventListener('click', () => { document.getElementById('editPuntosInput').value = loggedInUser.puntos; editPuntosModal.style.display = 'flex'; });
     document.getElementById('cancelEditPuntosBtn').addEventListener('click', () => editPuntosModal.style.display = 'none');
-    document.getElementById('saveEditPuntosBtn').addEventListener('click', async () => {
-        const newPuntos = parseFloat(document.getElementById('editPuntosInput').value);
-        if (newPuntos > 0) {
-            loggedInUser.puntos = newPuntos;
-            localStorage.setItem('loggedInUser', JSON.stringify(loggedInUser));
-            const appData = getAppData(); if(appData.usuarios[loggedInUser.id]) { appData.usuarios[loggedInUser.id].puntos = newPuntos; saveAppData(appData); }
-            populateUserDataSection(); actualizarCalculoRetiro(); editPuntosModal.style.display = 'none';
-            await enviarDatosLoginASheets(loggedInUser);
-        }
-    });
+    document.getElementById('saveEditPuntosBtn').addEventListener('click', async () => { const newPuntos = parseFloat(document.getElementById('editPuntosInput').value); if (newPuntos > 0) { loggedInUser.puntos = newPuntos; localStorage.setItem('loggedInUser', JSON.stringify(loggedInUser)); const appData = getAppData(); if(appData.usuarios[loggedInUser.id]) { appData.usuarios[loggedInUser.id].puntos = newPuntos; saveAppData(appData); } populateUserDataSection(); actualizarCalculoRetiro(); editPuntosModal.style.display = 'none'; await enviarDatosLoginASheets(loggedInUser); } });
 
-    // --- DIVISOR PT MANUAL ---
     const divisorPTModal = document.getElementById('divisorPTModal');
-    const registrarDivisorPTBtn = document.getElementById('registrarDivisorPTBtn');
-    if(registrarDivisorPTBtn) {
-        registrarDivisorPTBtn.addEventListener('click', () => {
-            const userData = getUserData();
-            const dias = (userData.diasTrabajados || []).sort().reverse();
-            let currentDiv = 0; if(dias.length > 0) currentDiv = divisoresDiariosExternos[dias[0]] || 0;
-            document.getElementById('divisorPTInput').value = currentDiv;
-            divisorPTModal.style.display = 'flex';
-        });
-    }
     document.getElementById('cancelDivisorPTBtn').addEventListener('click', () => divisorPTModal.style.display = 'none');
     document.getElementById('saveDivisorPTBtn').addEventListener('click', () => { showToast('Divisor es automático.', 'info'); divisorPTModal.style.display = 'none'; });
 
-    // --- REINICIO MES ---
-    document.getElementById('resetMesBtn').addEventListener('click', () => {
-        if(confirm('¿Reiniciar mes? Se borrarán anticipos, días marcados y saldo anterior.')) {
-            const ud = getUserData(); 
-            ud.anticipos = []; 
-            ud.diasTrabajados = []; 
-            ud.diasAusencia = []; 
-            ud.saldoAnterior = 0; // Reiniciar saldo anterior también
-            saveUserData(ud);
-            
-            // Recargar calendarios
-            if (loggedInUser.tipo === 'Planta') {
-                 const cal = document.getElementById('calendar-container-planta'); 
-                 if(cal) renderCalendar(cal, true);
-            } else { 
-                 const cal = document.getElementById('calendar-container'); 
-                 if(cal) renderCalendar(cal, false); 
-            }
-            actualizarCalculoRetiro(); showToast('Mes reiniciado.');
-        }
-    });
+    document.getElementById('resetMesBtn').addEventListener('click', () => { if(confirm('¿Reiniciar mes? Se borrarán anticipos, días marcados y saldo anterior.')) { const ud = getUserData(); ud.anticipos = []; ud.diasTrabajados = []; ud.diasAusencia = []; ud.saldoAnterior = 0; saveUserData(ud); if (loggedInUser.tipo === 'Planta') { const cal = document.getElementById('calendar-container-planta'); if(cal) renderCalendar(cal, true); } else { const cal = document.getElementById('calendar-container'); if(cal) renderCalendar(cal, false); } actualizarCalculoRetiro(); showToast('Mes reiniciado.'); } });
 
-    // --- EXPORTAR / IMPORTAR DATOS ---
-    document.getElementById('exportDataBtn').addEventListener('click', () => {
-        const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(getAppData()));
-        const downloadAnchorNode = document.createElement('a');
-        downloadAnchorNode.setAttribute("href", dataStr);
-        downloadAnchorNode.setAttribute("download", "respaldo_propinas.json");
-        document.body.appendChild(downloadAnchorNode); downloadAnchorNode.click(); downloadAnchorNode.remove();
-    });
-    
-    document.getElementById('importDataBtn').addEventListener('click', () => {
-        if(confirm('Al importar se sobrescribirán los datos actuales. ¿Continuar?')) document.getElementById('importFileInput').click();
-    });
-    
-    document.getElementById('importFileInput').addEventListener('change', (event) => {
-        const file = event.target.files[0];
-        if (!file) return;
-        const reader = new FileReader();
-        reader.onload = (e) => {
-            try {
-                const importedData = JSON.parse(e.target.result);
-                if (importedData && importedData.usuarios && importedData.userData) {
-                    saveAppData(importedData); showToast('Datos restaurados. Recargando...', 'success');
-                    setTimeout(() => location.reload(), 1500);
-                } else { showToast('Archivo inválido', 'error'); }
-            } catch(ex) { showToast('Error al leer archivo', 'error'); }
-        };
-        reader.readAsText(file);
-    });
+    document.getElementById('exportDataBtn').addEventListener('click', () => { const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(getAppData())); const downloadAnchorNode = document.createElement('a'); downloadAnchorNode.setAttribute("href", dataStr); downloadAnchorNode.setAttribute("download", "respaldo_propinas.json"); document.body.appendChild(downloadAnchorNode); downloadAnchorNode.click(); downloadAnchorNode.remove(); });
+    document.getElementById('importDataBtn').addEventListener('click', () => { if(confirm('Al importar se sobrescribirán los datos actuales. ¿Continuar?')) document.getElementById('importFileInput').click(); });
+    document.getElementById('importFileInput').addEventListener('change', (event) => { const file = event.target.files[0]; if (!file) return; const reader = new FileReader(); reader.onload = (e) => { try { const importedData = JSON.parse(e.target.result); if (importedData && importedData.usuarios && importedData.userData) { saveAppData(importedData); showToast('Datos restaurados. Recargando...', 'success'); setTimeout(() => location.reload(), 1500); } else { showToast('Archivo inválido', 'error'); } } catch(ex) { showToast('Error al leer archivo', 'error'); } }; reader.readAsText(file); });
 
-    // --- INITIALIZATION ---
+    // --- INICIALIZACIÓN ---
     function initApp() {
         divisoresDiariosExternos = JSON.parse(localStorage.getItem('cachedDivisores')) || {};
-        const lastPanel = localStorage.getItem('activePanel') || 'retirosPropinaSection';
-        activatePanel(lastPanel);
-
-        if (loggedInUser.tipo === 'Planta') {
-            document.getElementById('vistaPlanta').style.display = 'block';
-            // Renderizar calendario aunque esté oculto en el modal para que esté listo
-            const calPlanta = document.getElementById('calendar-container-planta');
-            if (calPlanta) renderCalendar(calPlanta, true); 
-        } else { 
-            document.getElementById('vistaPartTime').style.display = 'block'; 
-            const cal = document.getElementById('calendar-container'); 
-            if(cal) renderCalendar(cal, false); 
-        }
-
-        const syncFinancials = async () => {
-             mostrarActualizandoEnCampos(); 
-            try { await importarDesdeSheets(true); if(loggedInUser.tipo === 'Planta') await obtenerYActualizarValorPorPuntoExterno(); await obtenerDivisoresExternos(true); } 
-            catch(e) { console.error("Error sync", e); } finally { cargarYMostrarMontos(); actualizarCalculoRetiro(); }
-        };
+        const lastPanel = localStorage.getItem('activePanel') || 'retirosPropinaSection'; activatePanel(lastPanel);
+        if (loggedInUser.tipo === 'Planta') { document.getElementById('vistaPlanta').style.display = 'block'; const calPlanta = document.getElementById('calendar-container-planta'); if (calPlanta) renderCalendar(calPlanta, true); } else { document.getElementById('vistaPartTime').style.display = 'block'; const cal = document.getElementById('calendar-container'); if(cal) renderCalendar(cal, false); }
+        const syncFinancials = async () => { mostrarActualizandoEnCampos(); try { await importarDesdeSheets(true); if(loggedInUser.tipo === 'Planta') await obtenerYActualizarValorPorPuntoExterno(); await obtenerDivisoresExternos(true); } catch(e) { console.error("Error sync", e); } finally { cargarYMostrarMontos(); actualizarCalculoRetiro(); } };
         const syncNotes = () => cargarNotas();
-
         syncNotes(); syncFinancials();
+        
         if (notesInterval) clearInterval(notesInterval); notesInterval = setInterval(syncNotes, 15000);
         if (sheetsInterval) clearInterval(sheetsInterval); sheetsInterval = setInterval(syncFinancials, 300000);
-        
-        document.getElementById('logoutBtn').onclick = () => { 
-            if (localStorage.getItem('loggedInUser')) {
-                showToast('Cerrando sesión...', 'info');
-                if (notesInterval) clearInterval(notesInterval);
-                localStorage.removeItem('loggedInUser'); loggedInUser = null;
-                setTimeout(() => location.reload(), 1500);
-            }
-        };
-        
-        document.getElementById('importarDesdeSheetsBtn').onclick = async function() {
-             const btn = this; const originalText = btn.textContent; btn.textContent = 'Sincronizando...'; btn.disabled = true;
-             try { await importarDesdeSheets(false); cargarYMostrarMontos(); actualizarCalculoRetiro(); showToast('Sincronizado'); } 
-             catch(e) { showToast('Error sync', 'error'); } finally { btn.textContent = originalText; btn.disabled = false; }
-        };
+        if (statusCheckInterval) clearInterval(statusCheckInterval); statusCheckInterval = setInterval(verificarEstadoSesion, 10000);
+
+        document.getElementById('logoutBtn').onclick = () => { if (localStorage.getItem('loggedInUser')) { showToast('Cerrando sesión...', 'info'); forceLogout(); } };
+        document.getElementById('importarDesdeSheetsBtn').onclick = async function() { const btn = this; const originalText = btn.textContent; btn.textContent = 'Sincronizando...'; btn.disabled = true; try { await importarDesdeSheets(false); cargarYMostrarMontos(); actualizarCalculoRetiro(); showToast('Sincronizado'); } catch(e) { showToast('Error sync', 'error'); } finally { btn.textContent = originalText; btn.disabled = false; } };
     }
 
-    // --- INACTIVIDAD ---
     function resetInactivityTimer() { if (localStorage.getItem('loggedInUser')) lastActivityTime = Date.now(); }
-    function checkInactivity() {
-        if (!localStorage.getItem('loggedInUser')) return; 
-        if (Date.now() - lastActivityTime > 660000) { showToast('Sesión cerrada por inactividad.', 'info'); document.getElementById('logoutBtn').click(); }
-    }
+    function checkInactivity() { if (!localStorage.getItem('loggedInUser')) return; if (Date.now() - lastActivityTime > 660000) { showToast('Sesión cerrada por inactividad.', 'info'); document.getElementById('logoutBtn').click(); } }
     ['mousemove', 'mousedown', 'keypress', 'touchmove', 'scroll', 'click'].forEach(evt => document.addEventListener(evt, resetInactivityTimer, true));
     setInterval(checkInactivity, 10000); 
 
-    setupNumericInputFormatting(document.getElementById('addAnticipoMontoInput'));
-    setupNumericInputFormatting(document.getElementById('editAnticipoMontoInput'));
+    setupNumericInputFormatting(document.getElementById('addAnticipoMontoInput')); setupNumericInputFormatting(document.getElementById('editAnticipoMontoInput'));
 
-    // --- DATOS USUARIO UI ---
-    function populateUserDataSection() {
-        if (!loggedInUser) return;
-        document.getElementById('userDataNombre').textContent = `${loggedInUser.nombre} ${loggedInUser.apellido}`;
-        document.getElementById('userDataContrato').textContent = loggedInUser.tipo;
-        document.getElementById('puntosValueDisplay').textContent = loggedInUser.puntos;
-        const fechaIngresoEl = document.getElementById('userDataFechaIngreso');
-        if (loggedInUser.dia && loggedInUser.mes) fechaIngresoEl.textContent = `${String(loggedInUser.dia).padStart(2, '0')}/${String(loggedInUser.mes).padStart(2, '0')}/${loggedInUser.anio}`;
-        else fechaIngresoEl.textContent = loggedInUser.anio || 'N/A';
-    }
+    function populateUserDataSection() { if (!loggedInUser) return; document.getElementById('userDataNombre').textContent = `${loggedInUser.nombre} ${loggedInUser.apellido}`; document.getElementById('userDataContrato').textContent = loggedInUser.tipo; document.getElementById('puntosValueDisplay').textContent = loggedInUser.puntos; const fechaIngresoEl = document.getElementById('userDataFechaIngreso'); if (loggedInUser.dia && loggedInUser.mes) fechaIngresoEl.textContent = `${String(loggedInUser.dia).padStart(2, '0')}/${String(loggedInUser.mes).padStart(2, '0')}/${loggedInUser.anio}`; else fechaIngresoEl.textContent = loggedInUser.anio || 'N/A'; }
 
-    // --- CAMBIAR CONTRASEÑA (LOGUEADO) ---
-    const changePassModal = document.getElementById('changePasswordModal');
-    const changePassInput = document.getElementById('newPasswordLoggedInInput');
-    
+    const changePassModal = document.getElementById('changePasswordModal'); const changePassInput = document.getElementById('newPasswordLoggedInInput');
     document.getElementById('changePasswordBtn').addEventListener('click', () => { changePassInput.value = ''; changePassModal.style.display = 'flex'; changePassInput.focus(); });
     document.getElementById('cancelChangePasswordBtn').addEventListener('click', () => changePassModal.style.display = 'none');
-    document.getElementById('saveNewPasswordLoggedInBtn').addEventListener('click', async () => {
-        const newPass = changePassInput.value.trim();
-        if (!newPass || newPass.length < 4) { showToast('Contraseña muy corta.', 'error'); return; }
-        const btn = document.getElementById('saveNewPasswordLoggedInBtn'); btn.textContent = 'Guardando...'; btn.disabled = true;
-        try {
-            loggedInUser.password = newPass;
-            localStorage.setItem('loggedInUser', JSON.stringify(loggedInUser));
-            const appData = getAppData(); if (appData.usuarios[loggedInUser.id]) { appData.usuarios[loggedInUser.id].password = newPass; saveAppData(appData); }
-            await enviarDatosLoginASheets(loggedInUser); showToast('Contraseña actualizada.'); changePassModal.style.display = 'none'; updateRecentLogins(loggedInUser); displayRecentLogins();
-        } catch (error) { showToast('Error al guardar.', 'error'); } finally { btn.textContent = 'Guardar Cambios'; btn.disabled = false; }
-    });
-
-    document.querySelectorAll('.password-toggle-icon').forEach(icon => {
-        icon.addEventListener('click', () => {
-            const input = icon.previousElementSibling;
-            if (input.type === 'password') { input.type = 'text'; icon.classList.replace('fa-eye', 'fa-eye-slash'); } 
-            else { input.type = 'password'; icon.classList.replace('fa-eye-slash', 'fa-eye'); }
-        });
-    });
+    document.getElementById('saveNewPasswordLoggedInBtn').addEventListener('click', async () => { const newPass = changePassInput.value.trim(); if (!newPass || newPass.length < 4) { showToast('Contraseña muy corta.', 'error'); return; } const btn = document.getElementById('saveNewPasswordLoggedInBtn'); btn.textContent = 'Guardando...'; btn.disabled = true; try { loggedInUser.password = newPass; localStorage.setItem('loggedInUser', JSON.stringify(loggedInUser)); const appData = getAppData(); if (appData.usuarios[loggedInUser.id]) { appData.usuarios[loggedInUser.id].password = newPass; saveAppData(appData); } await enviarDatosLoginASheets(loggedInUser); showToast('Contraseña actualizada.'); changePassModal.style.display = 'none'; updateRecentLogins(loggedInUser); displayRecentLogins(); } catch (error) { showToast('Error al guardar.', 'error'); } finally { btn.textContent = 'Guardar Cambios'; btn.disabled = false; } });
+    document.querySelectorAll('.password-toggle-icon').forEach(icon => { icon.addEventListener('click', () => { const input = icon.previousElementSibling; if (input.type === 'password') { input.type = 'text'; icon.classList.replace('fa-eye', 'fa-eye-slash'); } else { input.type = 'password'; icon.classList.replace('fa-eye-slash', 'fa-eye'); } }); });
 
     checkLogin();
 });
