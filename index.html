@@ -13,7 +13,7 @@
 
   <style>
     /* =========================================
-       ESTILOS CSS COMPLETOS
+       ESTILOS CSS (CORREGIDOS)
        ========================================= */
     :root {
         --menu-width: 250px;
@@ -37,7 +37,6 @@
     }
 
     body.dark-mode {
-        /* Tema Oscuro */
         --bg-main: #121212;
         --bg-content: #1e1e1e;
         --bg-accent: #2a2a3a;
@@ -139,8 +138,8 @@
     .tarjeta.collapsed .montos-list { display: none; }
     .montos-list { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 8px; margin-top: 10px; }
     .monto-item { background-color: var(--bg-main); padding: 8px; border-radius: 6px; font-size: 0.9em; display: flex; justify-content: space-between; align-items: center; }
+    .delete-button { background: none; border: none; font-size: 1.2em; color: var(--danger-color); cursor: pointer; }
     
-    /* RESUMEN DE CÁLCULOS */
     .retiro-container, .retiro-container-pt { background-color: var(--bg-accent); padding: 20px; border-radius: 8px; border: 1px solid var(--border-color); }
     .calculation-item { margin-bottom: 12px; font-size: 1.1em; display: flex; justify-content: space-between; align-items: center; }
     .calculation-item strong { color: var(--text-primary); }
@@ -157,7 +156,6 @@
     .delete-anticipo-btn { color: var(--danger-color); }
     .edit-anticipo-btn { color: var(--edit-color); }
     
-    /* CALENDARIO */
     .part-time-layout { display: flex; flex-wrap: wrap; gap: 20px; }
     .calendar-section { flex: 1; min-width: 300px; }
     .calculation-section-pt { flex: 1; min-width: 300px; }
@@ -516,22 +514,6 @@
 
 <script>
 document.addEventListener('DOMContentLoaded', () => {
-    // --- MODO OSCURO ---
-    const themeToggleBtn = document.getElementById('theme-toggle');
-    if (localStorage.getItem('theme') === 'dark') {
-        document.body.classList.add('dark-mode');
-        themeToggleBtn.querySelector('i').classList.replace('fa-moon', 'fa-sun');
-    }
-    themeToggleBtn.addEventListener('click', () => {
-        document.body.classList.toggle('dark-mode');
-        const isDark = document.body.classList.contains('dark-mode');
-        localStorage.setItem('theme', isDark ? 'dark' : 'light');
-        const icon = themeToggleBtn.querySelector('i');
-        if (isDark) { icon.classList.replace('fa-moon', 'fa-sun'); } 
-        else { icon.classList.replace('fa-sun', 'fa-moon'); }
-    });
-    document.getElementById('notification-fab').addEventListener('click', () => { activatePanel('notasSection'); });
-
     // --- URLs ---
     const SCRIPT_URL_NOTAS = 'https://script.google.com/macros/s/AKfycbwhKQTp9kER_H87XLekd3d69u5PK5ZpfpGzKdAtYcfKM0qTUuF5apPvB2UNYSyS2-FR/exec';
     const SCRIPT_URL_RECAUDACION_EXTERNA = 'https://script.google.com/macros/s/AKfycbxdiAMbUy2nTuXvvIuF_-KF-ed0s7jxXvh4X2T5u88jl9FSZdrDkNVgVNc7akhpIwCX/exec';
@@ -552,10 +534,27 @@ document.addEventListener('DOMContentLoaded', () => {
     let notesInterval = null; 
     let sheetsInterval = null;
     let statusCheckInterval = null; 
+    let heartbeatInterval = null; 
     let allFetchedNotes = [];
     let tipChart = null;
     let divisoresDiariosExternos = {};
     let lastActivityTime = Date.now(); 
+
+    // --- MODO OSCURO ---
+    const themeToggleBtn = document.getElementById('theme-toggle');
+    if (localStorage.getItem('theme') === 'dark') {
+        document.body.classList.add('dark-mode');
+        themeToggleBtn.querySelector('i').classList.replace('fa-moon', 'fa-sun');
+    }
+    themeToggleBtn.addEventListener('click', () => {
+        document.body.classList.toggle('dark-mode');
+        const isDark = document.body.classList.contains('dark-mode');
+        localStorage.setItem('theme', isDark ? 'dark' : 'light');
+        const icon = themeToggleBtn.querySelector('i');
+        if (isDark) { icon.classList.replace('fa-moon', 'fa-sun'); } 
+        else { icon.classList.replace('fa-sun', 'fa-moon'); }
+    });
+    document.getElementById('notification-fab').addEventListener('click', () => { activatePanel('notasSection'); });
 
     // --- FUNCIONES LOCALSTORAGE ---
     function getAppData() { return JSON.parse(localStorage.getItem('appData')) || { usuarios: {}, userData: {} }; }
@@ -612,24 +611,40 @@ document.addEventListener('DOMContentLoaded', () => {
       } catch (error) { return { status: 'error', message: 'Error de conexión.' }; }
     }
 
-    // --- VERIFICAR ESTADO DE SESIÓN (KICK) ---
+    // --- FUNCIONES DE ESTADO DE SESIÓN ---
+    // Envia un "latido" para decir "Estoy Activo"
+    async function sendHeartbeat() {
+        if (!loggedInUser) return;
+        try {
+            await fetch(SCRIPT_URL_LOGIN, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify({ action: 'updateStatus', id: loggedInUser.id, status: 'Activo' }) });
+        } catch (e) { console.error("Error heartbeat", e); }
+    }
+
+    // Envia "Desconectado" al salir
+    async function sendDisconnectSignal() {
+        if (!loggedInUser) return;
+        try {
+            await fetch(SCRIPT_URL_LOGIN, { method: 'POST', keepalive: true, headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify({ action: 'updateStatus', id: loggedInUser.id, status: 'Desconectado' }) });
+        } catch (e) { console.error("Error disconnect", e); }
+    }
+
+    // Normalizar ID para comparaciones
+    const normalize = (str) => String(str).replace(/^'/, "").trim().toLowerCase();
+
+    // Verificar si el admin nos expulsó (KICK)
     async function verificarEstadoSesion() {
         if (!loggedInUser) return;
         try {
             const response = await fetch(SCRIPT_URL_LOGIN + '?action=read&v=' + Date.now());
             if (!response.ok) return;
             const users = await response.json();
-            const me = users.find(u => String(u['ID de Usuario']).replace(/^'/, "").trim() === loggedInUser.id);
+            
+            // Buscar usuario con ID normalizado
+            const me = users.find(u => normalize(u['ID de Usuario']) === normalize(loggedInUser.id));
 
             if (me && me.Estado === 'KICK') {
                 alert('Tu sesión ha sido cerrada por el administrador.');
-                
-                // IMPORTANTE: Ponemos estado 'Desconectado' para avisar al Admin que salimos
-                await fetch(SCRIPT_URL_LOGIN, { 
-                    method: 'POST', 
-                    body: JSON.stringify({ action: 'updateStatus', id: loggedInUser.id, status: 'Desconectado' }) 
-                });
-                
+                await sendDisconnectSignal(); 
                 forceLogout();
             }
         } catch (e) { console.error("Error verificando sesión", e); }
@@ -639,10 +654,18 @@ document.addEventListener('DOMContentLoaded', () => {
         if (notesInterval) clearInterval(notesInterval);
         if (sheetsInterval) clearInterval(sheetsInterval);
         if (statusCheckInterval) clearInterval(statusCheckInterval);
+        if (heartbeatInterval) clearInterval(heartbeatInterval);
         localStorage.removeItem('loggedInUser'); 
         loggedInUser = null;
         location.reload();
     }
+
+    // Detectar cambios de visibilidad
+    document.addEventListener('visibilitychange', () => {
+        if (document.visibilityState === 'hidden') { sendDisconnectSignal(); } 
+        else { sendHeartbeat(); }
+    });
+    window.addEventListener('beforeunload', () => { sendDisconnectSignal(); });
 
     // --- MENÚ Y NAVEGACIÓN ---
     const setupMenu = () => {
@@ -683,6 +706,8 @@ document.addEventListener('DOMContentLoaded', () => {
             loggedInUser = user; loginContainer.style.display = 'none'; mainContent.style.display = 'block'; menuToggle.style.display = 'flex';
             document.getElementById('userInfo').textContent = `${user.nombre} ${user.apellido}`;
             setupMenu(); initApp(); resetInactivityTimer();
+            // Al recuperar sesión, avisamos que estamos activos
+            sendHeartbeat();
         } else { loginContainer.style.display = 'block'; mainContent.style.display = 'none'; displayRecentLogins(); }
     }
     function updateRecentLogins(user) { let recent = JSON.parse(localStorage.getItem('recentLogins')) || []; recent = recent.filter(u => u.id !== user.id); recent.unshift(user); if (recent.length > 5) recent.pop(); localStorage.setItem('recentLogins', JSON.stringify(recent)); }
@@ -711,12 +736,8 @@ document.addEventListener('DOMContentLoaded', () => {
         showLoadingOverlay(); const res = await enviarDatosLoginASheets(user); hideLoadingOverlay();
         
         if (res.status === 'success') {
-            // CORRECCIÓN PRINCIPAL: Al hacer login, forzamos estado "Activo" para reactivar el botón de kick en Admin
-            await fetch(SCRIPT_URL_LOGIN, { 
-                method: 'POST', 
-                headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-                body: JSON.stringify({ action: 'updateStatus', id: user.id, status: 'Activo' }) 
-            });
+            // LOGIN EXITOSO: Forzar estado "Activo"
+            await fetch(SCRIPT_URL_LOGIN, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify({ action: 'updateStatus', id: user.id, status: 'Activo' }) });
 
             if(!user.telefono && appData.usuarios[user.id] && appData.usuarios[user.id].telefono) user.telefono = appData.usuarios[user.id].telefono;
             if(!user.telefono) { pendingLoginUser = user; document.getElementById('phoneModal').style.display = 'flex'; return; }
@@ -880,7 +901,7 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('importDataBtn').addEventListener('click', () => { if(confirm('Al importar se sobrescribirán los datos actuales. ¿Continuar?')) document.getElementById('importFileInput').click(); });
     document.getElementById('importFileInput').addEventListener('change', (event) => { const file = event.target.files[0]; if (!file) return; const reader = new FileReader(); reader.onload = (e) => { try { const importedData = JSON.parse(e.target.result); if (importedData && importedData.usuarios && importedData.userData) { saveAppData(importedData); showToast('Datos restaurados. Recargando...', 'success'); setTimeout(() => location.reload(), 1500); } else { showToast('Archivo inválido', 'error'); } } catch(ex) { showToast('Error al leer archivo', 'error'); } }; reader.readAsText(file); });
 
-    // --- INITIALIZATION ---
+    // --- INICIALIZACIÓN ---
     function initApp() {
         divisoresDiariosExternos = JSON.parse(localStorage.getItem('cachedDivisores')) || {};
         const lastPanel = localStorage.getItem('activePanel') || 'retirosPropinaSection'; activatePanel(lastPanel);
@@ -891,16 +912,35 @@ document.addEventListener('DOMContentLoaded', () => {
         
         if (notesInterval) clearInterval(notesInterval); notesInterval = setInterval(syncNotes, 15000);
         if (sheetsInterval) clearInterval(sheetsInterval); sheetsInterval = setInterval(syncFinancials, 300000);
-        if (statusCheckInterval) clearInterval(statusCheckInterval); statusCheckInterval = setInterval(verificarEstadoSesion, 10000);
+        
+        // --- INTERVALOS DE SESIÓN ---
+        // Verificación de KICK rápida (5s) para detectar expulsión
+        if (statusCheckInterval) clearInterval(statusCheckInterval); 
+        statusCheckInterval = setInterval(verificarEstadoSesion, 5000); 
+        
+        // Heartbeat lento (60s) para no sobrescribir el KICK si ocurre en medio
+        if (heartbeatInterval) clearInterval(heartbeatInterval); 
+        heartbeatInterval = setInterval(sendHeartbeat, 60000); 
 
-        document.getElementById('logoutBtn').onclick = () => { if (localStorage.getItem('loggedInUser')) { showToast('Cerrando sesión...', 'info'); forceLogout(); } };
+        document.getElementById('logoutBtn').onclick = () => { if (localStorage.getItem('loggedInUser')) { showToast('Cerrando sesión...', 'info'); sendDisconnectSignal().then(() => forceLogout()); } };
         document.getElementById('importarDesdeSheetsBtn').onclick = async function() { const btn = this; const originalText = btn.textContent; btn.textContent = 'Sincronizando...'; btn.disabled = true; try { await importarDesdeSheets(false); cargarYMostrarMontos(); actualizarCalculoRetiro(); showToast('Sincronizado'); } catch(e) { showToast('Error sync', 'error'); } finally { btn.textContent = originalText; btn.disabled = false; } };
     }
 
     function resetInactivityTimer() { if (localStorage.getItem('loggedInUser')) lastActivityTime = Date.now(); }
-    function checkInactivity() { if (!localStorage.getItem('loggedInUser')) return; if (Date.now() - lastActivityTime > 660000) { showToast('Sesión cerrada por inactividad.', 'info'); document.getElementById('logoutBtn').click(); } }
+    
+    // --- CHEQUEO INACTIVIDAD (11 MIN) ---
+    function checkInactivity() { 
+        if (!localStorage.getItem('loggedInUser')) return; 
+        // 11 minutos = 660000 ms
+        if (Date.now() - lastActivityTime > 660000) { 
+            sendDisconnectSignal(); // Avisar Admin que salimos
+            showToast('Sesión cerrada por inactividad.', 'info'); 
+            forceLogout(); 
+        } 
+    }
+    
     ['mousemove', 'mousedown', 'keypress', 'touchmove', 'scroll', 'click'].forEach(evt => document.addEventListener(evt, resetInactivityTimer, true));
-    setInterval(checkInactivity, 10000); 
+    setInterval(checkInactivity, 10000); // Revisa inactividad cada 10s
 
     setupNumericInputFormatting(document.getElementById('addAnticipoMontoInput')); setupNumericInputFormatting(document.getElementById('editAnticipoMontoInput'));
 
