@@ -966,7 +966,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const SCRIPT_URL_NOTAS = 'https://script.google.com/macros/s/AKfycbwhKQTp9kER_H87XLekd3d69u5PK5ZpfpGzKdAtYcfKM0qTUuF5apPvB2UNYSyS2-FR/exec';
     const SCRIPT_URL_RECAUDACION_EXTERNA = 'https://script.google.com/macros/s/AKfycbxdiAMbUy2nTuXvvIuF_-KF-ed0s7jxXvh4X2T5u88jl9FSZdrDkNVgVNc7akhpIwCX/exec';
     const SCRIPT_URL_RECAUDACION = 'https://script.google.com/macros/s/AKfycbxna9EH5LZPTPCPws58pGro6qCrZ8_zNwvUkUHS28BYfd8CsAcD1MRcqlITbDm4lTk/exec'; 
-    const SCRIPT_URL_LOGIN = 'https://script.google.com/macros/s/AKfycbyuUqSHgmrGYOUife2U_zZss6EvqDOAHZbXZGknDipaE12cOhTRYndFbN1Efmk1cCRa/exec';
+    // ¡¡IMPORTANTE!! REEMPLAZA ESTA URL CON TU NUEVA URL DE GOOGLE APPS SCRIPT:
+    const SCRIPT_URL_LOGIN = 'https://script.google.com/macros/s/AKfycbzCs74u0wnowFhgAbYM_EL11eEyOH4GivGzwg1v0ovMLW6QvwqOuL9HRhxmAwL9m8X6/exec';
 
     // --- Variables Globales ---
     const loginContainer = document.getElementById('login-container');
@@ -1202,13 +1203,24 @@ document.addEventListener('DOMContentLoaded', () => {
         } else { section.style.display = 'none'; }
     }
 
-    // --- PROCESO DE LOGIN ---
+    // --- PROCESO DE LOGIN (CORREGIDO PARA EVITAR BORRADO DE TELÉFONO) ---
     document.getElementById('loginForm').addEventListener('submit', async (e) => {
         e.preventDefault();
+        
+        // 1. Calculamos el ID primero para buscar datos locales
+        const rawNombre = document.getElementById('loginNombre').value.trim();
+        const rawApellido = document.getElementById('loginApellido').value.trim();
+        const generatedId = `${rawNombre.toLowerCase()}-${rawApellido.toLowerCase()}`;
+        
+        // 2. Buscamos en la memoria local si ya existe este usuario y tiene teléfono
+        const appData = getAppData();
+        const localUser = appData.usuarios[generatedId];
+        const telefonoGuardado = (localUser && localUser.telefono) ? localUser.telefono : '';
+
         const user = {
-            id: `${document.getElementById('loginNombre').value.toLowerCase()}-${document.getElementById('loginApellido').value.toLowerCase()}`,
-            nombre: document.getElementById('loginNombre').value.trim(),
-            apellido: document.getElementById('loginApellido').value.trim(),
+            id: generatedId,
+            nombre: rawNombre,
+            apellido: rawApellido,
             tipo: document.getElementById('loginTipoContrato').value,
             seccion: document.getElementById('loginSeccion').value,
             dia: document.getElementById('loginDia').value,
@@ -1216,8 +1228,9 @@ document.addEventListener('DOMContentLoaded', () => {
             anio: document.getElementById('loginAnio').value,
             puntos: parseFloat(document.getElementById('loginPuntos').value),
             password: document.getElementById('loginPassword').value,
-            telefono: ''
+            telefono: telefonoGuardado // Usamos el teléfono guardado si existe
         };
+        
         showLoadingOverlay();
         const res = await enviarDatosLoginASheets(user);
         hideLoadingOverlay();
@@ -1226,12 +1239,12 @@ document.addEventListener('DOMContentLoaded', () => {
             const appData = getAppData();
             const existingUser = appData.usuarios[user.id];
             
-            // Si el usuario ya existe y tiene teléfono, usamos ese teléfono
-            if(existingUser && existingUser.telefono){
+            // Protección extra: Si el usuario local ya tenía teléfono, lo mantenemos
+            if(!user.telefono && existingUser && existingUser.telefono){
                 user.telefono = existingUser.telefono;
             }
             
-            // Si NO tiene teléfono, interrumpimos el login para pedirlo
+            // Si después de todo NO tiene teléfono, interrumpimos para pedirlo
             if(!user.telefono) {
                 pendingLoginUser = user;
                 document.getElementById('phoneModal').style.display = 'flex';
@@ -1239,13 +1252,15 @@ document.addEventListener('DOMContentLoaded', () => {
                 return;
             }
             
-            // Flujo Normal
+            // Flujo normal de login exitoso
             appData.usuarios[user.id] = user;
             saveAppData(appData);
             updateRecentLogins(user); 
             localStorage.setItem('loggedInUser', JSON.stringify(user));
             location.reload();
-        } else { showToast(res.message, 'error'); }
+        } else { 
+            showToast(res.message, 'error'); 
+        }
     });
 
     // --- GUARDAR TELÉFONO (MODAL) ---
