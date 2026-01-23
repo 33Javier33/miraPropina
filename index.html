@@ -13,7 +13,7 @@
 
   <style>
     /* =========================================
-       ESTILOS CSS (CORREGIDOS)
+       ESTILOS CSS (Mismos estilos originales)
        ========================================= */
     :root {
         --menu-width: 250px;
@@ -164,7 +164,9 @@
     .calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 5px; text-align: center; }
     .day-name { font-weight: bold; color: var(--text-secondary); padding-bottom: 5px; }
     .day { padding: 8px; border-radius: 4px; background-color: var(--bg-content); cursor: pointer; border: 1px solid var(--border-color); }
-    .day:hover { background-color: var(--bg-accent); }
+    /* Cursor por defecto para indicar que NO es clickable en modo lectura */
+    .day { cursor: default; }
+    .day:hover { background-color: var(--bg-content); } /* Quitamos hover effect */
     .day.marked { background-color: var(--success-color); color: #fff; font-weight: bold; }
     .day.absent { background-color: var(--danger-color); color: #fff; font-weight: bold; text-decoration: line-through; }
     .day.empty { background-color: transparent; border: none; cursor: default; }
@@ -365,7 +367,7 @@
           <h2 id="titulo-retiro">Retiro de Propina</h2>
           <div id="vistaPlanta" style="display: none;">
               <button id="openCalendarPlantaBtn" style="background-color: var(--bg-accent); color: var(--text-primary); border: 1px solid var(--border-color); width: 100%; margin-bottom: 20px; font-weight: bold; display: flex; justify-content: center; align-items: center; gap: 10px;">
-                  <i class="fas fa-calendar-times" style="color: var(--danger-color);"></i> Gestionar Días No Trabajados
+                  <i class="fas fa-calendar-times" style="color: var(--danger-color);"></i> Ver Días No Trabajados
               </button>
               <div class="retiro-container">
                   <div class="calculation-item"><strong>Mis Puntos:</strong> <span id="puntosUsuarioDisplayPlanta">0</span></div>
@@ -381,7 +383,7 @@
                   <div class="calculation-item"><strong>Total Anticipos:</strong> <span id="anticiposDisplayPlanta">-$0</span></div>
                   <div class="calculation-item" style="color: var(--success-color);">
                       <strong>Saldo Mes Anterior:</strong>
-                      <span><span id="saldoAnteriorDisplayPlanta">$0</span><button class="edit-btn-inline" id="btnEditSaldoPlanta">✏️</button></span>
+                      <span><span id="saldoAnteriorDisplayPlanta">$0</span></span>
                   </div>
                   <div id="anticipos-list-container-planta" class="anticipos-list-container"></div>
                   <div class="calculation-item final-calculation">
@@ -408,7 +410,7 @@
                           <div class="calculation-item"><strong>Total Anticipos:</strong> <span id="anticiposDisplayPT">-$0</span></div>
                           <div class="calculation-item" style="color: var(--success-color);">
                               <strong>Saldo Mes Anterior:</strong>
-                              <span><span id="saldoAnteriorDisplayPT">$0</span><button class="edit-btn-inline" id="btnEditSaldoPT">✏️</button></span>
+                              <span><span id="saldoAnteriorDisplayPT">$0</span></span>
                           </div>
                           <div id="anticipos-list-container-pt" class="anticipos-list-container"></div>
                           <div class="calculation-item final-calculation">
@@ -488,9 +490,6 @@
 <div id="editAnticipoModal" class="modal-backdrop" style="display: none;">
     <div class="modal-content"><div class="modal-header"><h4>Editar Anticipo</h4></div><div class="modal-body"><label>Monto:</label><input type="text" id="editAnticipoMontoInput" inputmode="numeric"/><label>Fecha:</label><input type="date" id="editAnticipoFechaInput"/></div><div class="modal-footer"><button class="reset-button" id="cancelEditAnticipoBtn">Cancelar</button><button class="edit-button-modal" id="saveEditAnticipoBtn">Guardar</button></div></div>
 </div>
-<div id="saldoAnteriorModal" class="modal-backdrop" style="display: none;">
-    <div class="modal-content"><div class="modal-header"><h4>Saldo Mes Anterior</h4></div><div class="modal-body"><label>Monto:</label><input type="number" id="saldoAnteriorInput" placeholder="0"/></div><div class="modal-footer"><button class="reset-button" id="cancelSaldoBtn">Cancelar</button><button id="saveSaldoBtn" style="background-color: var(--success-color);">Guardar</button></div></div>
-</div>
 <div id="divisorPTModal" class="modal-backdrop" style="display: none;">
     <div class="modal-content"><div class="modal-header"><h4>Editar Divisor</h4></div><div class="modal-body"><label>Divisor:</label><input type="text" id="divisorPTInput" inputmode="numeric"/></div><div class="modal-footer"><button class="reset-button" id="cancelDivisorPTBtn">Cancelar</button><button id="saveDivisorPTBtn">Guardar</button></div></div>
 </div>
@@ -505,7 +504,6 @@
 </div>
 <div id="editPuntosModal" class="modal-backdrop" style="display: none;">
     <div class="modal-content"><div class="modal-header"><h4>Editar Puntos</h4></div><div class="modal-body"><label>Puntos:</label><input type="number" id="editPuntosInput"/></div><div class="modal-footer"><button class="reset-button" id="cancelEditPuntosBtn">Cancelar</button><button id="saveEditPuntosBtn">Guardar</button></div></div>
-</div>
 
 <input type="file" id="importFileInput" style="display: none;" accept="application/json">
 
@@ -608,8 +606,7 @@ document.addEventListener('DOMContentLoaded', () => {
       } catch (error) { return { status: 'error', message: 'Error de conexión.' }; }
     }
 
-    // --- FUNCIONES DE ESTADO DE SESIÓN ---
-    // Envia un "latido" para decir "Estoy Activo"
+    // --- FUNCIONES DE ESTADO DE SESIÓN Y ESCUCHA DE DATOS ---
     async function sendHeartbeat() {
         if (!loggedInUser) return;
         try {
@@ -617,7 +614,6 @@ document.addEventListener('DOMContentLoaded', () => {
         } catch (e) { console.error("Error heartbeat", e); }
     }
 
-    // Envia "Desconectado" al salir
     async function sendDisconnectSignal() {
         if (!loggedInUser) return;
         try {
@@ -625,10 +621,9 @@ document.addEventListener('DOMContentLoaded', () => {
         } catch (e) { console.error("Error disconnect", e); }
     }
 
-    // Normalizar ID para comparaciones
     const normalize = (str) => String(str).replace(/^'/, "").trim().toLowerCase();
 
-    // Verificar si el admin nos expulsó (KICK)
+    // [MODIFICADO] Función clave para escuchar KICK y cambios en SALDO/AUSENCIAS
     async function verificarEstadoSesion() {
         if (!loggedInUser) return;
         try {
@@ -636,13 +631,57 @@ document.addEventListener('DOMContentLoaded', () => {
             if (!response.ok) return;
             const users = await response.json();
             
-            // Buscar usuario con ID normalizado
             const me = users.find(u => normalize(u['ID de Usuario']) === normalize(loggedInUser.id));
 
-            if (me && me.Estado === 'KICK') {
-                alert('Tu sesión ha sido cerrada por el administrador.');
-                await sendDisconnectSignal(); 
-                forceLogout();
+            if (me) {
+                // 1. Verificar KICK (Expulsión)
+                if (me.Estado === 'KICK') {
+                    alert('Tu sesión ha sido cerrada por el administrador.');
+                    await sendDisconnectSignal(); 
+                    forceLogout();
+                    return;
+                }
+
+                // 2. Escuchar cambios en Saldo y Ausencias (Admin -> Usuario)
+                let changed = false;
+                const appData = getAppData();
+                const localUser = appData.userData[loggedInUser.id];
+                
+                // Comparar Saldo Anterior
+                const serverSaldo = Number(me.SaldoAnterior || 0);
+                if (localUser.saldoAnterior !== serverSaldo) {
+                    localUser.saldoAnterior = serverSaldo;
+                    changed = true;
+                }
+
+                // Comparar Ausencias
+                let serverAusencias = me.DiasAusencia || [];
+                if (typeof serverAusencias === 'string') {
+                    try { serverAusencias = JSON.parse(serverAusencias); } catch(e){ serverAusencias = []; }
+                }
+                // Si la longitud es diferente o el contenido es diferente, actualizamos
+                const currentAusenciasStr = JSON.stringify(localUser.diasAusencia ? localUser.diasAusencia.sort() : []);
+                const serverAusenciasStr = JSON.stringify(serverAusencias ? serverAusencias.sort() : []);
+
+                if (currentAusenciasStr !== serverAusenciasStr) {
+                    localUser.diasAusencia = serverAusencias;
+                    changed = true;
+                }
+
+                // Si hubo cambios, guardar y actualizar UI inmediatamente
+                if (changed) {
+                    saveUserData(localUser);
+                    actualizarCalculoRetiro();
+                    
+                    // Si el usuario es de planta y tiene el calendario abierto, refrescarlo
+                    if (loggedInUser.tipo === 'Planta') {
+                        const calPlanta = document.getElementById('calendar-container-planta');
+                        if (calPlanta && calendarPlantaModal.style.display !== 'none') {
+                             renderCalendar(calPlanta, true);
+                        }
+                    }
+                    showToast('Datos actualizados por administración', 'info');
+                }
             }
         } catch (e) { console.error("Error verificando sesión", e); }
     }
@@ -657,7 +696,6 @@ document.addEventListener('DOMContentLoaded', () => {
         location.reload();
     }
 
-    // Detectar cambios de visibilidad
     document.addEventListener('visibilitychange', () => {
         if (document.visibilityState === 'hidden') { sendDisconnectSignal(); } 
         else { sendHeartbeat(); }
@@ -703,7 +741,6 @@ document.addEventListener('DOMContentLoaded', () => {
             loggedInUser = user; loginContainer.style.display = 'none'; mainContent.style.display = 'block'; menuToggle.style.display = 'flex';
             document.getElementById('userInfo').textContent = `${user.nombre} ${user.apellido}`;
             setupMenu(); initApp(); resetInactivityTimer();
-            // Al recuperar sesión, avisamos que estamos activos
             sendHeartbeat();
         } else { loginContainer.style.display = 'block'; mainContent.style.display = 'none'; displayRecentLogins(); }
     }
@@ -730,10 +767,34 @@ document.addEventListener('DOMContentLoaded', () => {
         const appData = getAppData(); const localUser = appData.usuarios[generatedId];
         const user = { id: generatedId, nombre: rawNombre, apellido: rawApellido, tipo: document.getElementById('loginTipoContrato').value, seccion: document.getElementById('loginSeccion').value, dia: document.getElementById('loginDia').value, mes: document.getElementById('loginMes').value, anio: document.getElementById('loginAnio').value, puntos: parseFloat(document.getElementById('loginPuntos').value), password: document.getElementById('loginPassword').value, telefono: (localUser && localUser.telefono) ? localUser.telefono : '' };
         
-        showLoadingOverlay(); const res = await enviarDatosLoginASheets(user); hideLoadingOverlay();
+        showLoadingOverlay(); 
+        const res = await enviarDatosLoginASheets(user); 
+        hideLoadingOverlay();
         
         if (res.status === 'success') {
-            // LOGIN EXITOSO: Forzar estado "Activo"
+            // ==========================================================
+            // LÓGICA DE ESCUCHA INICIAL (Al loguear)
+            // ==========================================================
+            const dataServer = res.data || res.serverData || res;
+            const appData = getAppData();
+            if (!appData.userData[user.id]) {
+                appData.userData[user.id] = { montosPorFecha: {}, anticipos: [], divisor: 0, diasTrabajados: [], diasAusencia: [], divisorPartTime: 1, saldoAnterior: 0 };
+            }
+
+            // 1. Escuchar Saldo Anterior
+            let serverSaldo = dataServer.saldoAnterior || dataServer.SaldoAnterior || 0;
+            appData.userData[user.id].saldoAnterior = Number(serverSaldo) || 0;
+
+            // 2. Escuchar Días de Ausencia
+            let serverAusencias = dataServer.diasAusencia || dataServer.DiasAusencia || [];
+            if (typeof serverAusencias === 'string') {
+                try { serverAusencias = JSON.parse(serverAusencias); } catch(e) { serverAusencias = []; }
+            }
+            appData.userData[user.id].diasAusencia = Array.isArray(serverAusencias) ? serverAusencias : [];
+            
+            saveAppData(appData);
+            // ==========================================================
+
             await fetch(SCRIPT_URL_LOGIN, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify({ action: 'updateStatus', id: user.id, status: 'Activo' }) });
 
             if(!user.telefono && appData.usuarios[user.id] && appData.usuarios[user.id].telefono) user.telefono = appData.usuarios[user.id].telefono;
@@ -859,12 +920,6 @@ document.addEventListener('DOMContentLoaded', () => {
     if (openCalendarPlantaBtn) openCalendarPlantaBtn.addEventListener('click', () => { const calPlanta = document.getElementById('calendar-container-planta'); if (calPlanta) renderCalendar(calPlanta, true); calendarPlantaModal.style.display = 'flex'; });
     if (closeCalendarPlantaBtn) closeCalendarPlantaBtn.addEventListener('click', () => calendarPlantaModal.style.display = 'none');
 
-    const saldoAnteriorModal = document.getElementById('saldoAnteriorModal'); const btnEditSaldoPlanta = document.getElementById('btnEditSaldoPlanta'); const btnEditSaldoPT = document.getElementById('btnEditSaldoPT'); const saldoAnteriorInput = document.getElementById('saldoAnteriorInput');
-    function openSaldoModal() { const userData = getUserData(); saldoAnteriorInput.value = userData.saldoAnterior || ''; saldoAnteriorModal.style.display = 'flex'; saldoAnteriorInput.focus(); }
-    if (btnEditSaldoPlanta) btnEditSaldoPlanta.addEventListener('click', openSaldoModal); if (btnEditSaldoPT) btnEditSaldoPT.addEventListener('click', openSaldoModal);
-    document.getElementById('cancelSaldoBtn').addEventListener('click', () => saldoAnteriorModal.style.display = 'none');
-    document.getElementById('saveSaldoBtn').addEventListener('click', () => { const monto = parseFloat(saldoAnteriorInput.value); if (isNaN(monto)) return; const userData = getUserData(); userData.saldoAnterior = monto; saveUserData(userData); saldoAnteriorModal.style.display = 'none'; actualizarCalculoRetiro(); showToast('Saldo actualizado'); });
-
     function renderCalendar(container, isPlanta = false) {
         const today = new Date(), year = today.getFullYear(), month = today.getMonth(); const firstDay = new Date(year, month, 1), lastDay = new Date(year, month + 1, 0); const daysInMonth = lastDay.getDate(), startingDay = (firstDay.getDay() + 6) % 7; const monthNames = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"];
         let html = `<div class="calendar-header"><span>${monthNames[month]} ${year}</span></div><div class="calendar-grid">`;
@@ -872,7 +927,22 @@ document.addEventListener('DOMContentLoaded', () => {
         const userData = getUserData(); let markedDays; if (isPlanta) markedDays = new Set(userData.diasAusencia || []); else markedDays = new Set(userData.diasTrabajados || []);
         for (let i = 1; i <= daysInMonth; i++) { const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(i).padStart(2, '0')}`; const isMarked = markedDays.has(dateStr); let classModifier = ''; if (isMarked) classModifier = isPlanta ? 'absent' : 'marked'; html += `<div class="day ${classModifier}" data-date="${dateStr}">${i}</div>`; }
         html += `</div>`; container.innerHTML = html;
-        container.querySelectorAll('.day:not(.empty)').forEach(dayEl => { dayEl.addEventListener('click', () => { const date = dayEl.dataset.date; const ud = getUserData(); if (isPlanta) { let absDays = new Set(ud.diasAusencia || []); if (absDays.has(date)) absDays.delete(date); else absDays.add(date); ud.diasAusencia = Array.from(absDays); } else { let wDays = new Set(ud.diasTrabajados || []); if (wDays.has(date)) wDays.delete(date); else wDays.add(date); ud.diasTrabajados = Array.from(wDays); } saveUserData(ud); renderCalendar(container, isPlanta); actualizarCalculoRetiro(); }); });
+        
+        // === MODO VISOR SOLAMENTE ===
+        // Si es PLANTA (Gestión de Ausencias), NO agregamos el Listener de Click para editar.
+        if (!isPlanta) {
+            container.querySelectorAll('.day:not(.empty)').forEach(dayEl => { 
+                dayEl.addEventListener('click', async () => { 
+                    const date = dayEl.dataset.date; const ud = getUserData(); 
+                    let wDays = new Set(ud.diasTrabajados || []); 
+                    if (wDays.has(date)) wDays.delete(date); else wDays.add(date); 
+                    ud.diasTrabajados = Array.from(wDays); 
+                    saveUserData(ud); 
+                    renderCalendar(container, isPlanta); 
+                    actualizarCalculoRetiro(); 
+                }); 
+            });
+        }
     }
 
     const addAnticipoModal = document.getElementById('addAnticipoModal');
@@ -910,12 +980,9 @@ document.addEventListener('DOMContentLoaded', () => {
         if (notesInterval) clearInterval(notesInterval); notesInterval = setInterval(syncNotes, 15000);
         if (sheetsInterval) clearInterval(sheetsInterval); sheetsInterval = setInterval(syncFinancials, 300000);
         
-        // --- INTERVALOS DE SESIÓN ---
-        // Verificación de KICK rápida (5s) para detectar expulsión
         if (statusCheckInterval) clearInterval(statusCheckInterval); 
         statusCheckInterval = setInterval(verificarEstadoSesion, 5000); 
         
-        // Heartbeat lento (60s) para no sobrescribir el KICK si ocurre en medio
         if (heartbeatInterval) clearInterval(heartbeatInterval); 
         heartbeatInterval = setInterval(sendHeartbeat, 60000); 
 
@@ -925,19 +992,17 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function resetInactivityTimer() { if (localStorage.getItem('loggedInUser')) lastActivityTime = Date.now(); }
     
-    // --- CHEQUEO INACTIVIDAD (11 MIN) ---
     function checkInactivity() { 
         if (!localStorage.getItem('loggedInUser')) return; 
-        // 11 minutos = 660000 ms
         if (Date.now() - lastActivityTime > 660000) { 
-            sendDisconnectSignal(); // Avisar Admin que salimos
+            sendDisconnectSignal(); 
             showToast('Sesión cerrada por inactividad.', 'info'); 
             forceLogout(); 
         } 
     }
     
     ['mousemove', 'mousedown', 'keypress', 'touchmove', 'scroll', 'click'].forEach(evt => document.addEventListener(evt, resetInactivityTimer, true));
-    setInterval(checkInactivity, 10000); // Revisa inactividad cada 10s
+    setInterval(checkInactivity, 10000);
 
     setupNumericInputFormatting(document.getElementById('addAnticipoMontoInput')); setupNumericInputFormatting(document.getElementById('editAnticipoMontoInput'));
 
