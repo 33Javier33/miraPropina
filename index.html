@@ -13,7 +13,7 @@
 
   <style>
     /* =========================================
-       ESTILOS CSS (Mismos estilos originales)
+       ESTILOS CSS
        ========================================= */
     :root {
         --menu-width: 250px;
@@ -25,7 +25,6 @@
         --info-color: #17a2b8;
         --edit-color: #ffc107;
         
-        /* Tema Claro */
         --bg-main: #f0f2f5;
         --bg-content: #ffffff;
         --bg-accent: #eef7ff;
@@ -33,7 +32,6 @@
         --text-secondary: #555;
         --border-color: #ddd;
         --shadow-color: rgba(0,0,0,0.05);
-        --user-chat-bg: var(--primary-color);
     }
 
     body.dark-mode {
@@ -44,7 +42,6 @@
         --text-secondary: #b0b0b0;
         --border-color: #444;
         --shadow-color: rgba(0,0,0,0.2);
-        --user-chat-bg: #0056b3;
     }
 
     body {
@@ -164,9 +161,7 @@
     .calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 5px; text-align: center; }
     .day-name { font-weight: bold; color: var(--text-secondary); padding-bottom: 5px; }
     .day { padding: 8px; border-radius: 4px; background-color: var(--bg-content); cursor: pointer; border: 1px solid var(--border-color); }
-    /* Cursor por defecto para indicar que NO es clickable en modo lectura */
-    .day { cursor: default; }
-    .day:hover { background-color: var(--bg-content); } /* Quitamos hover effect */
+    .day:hover { background-color: var(--bg-accent); }
     .day.marked { background-color: var(--success-color); color: #fff; font-weight: bold; }
     .day.absent { background-color: var(--danger-color); color: #fff; font-weight: bold; text-decoration: line-through; }
     .day.empty { background-color: transparent; border: none; cursor: default; }
@@ -323,12 +318,14 @@
                     <option value="Planta">Planta</option>
                     <option value="Part Time">Part Time</option>
                 </select>
+                <!-- SECCIONES ACTUALIZADAS -->
                 <select id="loginSeccion" required>
                     <option value="">Selecciona tu Sección</option>
                     <option value="Mesas">Mesas</option>
                     <option value="Máquinas">Máquinas</option>
                     <option value="Bóveda">Bóveda</option>
-                    <option value="Otros">Otros</option>
+                    <option value="Técnicos">Técnicos</option>
+                    <option value="TGM">TGM</option>
                 </select>
             </div>
             <div class="form-row-date">
@@ -367,7 +364,7 @@
           <h2 id="titulo-retiro">Retiro de Propina</h2>
           <div id="vistaPlanta" style="display: none;">
               <button id="openCalendarPlantaBtn" style="background-color: var(--bg-accent); color: var(--text-primary); border: 1px solid var(--border-color); width: 100%; margin-bottom: 20px; font-weight: bold; display: flex; justify-content: center; align-items: center; gap: 10px;">
-                  <i class="fas fa-calendar-times" style="color: var(--danger-color);"></i> Ver Días No Trabajados
+                  <i class="fas fa-calendar-times" style="color: var(--danger-color);"></i> Gestionar Días No Trabajados
               </button>
               <div class="retiro-container">
                   <div class="calculation-item"><strong>Mis Puntos:</strong> <span id="puntosUsuarioDisplayPlanta">0</span></div>
@@ -376,14 +373,16 @@
                   <div class="calculation-item"><strong>Divisor Registrado (Último):</strong> <span id="divisorDisplayPlanta">No registrado</span></div>
                   <div class="calculation-item" style="color: var(--info-color); font-weight: bold;"><strong>Valor por Punto:</strong> <span id="valorPorPuntoDisplayPlanta">$0</span></div>
                   <hr>
+                  <!-- [CÁLCULO VISUAL DE DESCUENTO] -->
                   <div class="calculation-item"><strong>Días Descontados:</strong> <span id="diasDescontadosPlanta" style="color: var(--danger-color); font-weight:bold;">0</span></div>
                   <div class="calculation-item"><strong>Monto Descontado:</strong> <span id="montoDescontadoPlanta" style="color: var(--danger-color); font-weight:bold;">$0</span></div>
+                  
                   <div class="calculation-item" style="color: var(--info-color); font-weight: bold;"><strong>Subtotal Acumulado:</strong> <span id="subtotalDisplayPlanta">$0</span></div>
                   <hr>
                   <div class="calculation-item"><strong>Total Anticipos:</strong> <span id="anticiposDisplayPlanta">-$0</span></div>
                   <div class="calculation-item" style="color: var(--success-color);">
                       <strong>Saldo Mes Anterior:</strong>
-                      <span><span id="saldoAnteriorDisplayPlanta">$0</span></span>
+                      <span><span id="saldoAnteriorDisplayPlanta">$0</span><button class="edit-btn-inline" id="btnEditSaldoPlanta">✏️</button></span>
                   </div>
                   <div id="anticipos-list-container-planta" class="anticipos-list-container"></div>
                   <div class="calculation-item final-calculation">
@@ -410,7 +409,7 @@
                           <div class="calculation-item"><strong>Total Anticipos:</strong> <span id="anticiposDisplayPT">-$0</span></div>
                           <div class="calculation-item" style="color: var(--success-color);">
                               <strong>Saldo Mes Anterior:</strong>
-                              <span><span id="saldoAnteriorDisplayPT">$0</span></span>
+                              <span><span id="saldoAnteriorDisplayPT">$0</span><button class="edit-btn-inline" id="btnEditSaldoPT">✏️</button></span>
                           </div>
                           <div id="anticipos-list-container-pt" class="anticipos-list-container"></div>
                           <div class="calculation-item final-calculation">
@@ -481,7 +480,10 @@
 <div id="calendarPlantaModal" class="modal-backdrop" style="display: none;">
     <div class="modal-content">
         <div class="modal-header"><h4>Marcar Ausencias</h4><button id="closeCalendarPlantaBtn" class="modal-close-btn">&times;</button></div>
-        <div class="modal-body"><div id="calendar-container-planta"></div></div>
+        <div class="modal-body">
+            <p style="font-size: 0.9em; color: #666; margin-bottom: 10px;">Haz clic para marcar en <span style="color: var(--danger-color); font-weight: bold;">ROJO</span> los días que NO trabajaste. Estos días se descontarán.</p>
+            <div id="calendar-container-planta"></div>
+        </div>
     </div>
 </div>
 <div id="addAnticipoModal" class="modal-backdrop" style="display: none;">
@@ -489,6 +491,9 @@
 </div>
 <div id="editAnticipoModal" class="modal-backdrop" style="display: none;">
     <div class="modal-content"><div class="modal-header"><h4>Editar Anticipo</h4></div><div class="modal-body"><label>Monto:</label><input type="text" id="editAnticipoMontoInput" inputmode="numeric"/><label>Fecha:</label><input type="date" id="editAnticipoFechaInput"/></div><div class="modal-footer"><button class="reset-button" id="cancelEditAnticipoBtn">Cancelar</button><button class="edit-button-modal" id="saveEditAnticipoBtn">Guardar</button></div></div>
+</div>
+<div id="saldoAnteriorModal" class="modal-backdrop" style="display: none;">
+    <div class="modal-content"><div class="modal-header"><h4>Saldo Mes Anterior</h4></div><div class="modal-body"><label>Monto:</label><input type="number" id="saldoAnteriorInput" placeholder="0"/></div><div class="modal-footer"><button class="reset-button" id="cancelSaldoBtn">Cancelar</button><button id="saveSaldoBtn" style="background-color: var(--success-color);">Guardar</button></div></div>
 </div>
 <div id="divisorPTModal" class="modal-backdrop" style="display: none;">
     <div class="modal-content"><div class="modal-header"><h4>Editar Divisor</h4></div><div class="modal-body"><label>Divisor:</label><input type="text" id="divisorPTInput" inputmode="numeric"/></div><div class="modal-footer"><button class="reset-button" id="cancelDivisorPTBtn">Cancelar</button><button id="saveDivisorPTBtn">Guardar</button></div></div>
@@ -598,6 +603,23 @@ document.addEventListener('DOMContentLoaded', () => {
     function setupNumericInputFormatting(el) { if(el) el.addEventListener('input', e => { let v = e.target.value.replace(/\./g, ''); e.target.dataset.cleanValue = (isNaN(v) || v === '') ? '' : v; e.target.value = (isNaN(v) || v === '') ? '' : formatNumberWithPoints(parseInt(v, 10)); }); }
     function formatNoteDate(isoString) { if (!isoString) return 'Fecha desconocida'; const date = new Date(isoString); return date.toLocaleString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' }); }
 
+    // [NUEVO] Función para normalizar fechas al formato AAAA-MM-DD
+    function normalizarFecha(fechaInput) {
+        if (!fechaInput) return null;
+        // Si ya es formato YYYY-MM-DD
+        if (typeof fechaInput === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(fechaInput)) {
+            return fechaInput;
+        }
+        // Intentar parsear
+        const d = new Date(fechaInput);
+        if (isNaN(d.getTime())) return fechaInput; // Fallback si no es fecha válida
+        
+        const year = d.getFullYear();
+        const month = String(d.getMonth() + 1).padStart(2, '0');
+        const day = String(d.getDate()).padStart(2, '0');
+        return `${year}-${month}-${day}`;
+    }
+
     async function enviarDatosLoginASheets(user) {
       if (!user) return { status: 'success' };
       try {
@@ -634,7 +656,6 @@ document.addEventListener('DOMContentLoaded', () => {
             const me = users.find(u => normalize(u['ID de Usuario']) === normalize(loggedInUser.id));
 
             if (me) {
-                // 1. Verificar KICK (Expulsión)
                 if (me.Estado === 'KICK') {
                     alert('Tu sesión ha sido cerrada por el administrador.');
                     await sendDisconnectSignal(); 
@@ -642,38 +663,36 @@ document.addEventListener('DOMContentLoaded', () => {
                     return;
                 }
 
-                // 2. Escuchar cambios en Saldo y Ausencias (Admin -> Usuario)
                 let changed = false;
                 const appData = getAppData();
                 const localUser = appData.userData[loggedInUser.id];
                 
-                // Comparar Saldo Anterior
                 const serverSaldo = Number(me.SaldoAnterior || 0);
                 if (localUser.saldoAnterior !== serverSaldo) {
                     localUser.saldoAnterior = serverSaldo;
                     changed = true;
                 }
 
-                // Comparar Ausencias
                 let serverAusencias = me.DiasAusencia || [];
                 if (typeof serverAusencias === 'string') {
                     try { serverAusencias = JSON.parse(serverAusencias); } catch(e){ serverAusencias = []; }
                 }
-                // Si la longitud es diferente o el contenido es diferente, actualizamos
-                const currentAusenciasStr = JSON.stringify(localUser.diasAusencia ? localUser.diasAusencia.sort() : []);
-                const serverAusenciasStr = JSON.stringify(serverAusencias ? serverAusencias.sort() : []);
+                
+                // Normalizar al recibir
+                serverAusencias = (Array.isArray(serverAusencias) ? serverAusencias : []).map(normalizarFecha);
+
+                const currentAusenciasStr = JSON.stringify(localUser.diasAusencia ? localUser.diasAusencia.map(normalizarFecha).sort() : []);
+                const serverAusenciasStr = JSON.stringify(serverAusencias.sort());
 
                 if (currentAusenciasStr !== serverAusenciasStr) {
                     localUser.diasAusencia = serverAusencias;
                     changed = true;
                 }
 
-                // Si hubo cambios, guardar y actualizar UI inmediatamente
                 if (changed) {
                     saveUserData(localUser);
                     actualizarCalculoRetiro();
                     
-                    // Si el usuario es de planta y tiene el calendario abierto, refrescarlo
                     if (loggedInUser.tipo === 'Planta') {
                         const calPlanta = document.getElementById('calendar-container-planta');
                         if (calPlanta && calendarPlantaModal.style.display !== 'none') {
@@ -769,38 +788,50 @@ document.addEventListener('DOMContentLoaded', () => {
         
         showLoadingOverlay(); 
         const res = await enviarDatosLoginASheets(user); 
-        hideLoadingOverlay();
         
         if (res.status === 'success') {
-            // ==========================================================
-            // LÓGICA DE ESCUCHA INICIAL (Al loguear)
-            // ==========================================================
-            const dataServer = res.data || res.serverData || res;
-            const appData = getAppData();
-            if (!appData.userData[user.id]) {
-                appData.userData[user.id] = { montosPorFecha: {}, anticipos: [], divisor: 0, diasTrabajados: [], diasAusencia: [], divisorPartTime: 1, saldoAnterior: 0 };
-            }
+            try {
+                const responseData = await fetch(SCRIPT_URL_LOGIN + '?action=read&v=' + Date.now());
+                const usersData = await responseData.json();
+                const me = usersData.find(u => normalize(u['ID de Usuario']) === normalize(user.id));
+                
+                const appData = getAppData();
+                if (!appData.userData[user.id]) {
+                    appData.userData[user.id] = { montosPorFecha: {}, anticipos: [], divisor: 0, diasTrabajados: [], diasAusencia: [], divisorPartTime: 1, saldoAnterior: 0 };
+                }
 
-            // 1. Escuchar Saldo Anterior
-            let serverSaldo = dataServer.saldoAnterior || dataServer.SaldoAnterior || 0;
-            appData.userData[user.id].saldoAnterior = Number(serverSaldo) || 0;
-
-            // 2. Escuchar Días de Ausencia
-            let serverAusencias = dataServer.diasAusencia || dataServer.DiasAusencia || [];
-            if (typeof serverAusencias === 'string') {
-                try { serverAusencias = JSON.parse(serverAusencias); } catch(e) { serverAusencias = []; }
-            }
-            appData.userData[user.id].diasAusencia = Array.isArray(serverAusencias) ? serverAusencias : [];
-            
-            saveAppData(appData);
-            // ==========================================================
+                if (me) {
+                    appData.userData[user.id].saldoAnterior = Number(me.SaldoAnterior) || 0;
+                    
+                    let serverAusencias = me.DiasAusencia || [];
+                    if (typeof serverAusencias === 'string') {
+                        try { serverAusencias = JSON.parse(serverAusencias); } catch(e) { serverAusencias = []; }
+                    }
+                    appData.userData[user.id].diasAusencia = (Array.isArray(serverAusencias) ? serverAusencias : []).map(normalizarFecha);
+                }
+                saveAppData(appData);
+            } catch(e) { console.error("Error syncing on login", e); }
 
             await fetch(SCRIPT_URL_LOGIN, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify({ action: 'updateStatus', id: user.id, status: 'Activo' }) });
 
             if(!user.telefono && appData.usuarios[user.id] && appData.usuarios[user.id].telefono) user.telefono = appData.usuarios[user.id].telefono;
-            if(!user.telefono) { pendingLoginUser = user; document.getElementById('phoneModal').style.display = 'flex'; return; }
-            appData.usuarios[user.id] = user; saveAppData(appData); updateRecentLogins(user); localStorage.setItem('loggedInUser', JSON.stringify(user)); location.reload();
-        } else { showToast(res.message, 'error'); }
+            if(!user.telefono) { 
+                pendingLoginUser = user; 
+                hideLoadingOverlay();
+                document.getElementById('phoneModal').style.display = 'flex'; 
+                return; 
+            }
+            
+            appData.usuarios[user.id] = user; 
+            saveAppData(appData); 
+            updateRecentLogins(user); 
+            localStorage.setItem('loggedInUser', JSON.stringify(user)); 
+            
+            location.reload();
+        } else { 
+            hideLoadingOverlay();
+            showToast(res.message, 'error'); 
+        }
     });
 
     document.getElementById('savePhoneBtn').addEventListener('click', async () => {
@@ -870,22 +901,63 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function actualizarCalculoRetiro() { if (!loggedInUser) return; loggedInUser.tipo === 'Planta' ? actualizarCalculoPlanta() : actualizarCalculoPartTime(); }
 
+    // [CORREGIDO] Lógica de Descuento con Normalización de Fechas
     function actualizarCalculoPlanta() {
-        const userData = getUserData(); const puntosUsuario = loggedInUser.puntos || 0; const diasAusentes = new Set(userData.diasAusencia || []);
-        let subtotalAcumulado = 0; let totalRecaudadoMes = 0; let montoDescontado = 0; let ultimoDivisor = 0;
+        const userData = getUserData(); 
+        const puntosUsuario = loggedInUser.puntos || 0; 
+        
+        // Crear Set con fechas normalizadas
+        const diasAusentes = new Set((userData.diasAusencia || []).map(normalizarFecha));
+        
+        let subtotalAcumulado = 0; 
+        let totalRecaudadoMes = 0; 
+        let montoDescontado = 0; 
+        let ultimoDivisor = 0;
+        
         const fechasConMontos = Object.keys(userData.montosPorFecha).sort();
         if (fechasConMontos.length > 0) { ultimoDivisor = divisoresDiariosExternos[fechasConMontos[fechasConMontos.length - 1]] || 0; }
+        
         fechasConMontos.forEach(fecha => {
-            const montoDia = userData.montosPorFecha[fecha].reduce((sum, item) => sum + item.monto, 0); totalRecaudadoMes += montoDia;
+            const montoDia = userData.montosPorFecha[fecha].reduce((sum, item) => sum + item.monto, 0); 
+            totalRecaudadoMes += montoDia;
             const divisorDia = divisoresDiariosExternos[fecha] || 0;
+            
             if (divisorDia > 0) {
-                const valorPuntoDia = montoDia / divisorDia; const gananciaDia = valorPuntoDia * puntosUsuario;
-                if (diasAusentes.has(fecha)) { montoDescontado += gananciaDia; } else { subtotalAcumulado += gananciaDia; }
+                const valorPuntoDia = montoDia / divisorDia; 
+                const gananciaDia = valorPuntoDia * puntosUsuario;
+                
+                // Normalizar la fecha del bucle antes de comparar
+                const fechaNormalizada = normalizarFecha(fecha);
+
+                if (diasAusentes.has(fechaNormalizada)) { 
+                    montoDescontado += gananciaDia; 
+                } else { 
+                    subtotalAcumulado += gananciaDia; 
+                }
             }
         });
-        const valorPromedioPunto = puntosUsuario > 0 ? (subtotalAcumulado / puntosUsuario) : 0; const anticipos = (userData.anticipos || []).reduce((s, a) => s + a.monto, 0); const saldoAnterior = userData.saldoAnterior || 0; const finalAmount = subtotalAcumulado - anticipos + saldoAnterior;
-        document.getElementById('puntosUsuarioDisplayPlanta').textContent = puntosUsuario; document.getElementById('totalMontoDividirPlanta').textContent = `$${formatNumberWithPoints(totalRecaudadoMes)}`; document.getElementById('divisorDisplayPlanta').textContent = formatNumberWithPoints(ultimoDivisor); document.getElementById('valorPorPuntoDisplayPlanta').textContent = `$${formatNumberWithPoints(valorPromedioPunto)}`; document.getElementById('diasDescontadosPlanta').textContent = diasAusentes.size; document.getElementById('montoDescontadoPlanta').textContent = `$${formatNumberWithPoints(montoDescontado)}`; document.getElementById('subtotalDisplayPlanta').textContent = `$${formatNumberWithPoints(subtotalAcumulado)}`; document.getElementById('anticiposDisplayPlanta').textContent = `-$${formatNumberWithPoints(anticipos)}`; document.getElementById('saldoAnteriorDisplayPlanta').textContent = `+$${formatNumberWithPoints(saldoAnterior)}`;
-        const resultadoEl = document.getElementById('resultadoFinalPlanta'); resultadoEl.textContent = `$${formatNumberWithPoints(finalAmount)}`; if(finalAmount < 0) resultadoEl.classList.add('negative-value'); else resultadoEl.classList.remove('negative-value');
+
+        const valorPromedioPunto = puntosUsuario > 0 ? (subtotalAcumulado / puntosUsuario) : 0; 
+        const anticipos = (userData.anticipos || []).reduce((s, a) => s + a.monto, 0); 
+        const saldoAnterior = userData.saldoAnterior || 0; 
+        const finalAmount = subtotalAcumulado - anticipos + saldoAnterior;
+
+        document.getElementById('puntosUsuarioDisplayPlanta').textContent = puntosUsuario; 
+        document.getElementById('totalMontoDividirPlanta').textContent = `$${formatNumberWithPoints(totalRecaudadoMes)}`; 
+        document.getElementById('divisorDisplayPlanta').textContent = formatNumberWithPoints(ultimoDivisor); 
+        document.getElementById('valorPorPuntoDisplayPlanta').textContent = `$${formatNumberWithPoints(valorPromedioPunto)}`; 
+        
+        // Mostrar datos de descuento
+        document.getElementById('diasDescontadosPlanta').textContent = diasAusentes.size; 
+        document.getElementById('montoDescontadoPlanta').textContent = `$${formatNumberWithPoints(montoDescontado)}`; 
+        
+        document.getElementById('subtotalDisplayPlanta').textContent = `$${formatNumberWithPoints(subtotalAcumulado)}`; 
+        document.getElementById('anticiposDisplayPlanta').textContent = `-$${formatNumberWithPoints(anticipos)}`; 
+        document.getElementById('saldoAnteriorDisplayPlanta').textContent = `+$${formatNumberWithPoints(saldoAnterior)}`;
+        
+        const resultadoEl = document.getElementById('resultadoFinalPlanta'); 
+        resultadoEl.textContent = `$${formatNumberWithPoints(finalAmount)}`; 
+        if(finalAmount < 0) resultadoEl.classList.add('negative-value'); else resultadoEl.classList.remove('negative-value');
         renderAnticiposList('#anticipos-list-container-planta');
     }
 
@@ -920,29 +992,98 @@ document.addEventListener('DOMContentLoaded', () => {
     if (openCalendarPlantaBtn) openCalendarPlantaBtn.addEventListener('click', () => { const calPlanta = document.getElementById('calendar-container-planta'); if (calPlanta) renderCalendar(calPlanta, true); calendarPlantaModal.style.display = 'flex'; });
     if (closeCalendarPlantaBtn) closeCalendarPlantaBtn.addEventListener('click', () => calendarPlantaModal.style.display = 'none');
 
-    function renderCalendar(container, isPlanta = false) {
-        const today = new Date(), year = today.getFullYear(), month = today.getMonth(); const firstDay = new Date(year, month, 1), lastDay = new Date(year, month + 1, 0); const daysInMonth = lastDay.getDate(), startingDay = (firstDay.getDay() + 6) % 7; const monthNames = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"];
-        let html = `<div class="calendar-header"><span>${monthNames[month]} ${year}</span></div><div class="calendar-grid">`;
-        ["Lu", "Ma", "Mi", "Ju", "Vi", "Sa", "Do"].forEach(d => html += `<div class="day-name">${d}</div>`); for (let i = 0; i < startingDay; i++) html += `<div class="day empty"></div>`;
-        const userData = getUserData(); let markedDays; if (isPlanta) markedDays = new Set(userData.diasAusencia || []); else markedDays = new Set(userData.diasTrabajados || []);
-        for (let i = 1; i <= daysInMonth; i++) { const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(i).padStart(2, '0')}`; const isMarked = markedDays.has(dateStr); let classModifier = ''; if (isMarked) classModifier = isPlanta ? 'absent' : 'marked'; html += `<div class="day ${classModifier}" data-date="${dateStr}">${i}</div>`; }
-        html += `</div>`; container.innerHTML = html;
+    const saldoAnteriorModal = document.getElementById('saldoAnteriorModal'); const btnEditSaldoPlanta = document.getElementById('btnEditSaldoPlanta'); const btnEditSaldoPT = document.getElementById('btnEditSaldoPT'); const saldoAnteriorInput = document.getElementById('saldoAnteriorInput');
+    function openSaldoModal() { const userData = getUserData(); saldoAnteriorInput.value = userData.saldoAnterior || ''; saldoAnteriorModal.style.display = 'flex'; saldoAnteriorInput.focus(); }
+    if (btnEditSaldoPlanta) btnEditSaldoPlanta.addEventListener('click', openSaldoModal); if (btnEditSaldoPT) btnEditSaldoPT.addEventListener('click', openSaldoModal);
+    document.getElementById('cancelSaldoBtn').addEventListener('click', () => saldoAnteriorModal.style.display = 'none');
+    
+    // === GUARDAR SALDO Y SINCRONIZAR ===
+    document.getElementById('saveSaldoBtn').addEventListener('click', async () => { 
+        const monto = parseFloat(saldoAnteriorInput.value); 
+        if (isNaN(monto)) return; 
+        const userData = getUserData(); 
+        userData.saldoAnterior = monto; 
+        saveUserData(userData); 
+        saldoAnteriorModal.style.display = 'none'; 
+        actualizarCalculoRetiro(); 
+        showToast('Saldo actualizado'); 
         
-        // === MODO VISOR SOLAMENTE ===
-        // Si es PLANTA (Gestión de Ausencias), NO agregamos el Listener de Click para editar.
-        if (!isPlanta) {
-            container.querySelectorAll('.day:not(.empty)').forEach(dayEl => { 
-                dayEl.addEventListener('click', async () => { 
-                    const date = dayEl.dataset.date; const ud = getUserData(); 
+        // Enviar a la nube PARA QUE EL SCRIPT SE ACTUALICE TAMBIÉN
+        if(loggedInUser) {
+             const payload = { ...loggedInUser, saldoAnterior: monto, diasAusencia: userData.diasAusencia };
+             await enviarDatosLoginASheets(payload);
+        }
+    });
+
+    // [CORREGIDO] Renderizado con normalización de fechas
+    function renderCalendar(container, isPlanta = false) {
+        const today = new Date(), year = today.getFullYear(), month = today.getMonth(); 
+        const firstDay = new Date(year, month, 1), lastDay = new Date(year, month + 1, 0); 
+        const daysInMonth = lastDay.getDate(), startingDay = (firstDay.getDay() + 6) % 7; 
+        const monthNames = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"];
+        
+        let html = `<div class="calendar-header"><span>${monthNames[month]} ${year}</span></div><div class="calendar-grid">`;
+        ["Lu", "Ma", "Mi", "Ju", "Vi", "Sa", "Do"].forEach(d => html += `<div class="day-name">${d}</div>`); 
+        for (let i = 0; i < startingDay; i++) html += `<div class="day empty"></div>`;
+        
+        const userData = getUserData(); 
+        let markedDays; 
+        
+        if (isPlanta) {
+            markedDays = new Set((userData.diasAusencia || []).map(normalizarFecha)); 
+        } else {
+            markedDays = new Set(userData.diasTrabajados || []);
+        }
+
+        for (let i = 1; i <= daysInMonth; i++) { 
+            const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(i).padStart(2, '0')}`; 
+            const isMarked = markedDays.has(dateStr); 
+            let classModifier = ''; 
+            
+            if (isMarked) {
+                classModifier = isPlanta ? 'absent' : 'marked'; 
+            }
+            
+            html += `<div class="day ${classModifier}" data-date="${dateStr}">${i}</div>`; 
+        }
+        
+        html += `</div>`; 
+        container.innerHTML = html;
+        
+        // Habilitamos clics para ambos con normalización
+        container.querySelectorAll('.day:not(.empty)').forEach(dayEl => { 
+            dayEl.addEventListener('click', async () => { 
+                const date = dayEl.dataset.date; const ud = getUserData(); 
+                
+                if (isPlanta) { 
+                    // Lógica Planta: Marcar AUSENCIA (Rojo)
+                    let absDays = new Set((ud.diasAusencia || []).map(normalizarFecha)); 
+                    if (absDays.has(date)) {
+                        absDays.delete(date);
+                    } else {
+                        absDays.add(date); 
+                    }
+                    ud.diasAusencia = Array.from(absDays); 
+                    saveUserData(ud); 
+                    renderCalendar(container, isPlanta); 
+                    actualizarCalculoRetiro();
+                    
+                    // Sincronizar Calendario en background
+                    if(loggedInUser) {
+                        const payload = { ...loggedInUser, diasAusencia: ud.diasAusencia, saldoAnterior: ud.saldoAnterior };
+                        enviarDatosLoginASheets(payload);
+                    }
+                } else { 
+                    // Lógica Part Time: Marcar TRABAJO (Verde)
                     let wDays = new Set(ud.diasTrabajados || []); 
                     if (wDays.has(date)) wDays.delete(date); else wDays.add(date); 
                     ud.diasTrabajados = Array.from(wDays); 
                     saveUserData(ud); 
                     renderCalendar(container, isPlanta); 
                     actualizarCalculoRetiro(); 
-                }); 
-            });
-        }
+                } 
+            }); 
+        });
     }
 
     const addAnticipoModal = document.getElementById('addAnticipoModal');
