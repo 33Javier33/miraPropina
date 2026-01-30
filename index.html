@@ -2,269 +2,408 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   <title>Registro Personal de Montos</title>
   
   <link rel="manifest" href="manifest.json">
-  <meta name="theme-color" content="#007bff"/>
+  <meta name="theme-color" content="#4f46e5"/>
 
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css">
+  <!-- Fuentes e Iconos Modernos -->
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
   <style>
     /* =========================================
-       ESTILOS CSS
+       DISEÑO MODERNO (CORREGIDO FINAL V5)
        ========================================= */
     :root {
-        --menu-width: 250px;
-        --primary-color: #007bff;
-        --secondary-color: #4CAF50;
-        --danger-color: #dc3545;
-        --success-color: #28a745;
-        --error-color: #dc3545;
-        --info-color: #17a2b8;
-        --edit-color: #ffc107;
+        /* Paleta de Colores */
+        --primary-color: #4f46e5;
+        --primary-dark: #4338ca;
+        --secondary-color: #10b981;
+        --accent-color: #8b5cf6;
         
-        --bg-main: #f0f2f5;
+        --danger-color: #ef4444;
+        --success-color: #10b981;
+        --info-color: #3b82f6;
+        --edit-color: #f59e0b;
+        
+        /* Fondos */
+        --bg-main: #f3f4f6;
         --bg-content: #ffffff;
-        --bg-accent: #eef7ff;
-        --text-primary: #222;
-        --text-secondary: #555;
-        --border-color: #ddd;
-        --shadow-color: rgba(0,0,0,0.05);
+        --bg-accent: #f9fafb;
+        
+        /* Textos */
+        --text-primary: #111827;
+        --text-secondary: #6b7280;
+        --text-muted: #9ca3af;
+        
+        /* UI */
+        --border-radius: 16px;
+        --border-radius-sm: 10px;
+        --shadow-soft: 0 4px 20px -2px rgba(0, 0, 0, 0.05);
+        --shadow-card: 0 10px 15px -3px rgba(0, 0, 0, 0.05);
+        --border-color: #e5e7eb;
+        
+        --menu-width: 280px;
     }
 
     body.dark-mode {
-        --bg-main: #121212;
-        --bg-content: #1e1e1e;
-        --bg-accent: #2a2a3a;
-        --text-primary: #e0e0e0;
-        --text-secondary: #b0b0b0;
-        --border-color: #444;
-        --shadow-color: rgba(0,0,0,0.2);
+        --bg-main: #111827;
+        --bg-content: #1f2937;
+        --bg-accent: #374151;
+        --text-primary: #f9fafb;
+        --text-secondary: #d1d5db;
+        --text-muted: #9ca3af;
+        --border-color: #374151;
+        --shadow-soft: 0 4px 20px -2px rgba(0, 0, 0, 0.5);
     }
 
+    * { box-sizing: border-box; }
+
     body {
-        font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+        font-family: 'Poppins', sans-serif;
         background-color: var(--bg-main);
         margin: 0;
         color: var(--text-primary);
-        transition: margin-left 0.3s ease, background-color 0.3s, color 0.3s;
+        transition: all 0.3s ease;
         -webkit-tap-highlight-color: transparent;
+        font-size: 15px;
     }
+
+    /* --- BOTONES --- */
+    button {
+        background: var(--primary-color);
+        color: white;
+        border: none;
+        padding: 12px 20px;
+        border-radius: var(--border-radius-sm);
+        font-weight: 600;
+        cursor: pointer;
+        transition: 0.2s;
+        box-shadow: 0 4px 6px rgba(79, 70, 229, 0.2);
+        display: inline-flex; justify-content: center; align-items: center; gap: 8px;
+    }
+    button:active { transform: scale(0.97); }
+    button:hover { background: var(--primary-dark); }
+    button:disabled { background-color: #cbd5e1; cursor: not-allowed; box-shadow: none; }
     
-    /* MENÚ LATERAL Y TOGGLE */
+    .reset-button { background-color: transparent; color: var(--danger-color); border: 1px solid var(--danger-color); box-shadow: none; }
+    .reset-button:hover { background-color: var(--danger-color); color: white; }
+    
+    .edit-button-modal { background: var(--edit-color); color: white; }
+
+    .logout-button { 
+        background-color: transparent; color: var(--text-secondary); 
+        border: 1px solid var(--border-color); padding: 8px 12px; font-size: 0.85em; 
+        box-shadow: none; border-radius: 20px;
+    }
+    .logout-button:hover { background-color: var(--bg-accent); color: var(--danger-color); border-color: var(--danger-color); }
+
+    /* Botón Gestionar Días (Adaptable al tema) */
+    #openCalendarPlantaBtn {
+        background-color: var(--bg-content); 
+        color: var(--text-primary); 
+        border: 1px solid var(--border-color); 
+        width: 100%; 
+        margin-bottom: 20px; 
+        font-weight: 500; 
+        display: flex; 
+        justify-content: center; 
+        align-items: center; 
+        gap: 10px; 
+        box-shadow: var(--shadow-soft);
+    }
+    #openCalendarPlantaBtn:hover {
+        background-color: var(--bg-accent);
+        border-color: var(--primary-color);
+    }
+
+    /* --- INPUTS --- */
+    input, select, textarea {
+        width: 100%; padding: 12px 16px;
+        border: 1px solid var(--border-color); border-radius: var(--border-radius-sm);
+        background-color: var(--bg-accent); color: var(--text-primary);
+        font-family: inherit; font-size: 1rem; outline: none; transition: 0.2s;
+    }
+    input:focus, select:focus, textarea:focus { border-color: var(--primary-color); background-color: var(--bg-content); }
+    label { font-size: 0.9em; font-weight: 500; color: var(--text-secondary); margin-bottom: 4px; display: block; }
+
+    /* --- LAYOUT PRINCIPAL --- */
+    .main-container {
+        padding: 20px;
+        padding-top: 70px;
+        max-width: 1200px; margin: 0 auto; min-height: 100vh;
+        transition: margin-left 0.3s ease;
+    }
+
+    @media (min-width: 992px) {
+        .main-container { margin-left: var(--menu-width); padding-top: 30px; }
+    }
+
+    /* --- HEADER & USUARIO --- */
+    .app-header {
+        display: flex; justify-content: space-between; align-items: center;
+        margin-bottom: 30px; flex-wrap: wrap; gap: 15px;
+        padding-right: 60px;
+    }
+    .app-header h1 {
+        margin: 0; font-size: 1.6rem; font-weight: 700;
+        background: linear-gradient(90deg, var(--primary-color), var(--accent-color));
+        -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    }
+    .user-info-cluster {
+        display: flex; align-items: center; gap: 10px;
+        background: var(--bg-content); padding: 6px 15px; border-radius: 30px;
+        box-shadow: var(--shadow-soft); border: 1px solid var(--border-color);
+    }
+    #userInfo { font-weight: 600; font-size: 0.9rem; }
+
+    /* --- MENÚ LATERAL --- */
     .menu-toggle {
-        position: fixed; top: 15px; left: 15px; z-index: 1002;
-        width: 45px; height: 50px; background-color: var(--secondary-color);
-        border: none; border-radius: 8px; display: flex; flex-direction: column;
-        justify-content: center; align-items: center; cursor: pointer;
-        box-shadow: 0 4px 10px rgba(0,0,0,0.1); transition: left 0.3s ease; padding: 5px 0;
+        position: fixed; top: 15px; left: 15px; z-index: 1100;
+        width: 50px; height: 50px; /* Un poco más grande */
+        background-color: var(--primary-color); /* Color Sólido (Azul/Indigo) */
+        color: white; /* Icono blanco */
+        border-radius: 12px; /* Cuadrado redondeado */
+        box-shadow: 0 4px 10px rgba(0,0,0,0.3); /* Sombra marcada */
+        display: flex; flex-direction: column; justify-content: center; align-items: center;
+        border: none; cursor: pointer;
+        gap: 3px; /* Espacio entre rayas y texto */
     }
-    .menu-toggle span.bar { display: block; width: 22px; height: 2px; background-color: white; margin: 2px 0; transition: all 0.3s ease; }
-    .menu-toggle-label { color: white; font-size: 9px; font-weight: bold; margin-top: 3px; text-transform: uppercase; letter-spacing: 0.5px; }
+    .menu-toggle:hover {
+        background-color: var(--primary-dark);
+        transform: scale(1.05);
+    }
+    .menu-toggle span.bar { 
+        width: 24px; height: 3px; background-color: white; /* Rayas Blancas siempre */
+        margin: 1px 0; transition: 0.3s; border-radius: 2px; 
+    }
     
-    .menu-toggle.active span.bar:nth-child(1) { transform: translateY(6px) rotate(45deg); }
+    /* Mostrar texto "MENÚ" para que se note */
+    .menu-toggle-label { 
+        display: block; 
+        font-size: 8px; 
+        font-weight: 700; 
+        color: white;
+        letter-spacing: 0.5px;
+    }
+    
+    .menu-toggle.active span.bar:nth-child(1) { transform: translateY(5px) rotate(45deg); }
     .menu-toggle.active span.bar:nth-child(2) { opacity: 0; }
-    .menu-toggle.active span.bar:nth-child(3) { transform: translateY(-6px) rotate(-45deg); }
-    .menu-toggle.active .menu-toggle-label { opacity: 0.5; }
+    .menu-toggle.active span.bar:nth-child(3) { transform: translateY(-5px) rotate(-45deg); }
+    .menu-toggle.active .menu-toggle-label { opacity: 0.7; }
 
     .side-menu {
         position: fixed; top: 0; left: 0; width: var(--menu-width); height: 100%;
-        background-color: #2c3e50; z-index: 1001; transform: translateX(-100%);
-        transition: transform 0.3s ease; display: flex; flex-direction: column;
-        padding-top: 20px; box-shadow: 5px 0 15px rgba(0,0,0,0.1);
+        background: var(--bg-content); z-index: 1001;
+        transform: translateX(-100%); transition: transform 0.3s ease;
+        border-right: 1px solid var(--border-color);
+        display: flex; flex-direction: column; padding: 20px;
     }
     .side-menu.open { transform: translateX(0); }
-    .side-menu .menu-header { color: white; font-size: 1.4em; font-weight: 700; text-align: center; padding: 20px 10px; border-bottom: 1px solid #4a627a; }
-    .side-menu a { color: white; text-decoration: none; padding: 15px 20px; display: block; transition: background-color 0.2s ease, padding-left 0.2s ease; border-bottom: 1px solid #3e5268; }
-    .side-menu a:hover, .side-menu a.active-link { background-color: var(--secondary-color); padding-left: 25px; }
-    
-    .side-menu.open + .main-container .menu-toggle { left: calc(var(--menu-width) + 15px); }
-
-    .main-container { transition: margin-left 0.3s ease; padding: 20px; }
-    .content-panel { display: none; }
-    .content-panel.active { display: block; animation: fadeIn 0.5s ease; }
-    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-
-    @media (min-width: 992px) {
-        body { margin-left: var(--menu-width); }
-        .menu-toggle { display: none; }
+    @media (min-width: 992px) { 
         .side-menu { transform: translateX(0); }
+        .menu-toggle { display: none; }
+    }
+
+    .side-menu .menu-header {
+        font-size: 1.4rem; font-weight: 700; color: var(--primary-color);
+        margin-bottom: 30px; text-align: center; padding-bottom: 20px;
+        border-bottom: 1px solid var(--border-color);
+    }
+    .side-menu a {
+        color: var(--text-secondary); text-decoration: none;
+        padding: 14px 15px; margin-bottom: 5px; border-radius: 10px;
+        font-weight: 500; display: block; transition: all 0.2s;
+    }
+    .side-menu a:hover { background-color: var(--bg-accent); color: var(--primary-color); }
+    .side-menu a.active-link { 
+        background-color: var(--primary-color); color: white; 
+        box-shadow: 0 4px 10px rgba(79, 70, 229, 0.3);
+    }
+
+    /* --- AYUDA --- */
+    .help-button {
+        position: fixed; top: 15px; right: 15px; z-index: 1200;
+        width: 45px; height: 45px; background-color: var(--info-color); color: white;
+        border: none; border-radius: 50%; font-size: 1.2rem; font-weight: bold;
+        cursor: pointer; box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        display: flex; justify-content: center; align-items: center;
+        transition: transform 0.2s;
+    }
+    .help-button:hover { transform: scale(1.1); }
+
+    .help-panel {
+        position: fixed; top: 0; right: 0; width: 320px; height: 100%;
+        background-color: var(--bg-content); z-index: 2100;
+        box-shadow: -5px 0 20px rgba(0,0,0,0.15);
+        transform: translateX(100%); transition: transform 0.3s ease-in-out;
+        display: flex; flex-direction: column;
+    }
+    .help-panel.open { transform: translateX(0); }
+    .help-header { padding: 20px; border-bottom: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center; }
+    .help-content { padding: 20px; overflow-y: auto; }
+    .close-help-btn { background: none; border: none; font-size: 1.5rem; color: var(--text-secondary); cursor: pointer; padding: 0; }
+
+    /* --- PANELES --- */
+    .content-panel { display: none; animation: fadeIn 0.4s ease; }
+    .content-panel.active { display: block; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+    section {
+        background: var(--bg-content); padding: 25px; border-radius: var(--border-radius);
+        box-shadow: var(--shadow-card); margin-bottom: 25px; border: 1px solid var(--border-color);
+    }
+
+    h2 { margin-top: 0; font-size: 1.3rem; border-bottom: 2px solid var(--bg-main); padding-bottom: 15px; margin-bottom: 20px; }
+    h3 { font-size: 1.1rem; color: var(--text-secondary); margin-bottom: 10px; }
+
+    /* --- LOGIN --- */
+    #login-container { display: flex; justify-content: center; align-items: center; min-height: 100vh; background: var(--bg-main); padding: 20px; }
+    #loginSection { width: 100%; max-width: 400px; text-align: center; }
+    #loginSection h2 { border: none; font-size: 1.8rem; margin-bottom: 10px; color: var(--primary-color); }
+    #loginForm { display: flex; flex-direction: column; gap: 12px; margin-top: 20px; }
+    .form-row, .form-row-date { display: flex; gap: 10px; }
+    .password-wrapper { position: relative; width: 100%; }
+    .password-toggle-icon { position: absolute; right: 15px; top: 50%; transform: translateY(-50%); cursor: pointer; color: var(--text-secondary); }
+    
+    .quick-access-container { display: flex; justify-content: center; gap: 10px; flex-wrap: wrap; margin-bottom: 20px; }
+    .quick-access-user {
+        background: var(--bg-content); padding: 10px; border-radius: 12px; border: 1px solid var(--border-color);
+        cursor: pointer; transition: 0.2s; position: relative; min-width: 80px; display: flex; flex-direction: column; align-items: center;
+    }
+    .quick-access-user:hover { border-color: var(--primary-color); transform: translateY(-2px); }
+    .quick-access-avatar {
+        width: 40px; height: 40px; border-radius: 50%; background: var(--primary-color); color: white;
+        display: flex; justify-content: center; align-items: center; font-weight: bold; margin-bottom: 5px;
+    }
+    .delete-user-btn { position: absolute; top: -5px; right: -5px; width: 20px; height: 20px; background: var(--danger-color); color: white; border-radius: 50%; display: flex; justify-content: center; align-items: center; font-size: 10px; padding: 0; }
+
+    /* --- RETIRO PROPINA --- */
+    .retiro-container, .retiro-container-pt { background: var(--bg-accent); padding: 20px; border-radius: var(--border-radius-sm); border: 1px solid var(--border-color); }
+    .calculation-item { display: flex; justify-content: space-between; align-items: center; padding: 6px 0; font-size: 1rem; color: var(--text-secondary); }
+    .calculation-item strong { color: var(--text-primary); font-weight: 500; }
+    hr { border: 0; border-top: 1px dashed var(--border-color); margin: 12px 0; }
+    
+    .final-calculation {
+        background: var(--bg-content); padding: 15px; border-radius: 12px; margin-top: 15px;
+        border: 1px solid var(--border-color); box-shadow: var(--shadow-soft);
+    }
+    .total-result { font-size: 1.8rem; color: var(--primary-color); font-weight: 700; display: block; text-align: right; }
+    .retiro-actions { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 20px; }
+    .retiro-actions button { flex: 1; }
+
+    .anticipos-list-container { background: var(--bg-content); border: 1px solid var(--border-color); border-radius: 8px; max-height: 150px; overflow-y: auto; margin-top: 10px; }
+    .anticipo-item { padding: 10px; border-bottom: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center; font-size: 0.9rem; }
+    .anticipo-item-btn { background: none; border: none; padding: 5px; font-size: 1rem; color: var(--text-secondary); box-shadow: none; }
+    .delete-anticipo-btn:hover { color: var(--danger-color); }
+
+    /* --- MONTOS --- */
+    #totalDiario { font-size: 1.2rem; font-weight: 700; color: var(--secondary-color); text-align: center; margin: 20px 0; padding: 10px; background: rgba(16, 185, 129, 0.1); border-radius: 10px; }
+    .tarjeta { background: var(--bg-content); border-radius: var(--border-radius-sm); box-shadow: var(--shadow-soft); margin-bottom: 15px; overflow: hidden; border: 1px solid var(--border-color); }
+    .tarjeta h3 { margin: 0; padding: 15px; cursor: pointer; display: flex; justify-content: space-between; align-items: center; background: var(--bg-accent); font-size: 1rem; font-weight: 600; color: var(--text-primary); }
+    .tarjeta h3::after { content: '\f107'; font-family: 'Font Awesome 6 Free'; font-weight: 900; transition: 0.3s; }
+    .tarjeta.collapsed h3::after { transform: rotate(-90deg); }
+    .montos-list { padding: 15px; display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 10px; }
+    .monto-item { background: var(--bg-main); padding: 10px; border-radius: 8px; font-size: 0.9rem; text-align: center; display: flex; flex-direction: column; }
+    .monto-item span:last-child { font-weight: 700; color: var(--primary-color); margin-top: 4px; }
+
+    /* --- CALENDARIO --- */
+    .calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 5px; margin-top: 10px; }
+    .day-name { text-align: center; font-size: 0.8rem; font-weight: 600; color: var(--text-muted); }
+    .day {
+        aspect-ratio: 1; display: flex; justify-content: center; align-items: center; border-radius: 50%;
+        font-size: 0.9rem; cursor: pointer; border: 1px solid transparent; background: var(--bg-main);
+    }
+    .day:hover:not(.empty) { background: var(--bg-content); border-color: var(--primary-color); }
+    .day.marked { background: var(--success-color); color: white; }
+    .day.absent { background: var(--danger-color); color: white; text-decoration: line-through; }
+
+    /* --- USER DATA --- */
+    .user-data-container { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; }
+    .data-item { background: var(--bg-accent); padding: 15px; border-radius: var(--border-radius-sm); border: 1px solid var(--border-color); }
+    .data-item-label { display: block; font-size: 0.8rem; color: var(--text-muted); margin-bottom: 5px; }
+    .data-item-value { font-size: 1.1rem; font-weight: 600; }
+    .edit-btn-inline { background: none; border: none; padding: 2px; color: var(--info-color); box-shadow: none; font-size: 1em; }
+
+    /* --- NOTAS (CORREGIDO PARA DARK MODE) --- */
+    #admin-notes-container {
+        background: var(--bg-accent);
+        border-radius: var(--border-radius-sm);
+        padding: 15px;
+        height: 550px; 
+        overflow-y: auto;
+        border: 1px solid var(--border-color);
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
     }
     
-    /* HEADER & LAYOUT */
-    .app-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 10px; padding-left: 50px; }
-    @media (min-width: 992px) { .app-header { padding-left: 0; } }
-    .app-header h1 { margin: 0; font-size: 1.8em; }
-    .user-info-cluster { text-align: right; }
+    /* Estilo Base de Nota (Admin) */
+    .note-card {
+        background: var(--bg-content); /* Adaptable */
+        padding: 10px 15px;
+        border-radius: 12px 12px 12px 0;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        max-width: 85%;
+        align-self: flex-start;
+        border-left: 3px solid var(--primary-color);
+        color: var(--text-primary);
+    }
 
-    /* TOASTS */
-    #toast-container { position: fixed; top: 20px; right: 20px; z-index: 2000; display: flex; flex-direction: column; align-items: flex-end; gap: 10px; }
-    .toast { background-color: var(--success-color); color: white; padding: 15px 20px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); font-size: 1em; opacity: 0; transform: translateX(100%); transition: all 0.4s ease; }
+    /* Estilo Nota de Usuario (Yo) - Modo Claro */
+    .note-card.user-note {
+        align-self: flex-end;
+        background: #e0e7ff; 
+        border-left: none;
+        border-radius: 12px 12px 0 12px;
+        color: #1f2937; 
+    }
+
+    /* Estilo Nota de Usuario (Yo) - Override Modo Nocturno */
+    body.dark-mode .note-card.user-note {
+        background: var(--primary-dark); 
+        color: #ffffff; 
+    }
+
+    .note-header {
+        font-size: 0.75rem;
+        color: var(--text-muted);
+        margin-bottom: 5px;
+    }
+
+    /* --- MODALES --- */
+    .modal-backdrop { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.6); backdrop-filter: blur(2px); display: flex; justify-content: center; align-items: center; z-index: 2000; }
+    .modal-content { background: var(--bg-content); width: 90%; max-width: 450px; padding: 25px; border-radius: 20px; box-shadow: 0 20px 40px rgba(0,0,0,0.2); }
+    .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+    .modal-header h4 { margin: 0; font-size: 1.4rem; }
+    .modal-close-btn { background: none; color: var(--text-secondary); font-size: 1.5rem; padding: 0; box-shadow: none; }
+    .modal-footer { display: flex; justify-content: flex-end; gap: 10px; margin-top: 25px; }
+    
+    .stat-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 10px; margin-bottom: 20px; }
+    .stat-card { background: var(--bg-accent); padding: 15px; border-radius: 10px; text-align: center; border: 1px solid var(--border-color); }
+    .stat-card .value { font-size: 1.3rem; font-weight: 700; color: var(--primary-color); display: block; margin-top: 5px; }
+    .chart-container { height: 250px; width: 100%; }
+    .chart-controls { display: flex; justify-content: center; gap: 10px; margin-bottom: 15px; }
+    .chart-controls button.active { background: var(--primary-dark); }
+
+    /* --- FAB & TOASTS --- */
+    .fab-container { position: fixed; bottom: 25px; right: 25px; display: flex; flex-direction: column; gap: 15px; z-index: 1000; }
+    .fab { width: 50px; height: 50px; border-radius: 50%; background: var(--bg-content); color: var(--text-primary); box-shadow: 0 5px 15px rgba(0,0,0,0.15); display: flex; justify-content: center; align-items: center; font-size: 1.2rem; cursor: pointer; transition: 0.3s; border: none; }
+    .fab:hover { transform: translateY(-5px); color: var(--primary-color); }
+    #notification-fab { background: var(--danger-color); color: white; }
+    
+    #toast-container { position: fixed; top: 80px; right: 20px; z-index: 2000; display: flex; flex-direction: column; gap: 10px; align-items: flex-end; }
+    .toast { background: var(--bg-content); color: var(--text-primary); padding: 12px 20px; border-radius: 10px; box-shadow: 0 10px 30px rgba(0,0,0,0.15); border-left: 4px solid var(--success-color); font-weight: 500; opacity: 0; transform: translateX(100%); transition: all 0.3s ease; }
     .toast.show { opacity: 1; transform: translateX(0); }
-    .toast.error { background-color: var(--error-color); }
-    .toast.info { background-color: var(--info-color); }
+    .toast.error { border-left-color: var(--danger-color); }
 
-    /* FORMULARIOS Y TARJETAS */
-    h1 { text-align: center; margin-bottom: 20px; font-size: 2em; }
-    section { margin-bottom: 30px; background: var(--bg-content); padding: 20px; border-radius: 8px; box-shadow: 0 2px 8px var(--shadow-color); }
-    h2 { margin-top: 0; margin-bottom: 15px; font-size: 1.7em; border-bottom: 2px solid var(--bg-main); padding-bottom: 10px; }
-    h3 { margin-top: 0; margin-bottom: 10px; font-size: 1.3em; color: var(--text-primary); }
-    #totalDiario { font-weight: bold; font-size: 1.5em; margin: 15px 0; color: var(--primary-color); text-align: center; }
+    footer { text-align: center; margin-top: 40px; color: var(--text-muted); font-size: 0.8rem; padding-bottom: 80px; }
     
-    form { display: flex; flex-wrap: wrap; gap: 10px; }
-    input, select, button, textarea { padding: 12px; border: 1px solid var(--border-color); border-radius: 6px; font-size: 1em; background-color: var(--bg-content); color: var(--text-primary); }
-    input:focus, textarea:focus { border-color: var(--secondary-color); outline: none; }
-    
-    button { background-color: var(--secondary-color); color: #fff; border: none; font-weight: bold; cursor: pointer; flex-grow: 1; display: inline-flex; justify-content: center; align-items: center; gap: 8px; }
-    button:hover { opacity: 0.9; }
-    button:disabled { background-color: #aaa; cursor: not-allowed; }
-    
-    .reset-button { background-color: var(--danger-color); }
-    .edit-button-modal { background-color: var(--edit-color); color: #212529;}
-    #importarDesdeSheetsBtn { background-color: var(--info-color); }
-    .logout-button { background-color: var(--danger-color); font-weight: normal; padding: 8px 12px; font-size: 0.9em; flex-grow: 0; }
-    
-    #tarjetasMontos { display: flex; flex-direction: column; gap: 10px; margin-top: 20px; }
-    .tarjeta { background-color: var(--bg-content); border-radius: 12px; box-shadow: 0 4px 12px var(--shadow-color); padding: 15px; border-left: 4px solid var(--primary-color); }
-    .tarjeta h3 { margin: 0 0 8px 0; font-size: 1.1em; cursor: pointer; display: flex; justify-content: space-between; }
-    .tarjeta h3 .total-in-header { font-weight: bold; color: var(--primary-color); }
-    .tarjeta h3::after { content: '▼'; transition: transform 0.2s ease-in-out; }
-    .tarjeta.collapsed h3::after { transform: rotate(-90deg); }
-    .tarjeta.collapsed .montos-list { display: none; }
-    .montos-list { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 8px; margin-top: 10px; }
-    .monto-item { background-color: var(--bg-main); padding: 8px; border-radius: 6px; font-size: 0.9em; display: flex; justify-content: space-between; align-items: center; }
-    .delete-button { background: none; border: none; font-size: 1.2em; color: var(--danger-color); cursor: pointer; }
-    
-    .retiro-container, .retiro-container-pt { background-color: var(--bg-accent); padding: 20px; border-radius: 8px; border: 1px solid var(--border-color); }
-    .calculation-item { margin-bottom: 12px; font-size: 1.1em; display: flex; justify-content: space-between; align-items: center; }
-    .calculation-item strong { color: var(--text-primary); }
-    .final-calculation { border-top: 2px solid var(--border-color); padding-top: 15px; margin-top: 15px; }
-    .total-result { font-size: 1.8em; font-weight: bold; color: var(--primary-color); }
-    .negative-value { color: var(--danger-color) !important; }
-
-    .retiro-actions { display: flex; gap: 10px; margin-top: 20px; flex-wrap: wrap; }
-    .anticipos-list-container { margin-top: 10px; max-height: 160px; overflow-y: auto; border: 1px solid var(--border-color); border-radius: 6px; padding: 10px; background-color: var(--bg-content); }
-    .anticipo-item { display: flex; justify-content: space-between; align-items: center; padding: 8px 5px; border-bottom: 1px solid var(--border-color); font-size: 0.95em; }
-    .anticipo-item:last-child { border-bottom: none; }
-    .anticipo-item .actions { display: flex; gap: 8px; }
-    .anticipo-item-btn { background: none; border: none; cursor: pointer; font-size: 1.2em; padding: 0 5px; color: var(--text-secondary); }
-    .delete-anticipo-btn { color: var(--danger-color); }
-    .edit-anticipo-btn { color: var(--edit-color); }
-    
-    .part-time-layout { display: flex; flex-wrap: wrap; gap: 20px; }
-    .calendar-section { flex: 1; min-width: 300px; }
-    .calculation-section-pt { flex: 1; min-width: 300px; }
-    .calendar-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; font-weight: bold; }
-    .calendar-header button { padding: 5px 10px; background-color: var(--bg-accent); color: var(--text-primary); border: 1px solid var(--border-color); border-radius: 4px; cursor: pointer; flex: 0; }
-    .calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 5px; text-align: center; }
-    .day-name { font-weight: bold; color: var(--text-secondary); padding-bottom: 5px; }
-    .day { padding: 8px; border-radius: 4px; background-color: var(--bg-content); cursor: pointer; border: 1px solid var(--border-color); }
-    .day:hover { background-color: var(--bg-accent); }
-    .day.marked { background-color: var(--success-color); color: #fff; font-weight: bold; }
-    .day.absent { background-color: var(--danger-color); color: #fff; font-weight: bold; text-decoration: line-through; }
-    .day.empty { background-color: transparent; border: none; cursor: default; }
-
-    /* MODALES */
-    .modal-backdrop { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.6); display: flex; justify-content: center; align-items: center; z-index: 1000; }
-    .modal-content { background-color: var(--bg-content); padding: 25px; border-radius: 8px; box-shadow: 0 5px 15px rgba(0,0,0,0.3); width: 90%; max-width: 400px; display: flex; flex-direction: column; }
-    .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
-    .modal-header h4 { margin: 0; font-size: 1.3em; }
-    .modal-close-btn { background: none; border: none; font-size: 1.8em; cursor: pointer; padding: 0 5px; color: var(--text-secondary); }
-    .modal-body { flex-grow: 1; overflow-y: auto; }
-    .modal-body label { display: block; margin-bottom: 5px; font-weight: bold; }
-    .modal-body input { width: 100%; box-sizing: border-box; margin-bottom: 10px; padding: 10px; }
-    .modal-footer { display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px; }
-    
-    #statsModal .modal-content { max-width: 90%; width: 800px; height: 80vh; }
-    @media (max-width: 820px) { #statsModal .modal-content { width: 95%; max-width: 95%; } }
-    
-    /* LOGIN & PASSWORD */
-    .password-wrapper { position: relative; width: 100%; flex-grow: 1; }
-    .password-wrapper input { width: 100%; box-sizing: border-box; padding-right: 40px; }
-    .password-toggle-icon { position: absolute; top: 50%; right: 15px; transform: translateY(-50%); cursor: pointer; color: var(--text-secondary); }
-
-    .quick-access-container { display: flex; justify-content: center; gap: 15px; flex-wrap: wrap; margin-top: 10px; }
-    .quick-access-user { position: relative; display: flex; flex-direction: column; align-items: center; gap: 8px; cursor: pointer; background-color: var(--bg-main); padding: 10px; border-radius: 8px; border: 1px solid var(--border-color); transition: all 0.2s ease; min-width: 80px; }
-    .quick-access-user:hover { transform: translateY(-3px); box-shadow: 0 4px 8px var(--shadow-color); border-color: var(--primary-color); }
-    .quick-access-avatar { width: 50px; height: 50px; border-radius: 50%; background-color: var(--secondary-color); color: white; display: flex; justify-content: center; align-items: center; font-size: 1.8em; font-weight: bold; }
-    .quick-access-name { font-size: 0.9em; font-weight: 500; }
-    .delete-user-btn { position: absolute; top: -5px; right: -5px; width: 24px; height: 24px; background-color: #ddd; color: #555; border: 2px solid var(--bg-content); border-radius: 50%; font-size: 14px; font-weight: bold; cursor: pointer; display: flex; justify-content: center; align-items: center; line-height: 1; opacity: 0.7; transition: all 0.2s ease; padding: 0; flex-grow: 0; }
-    .delete-user-btn:hover { background-color: var(--danger-color); color: white; transform: scale(1.1); opacity: 1; }
-    .forgot-password-link { text-align: center; display: block; margin-top: 15px; color: var(--primary-color); text-decoration: none; font-size: 0.9em; }
-    .forgot-password-link:hover { text-decoration: underline; }
-    #recoveryResult { padding: 10px; border-radius: 6px; display: none; margin-top: 15px; font-weight: bold; word-break: break-word; }
-    #recoveryResult.success { background-color: #e8f5e9; color: #2e7d32; display: block; }
-    #recoveryResult.error { background-color: #ffebee; color: #c62828; display: block; }
-
-    footer { text-align: center; padding: 20px; margin-top: 30px; color: #777; font-size: 0.9em; border-top: 1px solid var(--border-color); }
-
-    .user-data-container { display: grid; grid-template-columns: 1fr 1fr; gap: 15px 20px; }
-    .data-item { background-color: var(--bg-main); padding: 15px; border-radius: 8px; border: 1px solid var(--border-color); }
-    .data-item-label { font-weight: bold; color: var(--text-secondary); display: block; margin-bottom: 5px; font-size: 0.9em; }
-    .data-item-value { font-size: 1.2em; color: var(--primary-color); display: flex; align-items: center; }
-    .edit-btn-inline { background: none; border: none; cursor: pointer; color: var(--primary-color); margin-left: 10px; font-size: 0.9em; padding: 5px; flex-grow: 0; }
-    .edit-btn-inline:hover { color: var(--secondary-color); }
-    #changePasswordBtn { width: 100%; margin-top: 20px; background-color: var(--edit-color); color: #212529; }
-
-    /* HELP & FLOAT */
-    .help-button { position: fixed; top: 15px; right: 15px; width: 40px; height: 40px; background-color: var(--info-color); color: white; border: none; border-radius: 50%; font-size: 1.5em; font-weight: bold; cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.15); z-index: 1002; display: flex; justify-content: center; align-items: center; }
-    .help-panel { position: fixed; top: 0; right: 0; width: 350px; height: 100%; background-color: var(--bg-content); box-shadow: -5px 0 15px var(--shadow-color); transform: translateX(100%); transition: transform 0.3s ease-in-out; z-index: 1010; display: flex; flex-direction: column; }
-    .help-panel.open { transform: translateX(0); }
-    .help-header { padding: 15px 20px; border-bottom: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center; }
-    .help-header h2 { margin: 0; font-size: 1.5em; border: none; padding: 0; }
-    .close-help-btn { background: none; border: none; font-size: 1.8em; cursor: pointer; padding: 0 5px; color: var(--text-secondary); }
-    .help-content { padding: 20px; overflow-y: auto; flex-grow: 1; }
-    .help-content h3 { text-align: left; margin-top: 20px; border-bottom: 2px solid var(--primary-color); padding-bottom: 5px; font-size: 1.2em; }
-    .help-content p, .help-content li { line-height: 1.6; font-size: 0.95em; }
-    .help-content .note { background-color: var(--bg-accent); border-left: 4px solid var(--primary-color); padding: 15px; margin: 15px 0; border-radius: 4px; font-size: 0.9em; }
-    .help-content .formula { text-align: center; font-size: 1em; margin: 10px 0; padding: 10px; background-color: var(--bg-main); border-radius: 4px; font-weight: bold; }
-    .help-content i { color: var(--secondary-color); margin-right: 5px; }
-    @media (max-width: 480px) { .help-panel { width: 100%; } }
-    .help-content-section { display: none; }
-    .help-content-section.active-help { display: block; }
-
-    .fab-container { position: fixed; bottom: 20px; right: 20px; z-index: 1000; display: flex; flex-direction: column; align-items: center; gap: 15px; }
-    .fab { width: 50px; height: 50px; background-color: var(--secondary-color); color: white; border: none; border-radius: 50%; display: flex; justify-content: center; align-items: center; font-size: 1.5em; box-shadow: 0 4px 12px rgba(0,0,0,0.15); cursor: pointer; transition: transform 0.2s ease, background-color 0.2s; position: relative; }
-    .fab:hover { transform: scale(1.1); }
-    
-    #notification-fab { background-color: var(--danger-color); animation: blink 1.5s infinite ease-in-out; }
-    #notification-fab:hover { background-color: #c82333; }
-    @keyframes blink { 0%, 100% { transform: scale(1); opacity: 1; } 50% { transform: scale(1.1); opacity: 0.8; } }
-    #note-notification-count { position: absolute; top: -5px; right: -5px; background-color: var(--primary-color); color: white; width: 22px; height: 22px; border-radius: 50%; font-size: 12px; font-weight: bold; display: flex; justify-content: center; align-items: center; border: 2px solid var(--bg-content); }
-    
-    .loading-indicator { display: flex; justify-content: center; align-items: center; padding: 40px; gap: 10px; color: var(--text-secondary); font-size: 1.1em; animation: fadeIn 0.5s; }
-    .loading-indicator i { font-size: 1.5em; }
-
-    #admin-notes-container { display: flex; flex-direction: column; gap: 15px; max-height: 50vh; overflow-y: auto; padding: 10px; border: 1px solid var(--border-color); border-radius: 8px; margin-bottom: 20px;}
-    .note-card { background-color: var(--bg-accent); border-radius: 8px; padding: 15px; border-left: 5px solid var(--primary-color); max-width: 80%; }
-    .note-header { font-size: 0.85em; color: var(--text-secondary); border-bottom: 1px solid var(--border-color); padding-bottom: 8px; margin-bottom: 10px; }
-    .note-header .author { font-weight: bold; color: var(--primary-color); text-transform: capitalize; }
-    .note-body { font-size: 1em; line-height: 1.5; white-space: pre-wrap; word-wrap: break-word; }
-    .note-card.user-note { align-self: flex-end; border-left: none; border-right: 5px solid var(--secondary-color); background-color: #e8f5e9; }
-    body.dark-mode .note-card.user-note { background-color: #2a3b2b; }
-    
-    #responseForm textarea { width: 100%; box-sizing: border-box; resize: vertical; min-height: 80px; }
-    #sendResponseBtn { width: 100%; }
-
-    #loginForm { display: flex; flex-direction: column; gap: 15px; }
-    .form-row, .form-row-date { display: flex; gap: 10px; width: 100%; }
-    #loginForm > input, #loginForm > .password-wrapper, #loginForm > button, #loginForm > a { width: 100%; box-sizing: border-box; }
-    .form-row > input, .form-row > select, .form-row-date > select, .form-row-date > input { flex: 1; min-width: 0; }
-    .form-row-date > input { flex: 1.5; }
-    .form-row-date > label { flex-grow: 0; flex-shrink: 0; align-self: center; font-size: 0.9em; color: var(--text-secondary); }
-
-    .stat-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 25px; }
-    .stat-card { background-color: var(--bg-accent); padding: 20px; border-radius: 8px; text-align: center; }
-    .stat-card .label { font-size: 0.9em; color: var(--text-secondary); margin-bottom: 8px; display: block; }
-    .stat-card .value { font-size: 1.8em; font-weight: bold; color: var(--primary-color); }
-    .stat-card .value.projection { color: var(--secondary-color); }
-    .stat-card .disclaimer { font-size: 0.75em; margin-top: 10px; color: var(--text-secondary); }
-    .chart-controls { display: flex; justify-content: center; gap: 10px; margin-bottom: 20px; }
-    .chart-controls button { flex-grow: 0; padding: 8px 16px; }
-    .chart-controls button.active { background-color: var(--primary-color); }
-    .chart-container { position: relative; height: 40vh; min-height: 300px; width: 100%; }
+    .part-time-layout { display: flex; flex-direction: column; gap: 20px; }
+    @media(min-width: 768px) { .part-time-layout { flex-direction: row; } .calendar-section { flex: 1; } .calculation-section-pt { flex: 1; } }
   </style>
 </head>
 <body>
@@ -272,6 +411,7 @@
 <nav id="sideMenu" class="side-menu"></nav>
 
 <div id="mainContainer" class="main-container">
+    <!-- Menú Toggle (Izquierda) - MODIFICADO PARA SER VISIBLE -->
     <button id="menuToggle" class="menu-toggle" style="display: none;">
         <span class="bar"></span>
         <span class="bar"></span>
@@ -279,17 +419,19 @@
         <span class="menu-toggle-label">MENÚ</span>
     </button>
     
-    <button id="help-btn" class="help-button">?</button>
+    <!-- Botón Ayuda (Derecha - Fijo y Corregido) -->
+    <button id="help-btn" class="help-button"><i class="fas fa-question"></i></button>
+    
     <div id="help-panel" class="help-panel">
         <div class="help-header">
-            <h2 id="help-title">Ayuda</h2>
+            <h2 id="help-title" style="margin:0; border:none; padding:0;">Ayuda</h2>
             <button id="close-help-btn" class="close-help-btn">&times;</button>
         </div>
         <div class="help-content">
             <div id="help-content-login" class="help-content-section">
                 <h3>¿Cómo Empezar?</h3>
                 <p>Bienvenido/a al registro personal.</p>
-                <div class="note">
+                <div class="note" style="background: var(--bg-accent); padding:10px; border-radius:8px;">
                     <strong>Registro:</strong> Completa todos los campos y presiona ingresar.
                 </div>
             </div>
@@ -302,11 +444,14 @@
     
     <div id="login-container">
       <section id="loginSection">
-        <h2>Ingresar a tu Registro</h2>
-        <section id="quickAccessSection" style="display: none; padding: 10px; box-shadow: none;">
-            <h4 style="text-align: center; margin:0 0 15px 0; font-size: 1em; color: #555;">Acceso Rápido</h4>
+        <div style="margin-bottom: 20px; font-size: 3em; color: var(--primary-color);"><i class="fas fa-wallet"></i></div>
+        <h2 style="border:none;">Bienvenido</h2>
+        <p style="color: var(--text-secondary); margin-bottom: 30px;">Inicia sesión para ver tus montos</p>
+        
+        <section id="quickAccessSection" style="display: none; padding: 10px; box-shadow: none; border: none; background: transparent;">
             <div id="quickAccessUsers" class="quick-access-container"></div>
         </section>
+        
         <form id="loginForm">
             <div class="form-row">
                 <input type="text" id="loginNombre" placeholder="Nombre" required />
@@ -318,7 +463,6 @@
                     <option value="Planta">Planta</option>
                     <option value="Part Time">Part Time</option>
                 </select>
-                <!-- SECCIONES ACTUALIZADAS -->
                 <select id="loginSeccion" required>
                     <option value="">Selecciona tu Sección</option>
                     <option value="Mesas">Mesas</option>
@@ -329,7 +473,7 @@
                 </select>
             </div>
             <div class="form-row-date">
-              <label for="loginDia">F. Ingreso:</label>
+              <label for="loginDia" style="align-self: center; margin-right: 5px;">Ingreso:</label>
               <select id="loginDia" required>
                 <option value="">Día</option>
                 <script>for(let i=1;i<=31;i++)document.write(`<option value="${i}">${i}</option>`);</script>
@@ -345,8 +489,8 @@
               <input type="password" id="loginPassword" placeholder="Contraseña" required />
               <i class="fas fa-eye password-toggle-icon"></i>
             </div>
-            <button type="submit">Ingresar o Registrar</button>
-            <a href="#" id="forgotPasswordLink" class="forgot-password-link">¿Olvidaste tu contraseña?</a>
+            <button type="submit" style="margin-top: 10px;">Ingresar / Registrar</button>
+            <a href="#" id="forgotPasswordLink" class="forgot-password-link" style="color: var(--primary-color); margin-top: 15px; display:block; font-size: 0.9em; text-decoration: none;">¿Olvidaste tu contraseña?</a>
         </form>
       </section>
     </div>
@@ -355,38 +499,40 @@
       <div class="app-header">
         <h1>Registro Personal</h1>
         <div class="user-info-cluster">
-            <span id="userInfo"></span>
-            <button id="logoutBtn" class="logout-button">Cerrar Sesión</button>
+            <i class="fas fa-user-circle" style="font-size: 1.5em; color: var(--primary-color);"></i>
+            <span id="userInfo">Usuario</span>
+            <button id="logoutBtn" class="logout-button"><i class="fas fa-sign-out-alt"></i></button>
         </div>
       </div>
       
       <section id="retirosPropinaSection" class="content-panel">
           <h2 id="titulo-retiro">Retiro de Propina</h2>
           <div id="vistaPlanta" style="display: none;">
-              <button id="openCalendarPlantaBtn" style="background-color: var(--bg-accent); color: var(--text-primary); border: 1px solid var(--border-color); width: 100%; margin-bottom: 20px; font-weight: bold; display: flex; justify-content: center; align-items: center; gap: 10px;">
+              <!-- Botón corregido para Dark Mode -->
+              <button id="openCalendarPlantaBtn">
                   <i class="fas fa-calendar-times" style="color: var(--danger-color);"></i> Gestionar Días No Trabajados
               </button>
               <div class="retiro-container">
-                  <div class="calculation-item"><strong>Mis Puntos:</strong> <span id="puntosUsuarioDisplayPlanta">0</span></div>
+                  <div class="calculation-item"><strong><i class="fas fa-star" style="color:#fbbf24; margin-right:5px;"></i> Mis Puntos:</strong> <span id="puntosUsuarioDisplayPlanta">0</span></div>
                   <hr>
                   <div class="calculation-item"><strong>Total Recaudado (Mes):</strong> <span id="totalMontoDividirPlanta">$0</span></div>
-                  <div class="calculation-item"><strong>Divisor Registrado (Último):</strong> <span id="divisorDisplayPlanta">No registrado</span></div>
-                  <div class="calculation-item" style="color: var(--info-color); font-weight: bold;"><strong>Valor por Punto:</strong> <span id="valorPorPuntoDisplayPlanta">$0</span></div>
+                  <div class="calculation-item"><strong>Divisor Registrado:</strong> <span id="divisorDisplayPlanta">No registrado</span></div>
+                  <div class="calculation-item" style="color: var(--info-color);"><strong>Valor por Punto:</strong> <span id="valorPorPuntoDisplayPlanta" style="font-weight:bold;">$0</span></div>
                   <hr>
                   <!-- [CÁLCULO VISUAL DE DESCUENTO] -->
                   <div class="calculation-item"><strong>Días Descontados:</strong> <span id="diasDescontadosPlanta" style="color: var(--danger-color); font-weight:bold;">0</span></div>
                   <div class="calculation-item"><strong>Monto Descontado:</strong> <span id="montoDescontadoPlanta" style="color: var(--danger-color); font-weight:bold;">$0</span></div>
                   
-                  <div class="calculation-item" style="color: var(--info-color); font-weight: bold;"><strong>Subtotal Acumulado:</strong> <span id="subtotalDisplayPlanta">$0</span></div>
+                  <div class="calculation-item" style="color: var(--info-color);"><strong>Subtotal Acumulado:</strong> <span id="subtotalDisplayPlanta" style="font-weight:bold;">$0</span></div>
                   <hr>
                   <div class="calculation-item"><strong>Total Anticipos:</strong> <span id="anticiposDisplayPlanta">-$0</span></div>
                   <div class="calculation-item" style="color: var(--success-color);">
                       <strong>Saldo Mes Anterior:</strong>
-                      <span><span id="saldoAnteriorDisplayPlanta">$0</span><button class="edit-btn-inline" id="btnEditSaldoPlanta">✏️</button></span>
+                      <span><span id="saldoAnteriorDisplayPlanta">$0</span><button class="edit-btn-inline" id="btnEditSaldoPlanta"><i class="fas fa-pencil-alt"></i></button></span>
                   </div>
                   <div id="anticipos-list-container-planta" class="anticipos-list-container"></div>
                   <div class="calculation-item final-calculation">
-                      <strong class="total-result">Total a Retirar:</strong> 
+                      <strong style="font-size: 1.1em;">Total a Retirar</strong> 
                       <span id="resultadoFinalPlanta" class="total-result">$0</span>
                   </div>
               </div>
@@ -394,7 +540,7 @@
           <div id="vistaPartTime" style="display: none;">
               <div class="part-time-layout">
                   <div class="calendar-section">
-                      <h4>Marca tus días trabajados:</h4>
+                      <h4><i class="far fa-calendar-check"></i> Marca tus días trabajados:</h4>
                       <div id="calendar-container"></div>
                   </div>
                   <div class="calculation-section-pt">
@@ -403,17 +549,17 @@
                           <hr>
                           <div class="calculation-item"><strong>Pozo Individual:</strong> <span id="pozoIndividualDisplayPT">$0</span></div>
                           <div class="calculation-item"><strong>Divisor Personal:</strong> <span id="divisorDisplayPT">0</span></div>
-                          <div class="calculation-item" style="color: var(--info-color); font-weight: bold;"><strong>Valor por Punto:</strong> <span id="valorPorPuntoDisplayPT">$0</span></div>
+                          <div class="calculation-item" style="color: var(--info-color);"><strong>Valor por Punto:</strong> <span id="valorPorPuntoDisplayPT" style="font-weight:bold;">$0</span></div>
                           <hr>
                           <div class="calculation-item"><strong>Subtotal:</strong> <span id="subtotalDisplayPT">$0</span></div>
                           <div class="calculation-item"><strong>Total Anticipos:</strong> <span id="anticiposDisplayPT">-$0</span></div>
                           <div class="calculation-item" style="color: var(--success-color);">
                               <strong>Saldo Mes Anterior:</strong>
-                              <span><span id="saldoAnteriorDisplayPT">$0</span><button class="edit-btn-inline" id="btnEditSaldoPT">✏️</button></span>
+                              <span><span id="saldoAnteriorDisplayPT">$0</span><button class="edit-btn-inline" id="btnEditSaldoPT"><i class="fas fa-pencil-alt"></i></button></span>
                           </div>
                           <div id="anticipos-list-container-pt" class="anticipos-list-container"></div>
                           <div class="calculation-item final-calculation">
-                              <strong class="total-result">Total a Retirar:</strong> 
+                              <strong style="font-size: 1.1em;">Total a Retirar</strong> 
                               <span id="resultadoFinalPT" class="total-result">$0</span>
                           </div>
                       </div>
@@ -421,56 +567,57 @@
               </div>
           </div>
           <div class="retiro-actions">
-              <button id="openStatsModalBtn" style="background-color: var(--primary-color);">Ver Estadísticas</button>
-              <button id="registrarAnticipoBtn">Registrar Anticipo</button>
-              <button id="resetMesBtn" class="reset-button">Reiniciar Mes</button>
+              <button id="openStatsModalBtn" style="background-color: var(--info-color);"><i class="fas fa-chart-line"></i> Estadísticas</button>
+              <button id="registrarAnticipoBtn" style="background-color: var(--secondary-color);"><i class="fas fa-plus-circle"></i> Anticipo</button>
+              <button id="resetMesBtn" class="reset-button"><i class="fas fa-trash-alt"></i> Reiniciar</button>
           </div>
       </section>
 
       <section id="montosSection" class="content-panel">
         <h2>Montos por Noche</h2>
-        <button id="importarDesdeSheetsBtn" style="width: 100%; margin-bottom: 15px;">Sincronizar con Sheets</button>
+        <button id="importarDesdeSheetsBtn" style="width: 100%; margin-bottom: 20px; background-color: var(--secondary-color);"><i class="fas fa-sync-alt"></i> Sincronizar con Sheets</button>
         <div id="totalDiario">Total recaudado: $0</div>
         <div id="tarjetasMontos"></div>
       </section>
 
       <section id="datosUsuarioSection" class="content-panel">
-          <h2>Mis Datos</h2>
+          <h2><i class="fas fa-id-card"></i> Mis Datos</h2>
           <div class="user-data-container">
               <div class="data-item"><span class="data-item-label">Nombre Completo</span><span id="userDataNombre" class="data-item-value"></span></div>
               <div class="data-item"><span class="data-item-label">Tipo de Contrato</span><span id="userDataContrato" class="data-item-value"></span></div>
-              <div class="data-item"><span class="data-item-label">Puntos Asignados</span><span id="userDataPuntos" class="data-item-value"><span id="puntosValueDisplay"></span><button id="editPuntosBtn" class="edit-btn-inline" title="Editar Puntos">✏️</button></span></div>
+              <div class="data-item"><span class="data-item-label">Puntos Asignados</span><span id="userDataPuntos" class="data-item-value"><span id="puntosValueDisplay"></span><button id="editPuntosBtn" class="edit-btn-inline" title="Editar Puntos"><i class="fas fa-pencil-alt"></i></button></span></div>
               <div class="data-item"><span class="data-item-label">Fecha de Ingreso</span><span id="userDataFechaIngreso" class="data-item-value"></span></div>
           </div>
-          <button id="changePasswordBtn">Cambiar Contraseña</button>
-          <div style="margin-top: 30px; border-top: 1px solid var(--border-color); padding-top: 20px;">
-              <h3>Respaldo y Recuperación</h3>
+          <button id="changePasswordBtn" style="margin-top: 20px; background-color: var(--bg-accent); color: var(--text-primary); border: 1px solid var(--border-color);"><i class="fas fa-lock"></i> Cambiar Contraseña</button>
+          <div style="margin-top: 30px; border-top: 1px dashed var(--border-color); padding-top: 20px;">
+              <h3 style="font-size: 1em;">Zona de Seguridad</h3>
               <div style="display: flex; gap: 10px; margin-top: 15px;">
                   <button id="exportDataBtn" style="background-color: var(--info-color);"><i class="fas fa-download"></i> Exportar</button>
-                  <button id="importDataBtn" style="background-color: var(--edit-color); color: #212529;"><i class="fas fa-upload"></i> Importar</button>
+                  <button id="importDataBtn" style="background-color: var(--edit-color);"><i class="fas fa-upload"></i> Importar</button>
               </div>
           </div>
       </section>
       
       <section id="notasSection" class="content-panel">
-          <h2>Comunicación</h2>
+          <h2><i class="fas fa-comments"></i> Comunicación</h2>
           <div id="admin-notes-container"></div>
           <form id="responseForm" style="margin-top: 20px;">
-              <textarea id="responseMessage" placeholder="Escribe aquí..." rows="4"></textarea>
-              <button type="button" id="sendResponseBtn">Enviar Respuesta</button>
+              <textarea id="responseMessage" placeholder="Escribe un mensaje al administrador..." rows="3"></textarea>
+              <button type="button" id="sendResponseBtn"><i class="fas fa-paper-plane"></i> Enviar</button>
           </form>
       </section>
     </div> 
 </div>
 
 <div class="fab-container">
-    <button id="notification-fab" class="fab" title="Nuevas Notas" style="display: none;"><i class="fas fa-envelope-open-text"></i><span id="note-notification-count"></span></button>
+    <button id="notification-fab" class="fab" title="Nuevas Notas" style="display: none;"><i class="fas fa-envelope"></i><span id="note-notification-count" style="position:absolute; top:-5px; right:-5px; background:red; color:white; font-size:10px; padding:2px 6px; border-radius:10px; border:2px solid white;"></span></button>
     <button id="theme-toggle" class="fab" title="Cambiar Tema"><i class="fas fa-moon"></i></button>
 </div>
 
 <footer>CarlosPN Interactive®</footer>
 <div id="toast-container"></div>
 
+<!-- MODALES (Estructura Intacta) -->
 <div id="statsModal" class="modal-backdrop" style="display: none;">
     <div class="modal-content">
         <div class="modal-header"><h4>Estadísticas</h4><button id="closeStatsModalBtn" class="modal-close-btn">&times;</button></div>
@@ -481,16 +628,16 @@
     <div class="modal-content">
         <div class="modal-header"><h4>Marcar Ausencias</h4><button id="closeCalendarPlantaBtn" class="modal-close-btn">&times;</button></div>
         <div class="modal-body">
-            <p style="font-size: 0.9em; color: #666; margin-bottom: 10px;">Haz clic para marcar en <span style="color: var(--danger-color); font-weight: bold;">ROJO</span> los días que NO trabajaste. Estos días se descontarán.</p>
+            <p style="font-size: 0.9em; color: var(--text-secondary); margin-bottom: 15px; background: var(--bg-accent); padding: 10px; border-radius: 8px;">Haz clic para marcar en <span style="color: var(--danger-color); font-weight: bold;">ROJO</span> los días que NO trabajaste.</p>
             <div id="calendar-container-planta"></div>
         </div>
     </div>
 </div>
 <div id="addAnticipoModal" class="modal-backdrop" style="display: none;">
-    <div class="modal-content"><div class="modal-header"><h4>Registrar Anticipo</h4></div><div class="modal-body"><label>Monto:</label><input type="text" id="addAnticipoMontoInput" inputmode="numeric"/><label>Fecha:</label><input type="date" id="addAnticipoFechaInput"/></div><div class="modal-footer"><button class="reset-button" id="cancelAddAnticipoBtn">Cancelar</button><button id="saveAddAnticipoBtn">Guardar</button></div></div>
+    <div class="modal-content"><div class="modal-header"><h4>Registrar Anticipo</h4></div><div class="modal-body"><label>Monto:</label><input type="text" id="addAnticipoMontoInput" inputmode="numeric"/><label style="margin-top:10px;">Fecha:</label><input type="date" id="addAnticipoFechaInput"/></div><div class="modal-footer"><button class="reset-button" id="cancelAddAnticipoBtn">Cancelar</button><button id="saveAddAnticipoBtn">Guardar</button></div></div>
 </div>
 <div id="editAnticipoModal" class="modal-backdrop" style="display: none;">
-    <div class="modal-content"><div class="modal-header"><h4>Editar Anticipo</h4></div><div class="modal-body"><label>Monto:</label><input type="text" id="editAnticipoMontoInput" inputmode="numeric"/><label>Fecha:</label><input type="date" id="editAnticipoFechaInput"/></div><div class="modal-footer"><button class="reset-button" id="cancelEditAnticipoBtn">Cancelar</button><button class="edit-button-modal" id="saveEditAnticipoBtn">Guardar</button></div></div>
+    <div class="modal-content"><div class="modal-header"><h4>Editar Anticipo</h4></div><div class="modal-body"><label>Monto:</label><input type="text" id="editAnticipoMontoInput" inputmode="numeric"/><label style="margin-top:10px;">Fecha:</label><input type="date" id="editAnticipoFechaInput"/></div><div class="modal-footer"><button class="reset-button" id="cancelEditAnticipoBtn">Cancelar</button><button class="edit-button-modal" id="saveEditAnticipoBtn">Guardar</button></div></div>
 </div>
 <div id="saldoAnteriorModal" class="modal-backdrop" style="display: none;">
     <div class="modal-content"><div class="modal-header"><h4>Saldo Mes Anterior</h4></div><div class="modal-body"><label>Monto:</label><input type="number" id="saldoAnteriorInput" placeholder="0"/></div><div class="modal-footer"><button class="reset-button" id="cancelSaldoBtn">Cancelar</button><button id="saveSaldoBtn" style="background-color: var(--success-color);">Guardar</button></div></div>
@@ -499,7 +646,7 @@
     <div class="modal-content"><div class="modal-header"><h4>Editar Divisor</h4></div><div class="modal-body"><label>Divisor:</label><input type="text" id="divisorPTInput" inputmode="numeric"/></div><div class="modal-footer"><button class="reset-button" id="cancelDivisorPTBtn">Cancelar</button><button id="saveDivisorPTBtn">Guardar</button></div></div>
 </div>
 <div id="phoneModal" class="modal-backdrop" style="display: none;">
-    <div class="modal-content"><div class="modal-header"><h4>¡Bienvenido(a)!</h4></div><div class="modal-body"><p>Ingresa tu número para proteger tu cuenta.</p><label>Teléfono:</label><input type="tel" id="phoneInput" placeholder="Ej: 912345678"/></div><div class="modal-footer"><button id="savePhoneBtn">Guardar</button></div></div>
+    <div class="modal-content"><div class="modal-header"><h4>¡Bienvenido(a)!</h4></div><div class="modal-body"><p style="color:var(--text-secondary); margin-bottom:15px;">Ingresa tu número para proteger tu cuenta.</p><label>Teléfono:</label><input type="tel" id="phoneInput" placeholder="Ej: 912345678"/></div><div class="modal-footer"><button id="savePhoneBtn">Guardar</button></div></div>
 </div>
 <div id="forgotPasswordModal" class="modal-backdrop" style="display: none;">
     <div class="modal-content"><div class="modal-header"><h4>Recuperar Contraseña</h4></div><div class="modal-body"><div id="verifyPhoneContainer"><label>Teléfono:</label><input type="tel" id="recoverPhoneInput"/><div id="recoveryResult"></div></div><div id="newPasswordContainer" style="display: none;"><label>Nueva Contraseña:</label><div class="password-wrapper"><input type="password" id="newPasswordInput"/><i class="fas fa-eye password-toggle-icon"></i></div></div></div><div class="modal-footer"><button class="reset-button" id="cancelForgotBtn">Cancelar</button><button id="verifyPhoneBtn">Verificar</button><button id="saveNewPasswordBtn" style="display: none;">Guardar Nueva</button></div></div>
@@ -512,6 +659,7 @@
 
 <input type="file" id="importFileInput" style="display: none;" accept="application/json">
 
+<!-- SCRIPT EXACTO ORIGINAL + PATCH DE SEGURIDAD LOGIN -->
 <script>
 document.addEventListener('DOMContentLoaded', () => {
     // --- URLs ---
@@ -784,6 +932,16 @@ document.addEventListener('DOMContentLoaded', () => {
         e.preventDefault();
         const rawNombre = document.getElementById('loginNombre').value.trim(); const rawApellido = document.getElementById('loginApellido').value.trim(); const generatedId = `${rawNombre.toLowerCase()}-${rawApellido.toLowerCase()}`;
         const appData = getAppData(); const localUser = appData.usuarios[generatedId];
+        
+        // --- SEGURIDAD AGREGADA: VERIFICACIÓN DE CONTRASEÑA ---
+        if (localUser && localUser.password) {
+            if (localUser.password !== document.getElementById('loginPassword').value) {
+                showToast('Contraseña incorrecta', 'error');
+                return; // Detiene el proceso si la contraseña no coincide
+            }
+        }
+        // ------------------------------------------------------
+
         const user = { id: generatedId, nombre: rawNombre, apellido: rawApellido, tipo: document.getElementById('loginTipoContrato').value, seccion: document.getElementById('loginSeccion').value, dia: document.getElementById('loginDia').value, mes: document.getElementById('loginMes').value, anio: document.getElementById('loginAnio').value, puntos: parseFloat(document.getElementById('loginPuntos').value), password: document.getElementById('loginPassword').value, telefono: (localUser && localUser.telefono) ? localUser.telefono : '' };
         
         showLoadingOverlay(); 
@@ -879,7 +1037,7 @@ document.addEventListener('DOMContentLoaded', () => {
     function renderTipChart(data, viewMode) {
         const canvas = document.getElementById('tipChart'); if (!canvas) return; const ctx = canvas.getContext('2d');
         let labels, values; if(viewMode === 'weekly') { labels = data.map(d => d.fecha); values = data.map(d => d.vpp); } else { labels = data.map(d => formatDate(d.fecha).substring(0, 5)); values = data.map(d => d.vpp); }
-        if (tipChart) tipChart.destroy(); tipChart = new Chart(ctx, { type: 'line', data: { labels: labels, datasets: [{ label: viewMode === 'weekly' ? 'Promedio VPP Semanal' : 'VPP Diario', data: values, borderColor: '#007bff', backgroundColor: 'rgba(0, 123, 255, 0.1)', fill: true, tension: 0.3 }] }, options: { responsive: true, maintainAspectRatio: false } });
+        if (tipChart) tipChart.destroy(); tipChart = new Chart(ctx, { type: 'line', data: { labels: labels, datasets: [{ label: viewMode === 'weekly' ? 'Promedio VPP Semanal' : 'VPP Diario', data: values, borderColor: '#4f46e5', backgroundColor: 'rgba(79, 70, 229, 0.1)', fill: true, tension: 0.3 }] }, options: { responsive: true, maintainAspectRatio: false } });
     }
 
     // --- IMPORTACIÓN Y CÁLCULOS ---
@@ -974,7 +1132,7 @@ document.addEventListener('DOMContentLoaded', () => {
     function renderAnticiposList(selector) {
         const container = document.querySelector(selector); if (!container) return; container.innerHTML = ''; const anticipos = getUserData().anticipos || [];
         if (!anticipos.length) container.innerHTML = '<p style="color:#888;text-align:center;">No hay anticipos.</p>';
-        else anticipos.forEach(a => { container.innerHTML += `<div class="anticipo-item"><span>${formatDate(a.fecha)}</span><strong>$${formatNumberWithPoints(a.monto)}</strong><div class="actions"><button class="anticipo-item-btn edit-anticipo-btn" data-id="${a.id}" data-monto="${a.monto}" data-fecha="${a.fecha}">✏️</button><button class="anticipo-item-btn delete-anticipo-btn" data-id="${a.id}">🗑️</button></div></div>`; });
+        else anticipos.forEach(a => { container.innerHTML += `<div class="anticipo-item"><span>${formatDate(a.fecha)}</span><strong>$${formatNumberWithPoints(a.monto)}</strong><div class="actions"><button class="anticipo-item-btn edit-anticipo-btn" data-id="${a.id}" data-monto="${a.monto}" data-fecha="${a.fecha}"><i class="fas fa-pencil-alt"></i></button><button class="anticipo-item-btn delete-anticipo-btn" data-id="${a.id}"><i class="fas fa-trash"></i></button></div></div>`; });
         container.querySelectorAll('.delete-anticipo-btn').forEach(btn => { btn.addEventListener('click', (e) => { if(confirm('¿Eliminar anticipo?')) { const id = e.target.closest('button').dataset.id; const ud = getUserData(); ud.anticipos = ud.anticipos.filter(a => a.id != id); saveUserData(ud); actualizarCalculoRetiro(); } }); });
         container.querySelectorAll('.edit-anticipo-btn').forEach(btn => { btn.addEventListener('click', (e) => { const btnEl = e.target.closest('button'); currentEditAnticipoId = btnEl.dataset.id; document.getElementById('editAnticipoMontoInput').value = formatNumberWithPoints(btnEl.dataset.monto); document.getElementById('editAnticipoFechaInput').value = btnEl.dataset.fecha; document.getElementById('editAnticipoModal').style.display = 'flex'; }); });
     }
@@ -983,7 +1141,45 @@ document.addEventListener('DOMContentLoaded', () => {
     async function fetchFromNotasScript(params) { const url = new URL(SCRIPT_URL_NOTAS); Object.keys(params).forEach(key => url.searchParams.append(key, params[key])); try { const response = await fetch(url); return await response.json(); } catch (error) { console.error('Error notas', error); return { status: 'error' }; } }
     async function postToNotasScript(params, data) { const url = new URL(SCRIPT_URL_NOTAS); Object.keys(params).forEach(key => url.searchParams.append(key, params[key])); try { await fetch(url, { method: 'POST', mode: 'no-cors', headers: {'Content-Type': 'text/plain;charset=utf-8'}, body: JSON.stringify(data) }); return { status: 'success' }; } catch (error) { return { status: 'error' }; } }
     function checkForUnread(notes) { if (!loggedInUser) return; const notificationFab = document.getElementById('notification-fab'); const countEl = document.getElementById('note-notification-count'); const lastRead = parseInt(localStorage.getItem(`lastReadTimestamp_${loggedInUser.id}`), 10) || 0; const unread = notes.filter(n => n.autor.toLowerCase() === 'admin' && new Date(n.fecha).getTime() > lastRead).length; if (unread > 0) { countEl.textContent = unread; notificationFab.style.display = 'flex'; } else { notificationFab.style.display = 'none'; } }
-    async function cargarNotas() { if(!loggedInUser) return; const container = document.getElementById('admin-notes-container'); if (!container.querySelector('.note-card') && !container.querySelector('.loading-indicator')) container.innerHTML = `<div class="loading-indicator"><i class="fas fa-spinner fa-spin"></i><span>Cargando...</span></div>`; const response = await fetchFromNotasScript({ action: 'getNotes' }); if (response.status === 'success' && response.data) { allFetchedNotes = response.data; allFetchedNotes.sort((a, b) => new Date(a.fecha) - new Date(b.fecha)); container.innerHTML = ''; allFetchedNotes.forEach(note => { const card = document.createElement('div'); card.className = 'note-card'; card.innerHTML = `<div class="note-header"><strong>${note.autor}</strong> - ${formatNoteDate(note.fecha)}</div><div class="note-body">${note.mensaje}</div>`; container.appendChild(card); }); container.scrollTop = container.scrollHeight; checkForUnread(allFetchedNotes); } }
+    
+    // [CORREGIDO] Lógica de Scroll Silencioso
+    async function cargarNotas() { 
+        if(!loggedInUser) return; 
+        const container = document.getElementById('admin-notes-container'); 
+        
+        // Detección: ¿Está el usuario leyendo arriba?
+        // Si la distancia del scroll al fondo es mayor a 100px, el usuario subió.
+        const isUserReadingUp = (container.scrollHeight - container.scrollTop - container.clientHeight) > 100;
+        const currentScrollTop = container.scrollTop;
+
+        if (!container.querySelector('.note-card') && !container.querySelector('.loading-indicator')) container.innerHTML = `<div class="loading-indicator" style="text-align:center; padding:20px; color:gray;"><i class="fas fa-spinner fa-spin"></i><span> Cargando...</span></div>`; 
+        
+        const response = await fetchFromNotasScript({ action: 'getNotes' }); 
+        
+        if (response.status === 'success' && response.data) { 
+            allFetchedNotes = response.data; 
+            allFetchedNotes.sort((a, b) => new Date(a.fecha) - new Date(b.fecha)); 
+            container.innerHTML = ''; 
+            allFetchedNotes.forEach(note => { 
+                const card = document.createElement('div'); 
+                card.className = 'note-card'; 
+                card.innerHTML = `<div class="note-header"><strong>${note.autor}</strong> - ${formatNoteDate(note.fecha)}</div><div class="note-body">${note.mensaje}</div>`; 
+                container.appendChild(card); 
+            }); 
+            
+            // Lógica de Scroll
+            if (isUserReadingUp) {
+                // Si estaba leyendo arriba, mantenemos la posición (aproximada)
+                container.scrollTop = currentScrollTop;
+            } else {
+                // Si estaba abajo, bajamos al final
+                container.scrollTop = container.scrollHeight; 
+            }
+
+            checkForUnread(allFetchedNotes); 
+        } 
+    }
+    
     function markNotesAsRead() { if(allFetchedNotes.length && loggedInUser) localStorage.setItem(`lastReadTimestamp_${loggedInUser.id}`, Date.now()); document.getElementById('notification-fab').style.display = 'none'; }
     document.getElementById('sendResponseBtn').addEventListener('click', async () => { const input = document.getElementById('responseMessage'); const msg = input.value.trim(); if (!msg) return; const btn = document.getElementById('sendResponseBtn'); const originalText = btn.innerHTML; btn.disabled = true; btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>'; const container = document.getElementById('admin-notes-container'); const card = document.createElement('div'); card.className = 'note-card user-note'; card.style.opacity = '0.7'; card.innerHTML = `<div class="note-header"><strong>Yo</strong> - Ahora</div><div class="note-body">${msg}</div>`; container.appendChild(card); container.scrollTop = container.scrollHeight; input.value = ''; await postToNotasScript({ action: 'addNote' }, { autor: `${loggedInUser.nombre} ${loggedInUser.apellido}`, mensaje: msg }); card.style.opacity = '1'; showToast("Enviado"); btn.disabled = false; btn.innerHTML = originalText; });
 
@@ -1022,7 +1218,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const daysInMonth = lastDay.getDate(), startingDay = (firstDay.getDay() + 6) % 7; 
         const monthNames = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"];
         
-        let html = `<div class="calendar-header"><span>${monthNames[month]} ${year}</span></div><div class="calendar-grid">`;
+        let html = `<div class="calendar-header" style="text-align:center; font-weight:bold; margin-bottom:15px; color:var(--primary-color);">${monthNames[month]} ${year}</div><div class="calendar-grid">`;
         ["Lu", "Ma", "Mi", "Ju", "Vi", "Sa", "Do"].forEach(d => html += `<div class="day-name">${d}</div>`); 
         for (let i = 0; i < startingDay; i++) html += `<div class="day empty"></div>`;
         
