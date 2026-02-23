@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
   <title>Bóveda Personal</title>
   
-  <!-- El Manifest ya estaba aquí correctamente -->
+  <!-- MANIFEST PARA INSTALACIÓN (PWA) -->
   <link rel="manifest" href="manifest.json">
   <meta name="theme-color" content="#0f172a"/>
 
@@ -19,41 +19,35 @@
        DISEÑO FINTECH / BANCARIO (V8 - FINAL)
        ========================================= */
     :root {
-        /* Colores Corporativos Bancarios */
-        --primary-color: #2563eb; /* Royal Blue */
+        --primary-color: #2563eb; 
         --primary-dark: #1e40af;
         --primary-light: #eff6ff;
         
-        --accent-color: #6366f1; /* Indigo */
-        --success-color: #10b981; /* Emerald */
-        --danger-color: #ef4444; /* Rose */
-        --warning-color: #f59e0b; /* Amber */
+        --accent-color: #6366f1; 
+        --success-color: #10b981; 
+        --danger-color: #ef4444; 
+        --warning-color: #f59e0b; 
         
-        /* Fondos y Superficies */
-        --bg-main: #f8fafc; /* Slate 50 */
+        --bg-main: #f8fafc; 
         --bg-card: #ffffff;
         --bg-input: #f1f5f9;
         
-        /* Textos */
-        --text-primary: #0f172a; /* Slate 900 */
-        --text-secondary: #64748b; /* Slate 500 */
+        --text-primary: #0f172a; 
+        --text-secondary: #64748b; 
         --text-muted: #94a3b8;
         
-        /* UI Elements */
         --radius-xl: 24px;
         --radius-lg: 16px;
         --radius-md: 12px;
         --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
         --shadow-card: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
         --shadow-floating: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
-        
-        --menu-width: 280px;
-        --header-height: 70px;
+        --menu-width: 280px; --header-height: 70px;
     }
 
     body.dark-mode {
-        --bg-main: #0f172a; /* Slate 900 */
-        --bg-card: #1e293b; /* Slate 800 */
+        --bg-main: #0f172a; 
+        --bg-card: #1e293b; 
         --bg-input: #334155;
         --text-primary: #f8fafc;
         --text-secondary: #94a3b8;
@@ -71,12 +65,11 @@
         transition: background-color 0.3s ease, color 0.3s ease;
         font-size: 15px;
         line-height: 1.5;
-        padding-bottom: 90px; /* Espacio extra footer */
+        padding-bottom: 90px;
     }
 
     h1, h2, h3, h4, button { font-family: 'Poppins', sans-serif; letter-spacing: -0.02em; }
 
-    /* --- BOTONES ESTILO FINTECH --- */
     button {
         background: var(--primary-color);
         color: white;
@@ -118,7 +111,6 @@
         color: var(--danger-color);
     }
 
-    /* --- INPUTS BANCARIOS --- */
     input, select, textarea {
         width: 100%; padding: 14px 16px;
         border: 1px solid transparent; 
@@ -136,7 +128,6 @@
     }
     label { font-size: 0.85em; font-weight: 600; color: var(--text-secondary); margin-bottom: 6px; display: block; margin-left: 4px; }
 
-    /* --- LAYOUT PRINCIPAL --- */
     .main-container {
         padding: 20px;
         padding-top: calc(var(--header-height) + 20px);
@@ -148,7 +139,6 @@
         .main-container { margin-left: var(--menu-width); padding-top: 40px; }
     }
 
-    /* --- HEADER FLOTANTE --- */
     .app-header {
         position: fixed; top: 0; left: 0; right: 0;
         height: var(--header-height);
@@ -179,7 +169,6 @@
     #userInfo { font-weight: 600; font-size: 0.9rem; display: none; }
     @media(min-width: 400px) { #userInfo { display: block; } }
 
-    /* --- TARJETA DE CRÉDITO / BALANCE --- */
     .bank-card {
         background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
         color: white;
@@ -205,7 +194,6 @@
     .bank-card-chip::after { content:''; position: absolute; left: 50%; top:0; height: 100%; width: 1px; background: rgba(0,0,0,0.3); }
     .total-result.negative-value { color: #ff8a8a !important; }
 
-    /* --- CONTENEDORES --- */
     section {
         background: var(--bg-card); padding: 25px; border-radius: var(--radius-xl);
         box-shadow: var(--shadow-card); margin-bottom: 25px; 
@@ -214,7 +202,6 @@
     h2 { font-size: 1.25rem; margin: 0 0 20px 0; font-weight: 700; color: var(--text-primary); display: flex; align-items: center; gap: 10px; }
     h2 i { color: var(--primary-color); font-size: 0.9em; }
 
-    /* --- LOGIN BANCARIO --- */
     #login-container { 
         display: flex; justify-content: center; align-items: center; 
         min-height: 100vh; background: var(--bg-main); padding: 20px; 
@@ -234,7 +221,6 @@
         box-shadow: 0 10px 20px rgba(37,99,235,0.3);
     }
 
-    /* --- LISTAS DE TRANSACCIONES --- */
     .transaction-list { display: flex; flex-direction: column; gap: 12px; }
     .transaction-item {
         display: flex; justify-content: space-between; align-items: center;
@@ -257,7 +243,6 @@
     .t-amount.positive { color: var(--success-color); }
     .t-amount.negative { color: var(--text-primary); }
 
-    /* --- CALENDARIO MODERNO --- */
     .calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 8px; margin-top: 15px; }
     .day-name { text-align: center; font-size: 0.75rem; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; }
     .day {
@@ -270,7 +255,6 @@
     .day.marked { background: var(--success-color); color: white; box-shadow: 0 4px 10px rgba(16, 185, 129, 0.4); }
     .day.absent { background: var(--danger-color); color: white; box-shadow: 0 4px 10px rgba(239, 68, 68, 0.4); text-decoration: none; }
 
-    /* --- FAB & MENÚ --- */
     .menu-toggle {
         position: fixed; top: 15px; left: 15px; z-index: 1100;
         width: 44px; height: 44px; background: var(--bg-card); color: var(--text-primary);
@@ -294,7 +278,6 @@
     .fab-container { position: fixed; bottom: 25px; right: 25px; display: flex; flex-direction: column; gap: 15px; z-index: 1000; }
     .fab { width: 56px; height: 56px; border-radius: 20px; background: var(--text-primary); color: var(--bg-main); box-shadow: 0 8px 20px rgba(0,0,0,0.2); display: flex; justify-content: center; align-items: center; font-size: 1.2rem; cursor: pointer; border: none; transition: 0.3s; position: relative; }
     
-    /* Notificación sobre el FAB */
     #note-notification-count {
         position: absolute;
         top: -10px;
@@ -325,7 +308,6 @@
     .password-wrapper { position: relative; width: 100%; margin-bottom: 20px; }
     .password-toggle-icon { position: absolute; right: 15px; top: 50%; transform: translateY(-50%); color: var(--text-muted); cursor: pointer; }
 
-    /* --- NOTAS / CHAT --- */
     #admin-notes-container {
         background: var(--bg-main); border-radius: var(--radius-lg);
         padding: 20px; 
@@ -621,11 +603,10 @@
       <section id="montosSection" class="content-panel">
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
             <h2>Transacciones</h2>
-            <button id="importarDesdeSheetsBtn" style="padding:8px 15px; font-size:0.8rem; background:var(--text-primary);"><i class="fas fa-sync-alt"></i> Sincronizar</button>
+            <!-- CORRECCIÓN 3: BOTÓN DE CONTRASTE -->
+            <button id="importarDesdeSheetsBtn" style="padding:8px 15px; font-size:0.8rem; background:var(--primary-color); color:white;"><i class="fas fa-sync-alt"></i> Sincronizar</button>
         </div>
-        <div id="totalDiario" style="background:var(--primary-light); color:var(--primary-dark); padding:15px; border-radius:var(--radius-md); text-align:center; font-weight:700; margin-bottom:20px;">
-            Total recaudado: $0
-        </div>
+        <!-- CORRECCIÓN 2: SE ELIMINÓ EL DIV "TOTAL RECAUDADO" QUE PEDISTE SACAR -->
         <div id="tarjetasMontos" style="display:flex; flex-direction:column; gap:15px;"></div>
       </section>
 
@@ -730,7 +711,7 @@
 <div id="addAnticipoModal" class="modal-backdrop" style="display: none; position:fixed; top:0; left:0; width:100%; height:100%; z-index:2000; justify-content:center; align-items:center;">
     <div class="modal-content" style="background:var(--bg-card); width:90%; max-width:350px;">
         <h4>Nuevo Anticipo</h4>
-        <label>Monto ($)</label><input type="text" id="addAnticipoMontoInput" inputmode="numeric" style="font-size:1.2rem; font-weight:bold;"/>
+        <label>Monto ($)</label><input type="tel" inputmode="numeric" id="addAnticipoMontoInput" style="font-size:1.2rem; font-weight:bold;"/>
         <label style="margin-top:10px;">Fecha</label><input type="date" id="addAnticipoFechaInput"/>
         <div style="display:flex; gap:10px; margin-top:20px;">
             <button class="reset-button" id="cancelAddAnticipoBtn" style="flex:1;">Cancelar</button>
@@ -742,7 +723,7 @@
 <div id="editAnticipoModal" class="modal-backdrop" style="display: none; position:fixed; top:0; left:0; width:100%; height:100%; z-index:2000; justify-content:center; align-items:center;">
     <div class="modal-content" style="background:var(--bg-card); width:90%; max-width:350px;">
         <h4>Editar Anticipo</h4>
-        <label>Monto</label><input type="text" id="editAnticipoMontoInput" inputmode="numeric"/>
+        <label>Monto</label><input type="tel" inputmode="numeric" id="editAnticipoMontoInput"/>
         <label style="margin-top:10px;">Fecha</label><input type="date" id="editAnticipoFechaInput"/>
         <div style="display:flex; gap:10px; margin-top:20px;">
             <button class="reset-button" id="cancelEditAnticipoBtn" style="flex:1;">Cancelar</button>
@@ -754,7 +735,7 @@
 <div id="saldoAnteriorModal" class="modal-backdrop" style="display: none; position:fixed; top:0; left:0; width:100%; height:100%; z-index:2000; justify-content:center; align-items:center;">
     <div class="modal-content" style="background:var(--bg-card); width:90%; max-width:350px;">
         <h4>Saldo Mes Anterior</h4>
-        <label>Monto a favor (+)</label><input type="number" id="saldoAnteriorInput" placeholder="0" style="font-size:1.2rem;"/>
+        <label>Monto a favor (+)</label><input type="tel" inputmode="numeric" id="saldoAnteriorInput" placeholder="0" style="font-size:1.2rem;"/>
         <div style="display:flex; gap:10px; margin-top:20px;">
             <button class="reset-button" id="cancelSaldoBtn" style="flex:1;">Cancelar</button>
             <button id="saveSaldoBtn" style="flex:1;">Confirmar</button>
@@ -832,6 +813,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let loggedInUser = null;
     let currentEditAnticipoId = null;
     let pendingLoginUser = null; 
+    let recoveringUserId = null; 
     
     let notesInterval = null; 
     let sheetsInterval = null;
@@ -847,6 +829,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Variable para rastrear el último mensaje conocido
     let lastKnownNoteId = localStorage.getItem('lastKnownNoteId') || 0;
+    
+    // --- NUEVAS VARIABLES DE CONTROL ---
+    let lastSyncedSignature = ""; // Anti-spam general
+    let isInitialSync = true;     // Bandera inicio
+    let lastNotesDataSignature = ""; // Para evitar parpadeo y scroll en notas
 
     // --- MODO OSCURO ---
     const themeToggleBtn = document.getElementById('theme-toggle');
@@ -910,36 +897,65 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     function hideLoadingOverlay() { const overlay = document.getElementById('loading-overlay'); if (overlay) { overlay.style.opacity = '0'; setTimeout(() => { overlay.style.display = 'none'; }, 300); } }
     function formatNumberWithPoints(value) { if (value === 'Actualizando...') return value; if (value === null || value === undefined || isNaN(value)) { return "0"; } return Math.round(value).toString().replace(/\B(?=(\d{3})+(?!\d))/g, "."); }
-    function formatDate(dateString) { if (!dateString) return ''; const [year, month, day] = dateString.split('-'); return `${day}/${month}/${year}`; }
+    
+    // FORMATO DE FECHA DD/MM/AAAA
+    function formatDate(dateString) { 
+        if (!dateString) return ''; 
+        const parts = dateString.split('-');
+        if(parts.length === 3) return `${parts[2]}/${parts[1]}/${parts[0]}`; 
+        return dateString;
+    }
+    
     function getTodayDateString() { return new Date().toISOString().split('T')[0]; }
-    function setupNumericInputFormatting(el) { if(el) el.addEventListener('input', e => { let v = e.target.value.replace(/\./g, ''); e.target.dataset.cleanValue = (isNaN(v) || v === '') ? '' : v; e.target.value = (isNaN(v) || v === '') ? '' : formatNumberWithPoints(parseInt(v, 10)); }); }
+    
+    function setupNumericInputFormatting(el) { 
+        if(el) el.addEventListener('input', e => { 
+            let v = e.target.value.replace(/\D/g, ''); 
+            e.target.dataset.cleanValue = (isNaN(v) || v === '') ? '' : v; 
+            e.target.value = (isNaN(v) || v === '') ? '' : formatNumberWithPoints(parseInt(v, 10)); 
+        }); 
+    }
+    
     function formatNoteDate(isoString) { if (!isoString) return 'Fecha desconocida'; const date = new Date(isoString); return date.toLocaleString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' }); }
 
+    // --- CORRECCIÓN FECHAS (Eliminado new Date() para evitar -1 día por zona horaria) ---
     function normalizarFecha(fechaInput) {
         if (!fechaInput) return null;
+
+        // Si es objeto Date real
         if (fechaInput instanceof Date) {
             const year = fechaInput.getFullYear();
             const month = String(fechaInput.getMonth() + 1).padStart(2, '0');
             const day = String(fechaInput.getDate()).padStart(2, '0');
             return `${year}-${month}-${day}`;
         }
+
         let str = String(fechaInput).trim();
-        if (str.includes('T')) str = str.split('T')[0];
+
+        // Si viene como ISO string largo (2026-02-23T...) cortamos antes de que Date() lo interprete como UTC
+        if (str.includes('T')) {
+            str = str.split('T')[0];
+        }
+
+        // Si viene con barras (DD/MM/AAAA)
         if (str.includes('/')) {
             const parts = str.split('/');
-            if (parts.length === 3) return `${parts[2]}-${String(parts[1]).padStart(2, '0')}-${String(parts[0]).padStart(2, '0')}`;
+            // Asumimos DD/MM/AAAA
+            if (parts.length === 3) {
+                 return `${parts[2]}-${String(parts[1]).padStart(2, '0')}-${String(parts[0]).padStart(2, '0')}`;
+            }
         }
+
+        // Si ya es YYYY-MM-DD
         if (str.includes('-')) {
-            const parts = str.split('-');
-            if (parts.length === 3) return `${parts[0]}-${String(parts[1]).padStart(2, '0')}-${String(parts[2]).padStart(2, '0')}`;
+             const parts = str.split('-');
+             if (parts.length === 3) {
+                 // Devolver tal cual para evitar conversión de zona horaria
+                 return `${parts[0]}-${String(parts[1]).padStart(2, '0')}-${String(parts[2]).padStart(2, '0')}`;
+             }
         }
-        const d = new Date(str);
-        if (!isNaN(d.getTime())) {
-             const year = d.getFullYear();
-             const month = String(d.getMonth() + 1).padStart(2, '0');
-             const day = String(d.getDate()).padStart(2, '0');
-             return `${year}-${month}-${day}`;
-        }
+
+        // Fallback final
         return str;
     }
 
@@ -974,28 +990,62 @@ document.addEventListener('DOMContentLoaded', () => {
             if (me) {
                 if (me.Estado === 'KICK') { alert('Tu sesión ha sido cerrada por el administrador.'); await sendDisconnectSignal(); forceLogout(); return; }
 
+                // --- 1. LÓGICA DE SINCRONIZACIÓN (AUTORIDAD DEL SERVIDOR) ---
+                // Aquí siempre comparamos lo local con el servidor. Si difieren, GANA EL SERVIDOR.
+                
+                let serverAusencias = me.DiasAusencia || [];
+                if (typeof serverAusencias === 'string') { try { serverAusencias = JSON.parse(serverAusencias); } catch(e){ serverAusencias = []; } }
+                serverAusencias = (Array.isArray(serverAusencias) ? serverAusencias : []).map(normalizarFecha).sort();
+                
+                const serverSaldo = Number(me.SaldoAnterior || 0);
+
                 let changed = false;
                 const appData = getAppData();
                 const localUser = appData.userData[loggedInUser.id];
                 
-                const serverSaldo = Number(me.SaldoAnterior || 0);
-                if (localUser.saldoAnterior !== serverSaldo) { localUser.saldoAnterior = serverSaldo; changed = true; }
+                // Comparar Saldo (Si difiere, sobrescribimos local)
+                if (localUser.saldoAnterior !== serverSaldo) { 
+                    localUser.saldoAnterior = serverSaldo; 
+                    changed = true; 
+                }
 
-                let serverAusencias = me.DiasAusencia || [];
-                if (typeof serverAusencias === 'string') { try { serverAusencias = JSON.parse(serverAusencias); } catch(e){ serverAusencias = []; } }
-                serverAusencias = (Array.isArray(serverAusencias) ? serverAusencias : []).map(normalizarFecha);
-
+                // Comparar Ausencias (Si difiere, sobrescribimos local)
                 const currentAusenciasStr = JSON.stringify(localUser.diasAusencia ? localUser.diasAusencia.map(normalizarFecha).sort() : []);
-                const serverAusenciasStr = JSON.stringify(serverAusencias.sort());
+                const serverAusenciasStr = JSON.stringify(serverAusencias);
 
-                if (currentAusenciasStr !== serverAusenciasStr) { localUser.diasAusencia = serverAusencias; changed = true; }
+                if (currentAusenciasStr !== serverAusenciasStr) { 
+                    localUser.diasAusencia = serverAusencias; 
+                    changed = true; 
+                }
 
                 if (changed) {
                     saveUserData(localUser);
                     actualizarCalculoRetiro();
-                    if (loggedInUser.tipo === 'Planta') { const calPlanta = document.getElementById('calendar-container-planta'); if (calPlanta && calendarPlantaModal.style.display !== 'none') { renderCalendar(calPlanta, true); } }
-                    showToast('Datos actualizados por administración', 'info');
+                    if (loggedInUser.tipo === 'Planta') { 
+                        const calPlanta = document.getElementById('calendar-container-planta'); 
+                        if (calPlanta && calendarPlantaModal.style.display !== 'none') { 
+                            renderCalendar(calPlanta, true); 
+                        } 
+                    }
                 }
+
+                // --- 2. LÓGICA DE NOTIFICACIONES (SOLO SI EL SERVIDOR CAMBIÓ REALMENTE) ---
+                // Creamos una firma única del estado actual del servidor
+                const currentSignature = JSON.stringify({
+                    saldo: serverSaldo,
+                    ausencias: serverAusencias
+                });
+
+                // Si la firma es distinta a la última vez que revisamos, es una actualización REAL del admin.
+                if (currentSignature !== lastSyncedSignature) {
+                    lastSyncedSignature = currentSignature; // Actualizamos la firma
+                    
+                    if (!isInitialSync) {
+                        showToast('Datos actualizados por administración', 'info');
+                    }
+                }
+                
+                isInitialSync = false;
             }
         } catch (e) { console.error("Error verificando sesión", e); }
     }
@@ -1028,7 +1078,8 @@ document.addEventListener('DOMContentLoaded', () => {
             targetPanel.classList.add('active'); localStorage.setItem('activePanel', panelId);
             if (panelId === 'montosSection') cargarYMostrarMontos();
             if (panelId === 'notasSection') { 
-                cargarNotas(); 
+                // CORRECCIÓN: Al entrar, forzamos scroll abajo (true)
+                cargarNotas(true); 
                 markNotesAsRead(); 
             }
             if (panelId === 'datosUsuarioSection') populateUserDataSection();
@@ -1158,65 +1209,140 @@ document.addEventListener('DOMContentLoaded', () => {
     function cargarYMostrarMontos() {
         const userData = getUserData(); const container = document.getElementById('tarjetasMontos'); container.innerHTML = ''; let totalGeneral = 0; 
         const fechas = Object.keys(userData.montosPorFecha).sort((a,b) => b.localeCompare(a));
+        
+        fechas.forEach(f => { totalGeneral += userData.montosPorFecha[f].reduce((s, m) => s + m.monto, 0); });
+        
+        // --- TOTAL HISTORICO ---
+        const totalHeader = document.createElement('div');
+        totalHeader.style.padding = '15px'; totalHeader.style.textAlign = 'center'; totalHeader.style.background = 'var(--primary-light)'; totalHeader.style.borderRadius = '12px'; totalHeader.style.marginBottom = '15px';
+        totalHeader.innerHTML = `<span style="font-size:0.8rem; color:var(--text-secondary); text-transform:uppercase;">Recaudación Histórica</span><div style="font-size:1.5rem; font-weight:700; color:var(--primary-color);">$${formatNumberWithPoints(totalGeneral)}</div>`;
+        container.appendChild(totalHeader);
+
         fechas.forEach(fecha => {
-            const totalDia = userData.montosPorFecha[fecha].reduce((s, m) => s + m.monto, 0); totalGeneral += totalDia;
+            const totalDia = userData.montosPorFecha[fecha].reduce((s, m) => s + m.monto, 0);
             const tarjeta = document.createElement('div'); tarjeta.className = 'transaction-item';
+            // FECHA DD/MM/AAAA
             tarjeta.innerHTML = `<div style="display:flex;align-items:center;"><div class="t-icon"><i class="fas fa-calendar-day"></i></div><div class="t-info"><span class="t-title">${formatDate(fecha)}</span><span class="t-date">${userData.montosPorFecha[fecha].length} registros</span></div></div><div style="text-align:right;"><span class="t-amount">$${formatNumberWithPoints(totalDia)}</span></div>`;
             tarjeta.onclick = ()=>{ let det = ''; userData.montosPorFecha[fecha].forEach(m => det+=`\n${m.area}: $${formatNumberWithPoints(m.monto)}`); alert(det); };
             container.appendChild(tarjeta);
-        }); document.getElementById('totalDiario').textContent = `Total Recaudado: $${formatNumberWithPoints(totalGeneral)}`; actualizarCalculoRetiro();
+        }); 
+        actualizarCalculoRetiro();
     }
 
     function actualizarCalculoRetiro() { if (!loggedInUser) return; loggedInUser.tipo === 'Planta' ? actualizarCalculoPlanta() : actualizarCalculoPartTime(); }
 
+    // --- CÁLCULO DE PLANTA CON DESCUENTO REAL Y CONEXIÓN URL ---
     function actualizarCalculoPlanta() {
-        const userData = getUserData(); const puntosUsuario = loggedInUser.puntos || 0; const diasAusentesManuales = new Set((userData.diasAusencia || []).map(d => normalizarFecha(d)));
-        let gananciaAcumuladaConPlata = 0; let totalRecaudadoPeriodo = 0; let totalGanadoTeorico = 0; let contadorDiasFaltados = 0;
+        const userData = getUserData(); const puntosUsuario = loggedInUser.puntos || 0; 
+        const diasAusentesManuales = new Set((userData.diasAusencia || []).map(d => normalizarFecha(d)));
+        
+        let gananciaAcumuladaConPlata = 0; let totalRecaudadoPeriodo = 0; let totalGanadoTeorico = 0; 
+        let contadorDiasFaltados = 0;
+        let totalDescontadoDinero = 0; // Descuento real en dinero
+
         const fechasHistorial = Object.keys(userData.montosPorFecha).sort();
-        fechasHistorial.forEach(fecha => {
-            const poolDia = userData.montosPorFecha[fecha].reduce((sum, item) => sum + item.monto, 0); totalRecaudadoPeriodo += poolDia;
-            const divisorDia = divisoresDiariosExternos[fecha] || 0;
-            if (divisorDia > 0) { const valorPuntoDia = poolDia / divisorDia; const gananciaDia = valorPuntoDia * puntosUsuario; totalGanadoTeorico += gananciaDia; gananciaAcumuladaConPlata += gananciaDia; }
+        
+        // RANGO 15-14
+        const today = new Date(); let start, end;
+        if (today.getDate() >= 15) { start = new Date(today.getFullYear(), today.getMonth(), 15); end = new Date(today.getFullYear(), today.getMonth() + 1, 14); } 
+        else { start = new Date(today.getFullYear(), today.getMonth() - 1, 15); end = new Date(today.getFullYear(), today.getMonth(), 14); }
+        const startStr = start.toISOString().split('T')[0]; const endStr = end.toISOString().split('T')[0];
+
+        fechasHistorial.forEach(f => {
+            // Filtrar por rango
+            if(f >= startStr && f <= endStr) {
+                const poolDia = userData.montosPorFecha[f].reduce((sum, item) => sum + item.monto, 0); totalRecaudadoPeriodo += poolDia;
+                const divisorDia = divisoresDiariosExternos[f] || 0;
+                
+                if (divisorDia > 0) { 
+                    const valorPuntoDia = poolDia / divisorDia; 
+                    const gananciaDia = valorPuntoDia * puntosUsuario; 
+                    
+                    // Si faltó este día específico
+                    if (diasAusentesManuales.has(normalizarFecha(f))) {
+                        contadorDiasFaltados++;
+                        totalDescontadoDinero += gananciaDia; // Sumamos el valor REAL del día
+                        totalGanadoTeorico += gananciaDia; // Se suma al teórico para luego restarlo visualmente
+                    } else {
+                        // Fue a trabajar
+                        gananciaAcumuladaConPlata += gananciaDia;
+                        totalGanadoTeorico += gananciaDia;
+                    }
+                }
+            }
         });
-        const promedioPorDia = fechasHistorial.length > 0 ? totalGanadoTeorico / fechasHistorial.length : 0;
-        const fechasConPlataSet = new Set(fechasHistorial.map(f => normalizarFecha(f)));
-        diasAusentesManuales.forEach(fechaAus => { if (!fechasConPlataSet.has(fechaAus)) { contadorDiasFaltados++; } });
-        const montoDescontado = contadorDiasFaltados * promedioPorDia; const anticipos = (userData.anticipos || []).reduce((s, a) => s + a.monto, 0); const saldoAnterior = userData.saldoAnterior || 0;
-        const finalAmount = totalGanadoTeorico - montoDescontado - anticipos + saldoAnterior;
-        document.getElementById('puntosUsuarioDisplayPlanta').textContent = puntosUsuario; document.getElementById('totalMontoDividirPlanta').textContent = `$${formatNumberWithPoints(totalRecaudadoPeriodo)}`;
-        const valorPuntoPromedio = totalGanadoTeorico / (puntosUsuario || 1); document.getElementById('valorPorPuntoDisplayPlanta').textContent = `$${formatNumberWithPoints(valorPuntoPromedio)}`; 
-        document.getElementById('diasDescontadosPlanta').textContent = contadorDiasFaltados; document.getElementById('montoDescontadoPlanta').textContent = `-$${formatNumberWithPoints(montoDescontado)}`; 
-        document.getElementById('subtotalDisplayPlanta').textContent = `$${formatNumberWithPoints(totalGanadoTeorico)}`; document.getElementById('anticiposDisplayPlanta').textContent = `-$${formatNumberWithPoints(anticipos)}`; 
+
+        const anticipos = (userData.anticipos || []).filter(a => a.fecha >= startStr && a.fecha <= endStr).reduce((s, a) => s + a.monto, 0); 
+        const saldoAnterior = userData.saldoAnterior || 0;
+        
+        // Cálculo final: (Todo lo que hubiera ganado) - (Lo que perdió por faltar) - (Anticipos) + (Saldo)
+        const finalAmount = totalGanadoTeorico - totalDescontadoDinero - anticipos + saldoAnterior;
+        
+        // Actualizar UI
+        document.getElementById('puntosUsuarioDisplayPlanta').textContent = puntosUsuario; 
+        document.getElementById('totalMontoDividirPlanta').textContent = `$${formatNumberWithPoints(totalRecaudadoPeriodo)}`;
+        const valorPuntoPromedio = totalGanadoTeorico / (puntosUsuario || 1); // Solo referencial
+        document.getElementById('valorPorPuntoDisplayPlanta').textContent = `$${formatNumberWithPoints(valorPuntoPromedio)}`; 
+        
+        document.getElementById('diasDescontadosPlanta').textContent = contadorDiasFaltados; 
+        document.getElementById('montoDescontadoPlanta').textContent = `-$${formatNumberWithPoints(totalDescontadoDinero)}`; 
+        
+        document.getElementById('subtotalDisplayPlanta').textContent = `$${formatNumberWithPoints(totalGanadoTeorico)}`; 
+        document.getElementById('anticiposDisplayPlanta').textContent = `-$${formatNumberWithPoints(anticipos)}`; 
         document.getElementById('saldoAnteriorDisplayPlanta').textContent = `+$${formatNumberWithPoints(saldoAnterior)}`;
-        const resultadoEl = document.getElementById('resultadoFinalPlanta'); resultadoEl.textContent = `$${formatNumberWithPoints(finalAmount)}`; 
+        
+        const resultadoEl = document.getElementById('resultadoFinalPlanta'); 
+        resultadoEl.textContent = `$${formatNumberWithPoints(finalAmount)}`; 
         if(finalAmount < 0) resultadoEl.classList.add('negative-value'); else resultadoEl.classList.remove('negative-value');
-        renderAnticiposList('#anticipos-list-container-planta');
+        
+        renderAnticiposList('#anticipos-list-container-planta', startStr, endStr);
     }
 
     function actualizarCalculoPartTime() {
         const userData = getUserData(); const pts = loggedInUser.puntos || 0; const today = new Date();
         let startCycle, endCycle; if (today.getDate() >= 15) { startCycle = new Date(today.getFullYear(), today.getMonth(), 15); endCycle = new Date(today.getFullYear(), today.getMonth() + 1, 14); } else { startCycle = new Date(today.getFullYear(), today.getMonth() - 1, 15); endCycle = new Date(today.getFullYear(), today.getMonth(), 14); }
         const startStr = startCycle.toISOString().split('T')[0]; const endStr = endCycle.toISOString().split('T')[0];
+        
         const diasTrabajados = (userData.diasTrabajados || []).filter(d => d >= startStr && d <= endStr);
         let pozoIndividual = 0; let sumaValorPunto = 0;
+        
         diasTrabajados.forEach(fecha => {
             const poolDia = (userData.montosPorFecha[fecha] || []).reduce((s, m) => s + m.monto, 0); const divisorDia = divisoresDiariosExternos[fecha] || 0;
             if (divisorDia > 0) { pozoIndividual += poolDia; sumaValorPunto += (poolDia / divisorDia); }
         });
+        
         const subtotal = sumaValorPunto * pts; const anticipos = (userData.anticipos || []).reduce((s, a) => s + a.monto, 0); const saldoAnterior = userData.saldoAnterior || 0;
         const finalAmount = subtotal - anticipos + saldoAnterior;
+        
         document.getElementById('puntosUsuarioDisplayPT').textContent = pts; document.getElementById('pozoIndividualDisplayPT').textContent = `$${formatNumberWithPoints(pozoIndividual)}`;
         document.getElementById('valorPorPuntoDisplayPT').textContent = `$${formatNumberWithPoints(sumaValorPunto)}`; document.getElementById('subtotalDisplayPT').textContent = `$${formatNumberWithPoints(subtotal)}`;
         document.getElementById('anticiposDisplayPT').textContent = `-$${formatNumberWithPoints(anticipos)}`; document.getElementById('saldoAnteriorDisplayPT').textContent = `+$${formatNumberWithPoints(saldoAnterior)}`;
         const resEl = document.getElementById('resultadoFinalPT'); resEl.textContent = `$${formatNumberWithPoints(finalAmount)}`;
         if(finalAmount < 0) resEl.classList.add('negative-value'); else resEl.classList.remove('negative-value');
-        renderAnticiposList('#anticipos-list-container-pt');
+        renderAnticiposList('#anticipos-list-container-pt', startStr, endStr);
     }
 
-    function renderAnticiposList(selector) {
-        const container = document.querySelector(selector); if (!container) return; container.innerHTML = ''; const anticipos = getUserData().anticipos || [];
+    function renderAnticiposList(selector, startStr, endStr) {
+        const container = document.querySelector(selector); if (!container) return; container.innerHTML = ''; 
+        const anticipos = (getUserData().anticipos || []).filter(a => a.fecha >= startStr && a.fecha <= endStr);
+        
         if (!anticipos.length) container.innerHTML = '<div style="text-align:center; padding:15px; color:var(--text-secondary); font-size:0.9rem;">Sin movimientos recientes</div>';
-        else anticipos.forEach(a => { container.innerHTML += `<div class="transaction-item"><div style="display:flex;align-items:center;"><div class="t-icon" style="background:var(--warning-color); color:white;"><i class="fas fa-money-bill-wave"></i></div><div class="t-info"><span class="t-title">Anticipo</span><span class="t-date">${formatDate(a.fecha)}</span></div></div><div style="text-align:right;"><span class="t-amount" style="color:var(--text-primary);">-$${formatNumberWithPoints(a.monto)}</span><div style="margin-top:5px;"><button class="edit-anticipo-btn" data-id="${a.id}" data-monto="${a.monto}" data-fecha="${a.fecha}" style="padding:2px 5px; background:none; color:var(--primary-color); box-shadow:none;"><i class="fas fa-pencil-alt"></i></button><button class="delete-anticipo-btn" data-id="${a.id}" style="padding:2px 5px; background:none; color:var(--danger-color); box-shadow:none;"><i class="fas fa-trash"></i></button></div></div></div>`; });
+        else anticipos.forEach(a => { 
+            container.innerHTML += `
+            <div class="transaction-item">
+                <div style="display:flex;align-items:center;">
+                    <div class="t-icon" style="background:var(--warning-color); color:white;"><i class="fas fa-money-bill-wave"></i></div>
+                    <div class="t-info"><span class="t-title">Anticipo</span><span class="t-date">${formatDate(a.fecha)}</span></div>
+                </div>
+                <div style="text-align:right;">
+                    <span class="t-amount" style="color:var(--text-primary);">-$${formatNumberWithPoints(a.monto)}</span>
+                    <div style="margin-top:5px;">
+                        <button class="edit-anticipo-btn" data-id="${a.id}" data-monto="${a.monto}" data-fecha="${a.fecha}" style="padding:2px 5px; background:none; color:var(--primary-color); box-shadow:none;"><i class="fas fa-pencil-alt"></i></button>
+                        <button class="delete-anticipo-btn" data-id="${a.id}" style="padding:2px 5px; background:none; color:var(--danger-color); box-shadow:none;"><i class="fas fa-trash"></i></button>
+                    </div>
+                </div>
+            </div>`; 
+        });
         container.querySelectorAll('.delete-anticipo-btn').forEach(btn => { btn.addEventListener('click', (e) => { if(confirm('¿Eliminar anticipo?')) { const id = e.target.closest('button').dataset.id; const ud = getUserData(); ud.anticipos = ud.anticipos.filter(a => a.id != id); saveUserData(ud); actualizarCalculoRetiro(); } }); });
         container.querySelectorAll('.edit-anticipo-btn').forEach(btn => { btn.addEventListener('click', (e) => { const btnEl = e.target.closest('button'); currentEditAnticipoId = btnEl.dataset.id; document.getElementById('editAnticipoMontoInput').value = formatNumberWithPoints(btnEl.dataset.monto); document.getElementById('editAnticipoFechaInput').value = btnEl.dataset.fecha; document.getElementById('editAnticipoModal').style.display = 'flex'; }); });
     }
@@ -1267,15 +1393,26 @@ document.addEventListener('DOMContentLoaded', () => {
         } 
     }
     
-    async function cargarNotas() { 
+    // --- LÓGICA DE CARGA DE NOTAS MEJORADA (SCROLL INTELIGENTE) ---
+    async function cargarNotas(forceToBottom = false) { 
         if(!loggedInUser) return; 
         const container = document.getElementById('admin-notes-container'); 
-        const isNearBottom = container.scrollHeight - container.scrollTop - container.clientHeight < 100;
+        
+        // 1. Verificar si el usuario estaba leyendo arriba (no al final)
+        const wasNearBottom = (container.scrollHeight - container.scrollTop - container.clientHeight) < 100;
         
         const response = await fetchFromNotasScript({ action: 'getNotes' }); 
+        
         if (response.status === 'success' && response.data) { 
             allFetchedNotes = response.data; 
             allFetchedNotes.sort((a, b) => new Date(a.fecha) - new Date(b.fecha)); 
+            
+            // 2. Crear una firma del contenido actual para evitar parpadeos
+            const currentDataSignature = JSON.stringify(allFetchedNotes);
+            if (currentDataSignature === lastNotesDataSignature) return;
+            
+            lastNotesDataSignature = currentDataSignature;
+
             container.innerHTML = ''; 
             allFetchedNotes.forEach(note => { 
                 const isMe = note.autor.includes(loggedInUser.nombre);
@@ -1285,7 +1422,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 container.appendChild(card); 
             }); 
             
-            if (isNearBottom || container.innerHTML === '' || localStorage.getItem('activePanel') === 'notasSection') {
+            // 3. Scroll solo si es necesario (CORRECCIÓN APLICADA: Eliminado el check de scrollTop === 0)
+            // Si es la primera carga (forceToBottom) O si el usuario ya estaba abajo leyendo.
+            if (forceToBottom || wasNearBottom) {
                 container.scrollTop = container.scrollHeight; 
             }
             
@@ -1301,8 +1440,15 @@ document.addEventListener('DOMContentLoaded', () => {
                 : Date.now();
 
             localStorage.setItem(`lastReadTimestamp_${loggedInUser.id}`, latestMessageTS.toString()); 
-            document.getElementById('notification-fab').style.display = 'none'; 
-            document.getElementById('note-notification-count').style.display = 'none';
+            
+            const fab = document.getElementById('notification-fab');
+            const count = document.getElementById('note-notification-count');
+            
+            // IMPORTANTE: Quitamos la clase que tiene !important en CSS
+            fab.classList.remove('pulse-notification');
+            
+            fab.style.display = 'none'; 
+            count.style.display = 'none';
         } 
     }
     
@@ -1312,6 +1458,103 @@ document.addEventListener('DOMContentLoaded', () => {
         await postToNotasScript({ action: 'addNote' }, { autor: `${loggedInUser.nombre} ${loggedInUser.apellido}`, mensaje: msg }); 
         input.value = ''; btn.disabled = false; cargarNotas();
     });
+
+    // --- LÓGICA DE RECUPERACIÓN DE CONTRASEÑA (AGREGADA) ---
+    const forgotPasswordLink = document.getElementById('forgotPasswordLink');
+    const forgotPasswordModal = document.getElementById('forgotPasswordModal');
+    const cancelForgotBtn = document.getElementById('cancelForgotBtn');
+    const verifyPhoneBtn = document.getElementById('verifyPhoneBtn');
+    const saveNewPasswordBtn = document.getElementById('saveNewPasswordBtn');
+    const recoverPhoneInput = document.getElementById('recoverPhoneInput');
+    const recoveryResult = document.getElementById('recoveryResult');
+    const newPasswordContainer = document.getElementById('newPasswordContainer');
+    const newPasswordInput = document.getElementById('newPasswordInput');
+
+    forgotPasswordLink.addEventListener('click', (e) => {
+        e.preventDefault();
+        forgotPasswordModal.style.display = 'flex';
+        // Reiniciar estado
+        recoverPhoneInput.value = '';
+        recoveryResult.innerHTML = '';
+        newPasswordContainer.style.display = 'none';
+        saveNewPasswordBtn.style.display = 'none';
+        verifyPhoneBtn.style.display = 'block';
+        document.getElementById('verifyPhoneContainer').style.display = 'block';
+    });
+
+    cancelForgotBtn.addEventListener('click', () => {
+        forgotPasswordModal.style.display = 'none';
+    });
+
+    verifyPhoneBtn.addEventListener('click', () => {
+        const phone = recoverPhoneInput.value.trim();
+        if (!phone) {
+            showToast('Ingresa tu número de teléfono', 'error');
+            return;
+        }
+
+        const appData = getAppData();
+        let foundUser = null;
+
+        // Buscar usuario por teléfono en la base de datos local
+        for (const userId in appData.usuarios) {
+            if (appData.usuarios[userId].telefono === phone) {
+                foundUser = appData.usuarios[userId];
+                break;
+            }
+        }
+
+        if (foundUser) {
+            recoveringUserId = foundUser.id; // Guardamos ID temporalmente
+            recoveryResult.innerHTML = `<span style="color:var(--success-color); font-weight:bold;">¡Hola ${foundUser.nombre}!</span><br><small>Puedes cambiar tu contraseña.</small>`;
+            verifyPhoneBtn.style.display = 'none';
+            newPasswordContainer.style.display = 'block';
+            saveNewPasswordBtn.style.display = 'block';
+            newPasswordInput.value = '';
+            newPasswordInput.focus();
+        } else {
+            recoveryResult.innerHTML = `<span style="color:var(--danger-color)">Número no registrado.</span>`;
+        }
+    });
+
+    saveNewPasswordBtn.addEventListener('click', async () => {
+        const newPass = newPasswordInput.value.trim();
+        if (!newPass || newPass.length < 4) {
+            showToast('La contraseña es muy corta', 'error');
+            return;
+        }
+
+        if (recoveringUserId) {
+            const btn = saveNewPasswordBtn;
+            btn.textContent = 'Guardando...';
+            btn.disabled = true;
+
+            try {
+                const appData = getAppData();
+                if (appData.usuarios[recoveringUserId]) {
+                    // Actualizar contraseña local
+                    appData.usuarios[recoveringUserId].password = newPass;
+                    saveAppData(appData);
+
+                    // Actualizar en Google Sheets (Nube)
+                    await enviarDatosLoginASheets(appData.usuarios[recoveringUserId]);
+
+                    showToast('Contraseña actualizada con éxito');
+                    forgotPasswordModal.style.display = 'none';
+                    
+                    // Rellenar login automáticamente
+                    document.getElementById('loginPassword').value = newPass;
+                }
+            } catch (error) {
+                showToast('Error al guardar', 'error');
+                console.error(error);
+            } finally {
+                btn.textContent = 'Guardar';
+                btn.disabled = false;
+            }
+        }
+    });
+    // -----------------------------------------------------
 
     // --- CALENDARIOS Y MODALES ---
     const calendarPlantaModal = document.getElementById('calendarPlantaModal'); const openCalendarPlantaBtn = document.getElementById('openCalendarPlantaBtn'); const closeCalendarPlantaBtn = document.getElementById('closeCalendarPlantaBtn');
@@ -1352,8 +1595,13 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (isPlanta) { 
                     let absDays = new Set((ud.diasAusencia || []).map(normalizarFecha)); 
                     if (absDays.has(date)) { absDays.delete(date); } else { absDays.add(date); }
-                    ud.diasAusencia = Array.from(absDays); saveUserData(ud); renderCalendar(container, isPlanta, currentViewYear, currentViewMonth); actualizarCalculoRetiro();
-                    if(loggedInUser) { const payload = { ...loggedInUser, diasAusencia: ud.diasAusencia, saldoAnterior: ud.saldoAnterior }; enviarDatosLoginASheets(payload); }
+                    ud.diasAusencia = Array.from(absDays); saveUserData(ud); 
+                    
+                    // --- ENVÍO INMEDIATO A SHEETS (LOGIN URL) ---
+                    const payload = { ...loggedInUser, diasAusencia: ud.diasAusencia, saldoAnterior: ud.saldoAnterior };
+                    fetch(SCRIPT_URL_LOGIN, { method: 'POST', body: JSON.stringify(payload) });
+                    
+                    renderCalendar(container, isPlanta, currentViewYear, currentViewMonth); actualizarCalculoRetiro();
                 } else { 
                     let wDays = new Set((ud.diasTrabajados || []).map(normalizarFecha)); if (wDays.has(date)) wDays.delete(date); else wDays.add(date); ud.diasTrabajados = Array.from(wDays); saveUserData(ud); renderCalendar(container, isPlanta, currentViewYear, currentViewMonth); actualizarCalculoRetiro(); 
                 } 
@@ -1401,6 +1649,12 @@ document.addEventListener('DOMContentLoaded', () => {
         syncFinancials();
         if (notesInterval) clearInterval(notesInterval); notesInterval = setInterval(cargarNotas, 10000);
         if (sheetsInterval) clearInterval(sheetsInterval); sheetsInterval = setInterval(syncFinancials, 300000);
+        
+        // --- AQUÍ ESTÁ EL ARREGLO DE NOTIFICACIÓN DE INICIO ---
+        // Llamamos inmediatamente a verificarEstadoSesion para que si hay una novedad
+        // aparezca apenas entra, sin esperar los 5 segundos del intervalo.
+        verificarEstadoSesion();
+        
         if (statusCheckInterval) clearInterval(statusCheckInterval); statusCheckInterval = setInterval(verificarEstadoSesion, 5000); 
         if (heartbeatInterval) clearInterval(heartbeatInterval); heartbeatInterval = setInterval(sendHeartbeat, 60000); 
 
