@@ -131,12 +131,8 @@
     .main-container {
         padding: 20px;
         padding-top: calc(var(--header-height) + 20px);
+        padding-bottom: calc(64px + env(safe-area-inset-bottom) + 20px);
         max-width: 1000px; margin: 0 auto; min-height: 100vh;
-        transition: margin-left 0.3s ease;
-    }
-
-    @media (min-width: 992px) {
-        .main-container { margin-left: var(--menu-width); padding-top: 40px; }
     }
 
     .app-header {
@@ -151,7 +147,7 @@
         transition: left 0.3s;
     }
     body.dark-mode .app-header { background: rgba(15, 23, 42, 0.85); border-bottom-color: rgba(255,255,255,0.05); }
-    @media (min-width: 992px) { .app-header { left: var(--menu-width); padding: 0 40px; } }
+    @media (min-width: 992px) { .app-header { padding: 0 40px; } }
 
     .app-header h1 {
         margin: 0; font-size: 1.2rem; font-weight: 700;
@@ -255,28 +251,49 @@
     .day.marked { background: var(--success-color); color: white; box-shadow: 0 4px 10px rgba(16, 185, 129, 0.4); }
     .day.absent { background: var(--danger-color); color: white; box-shadow: 0 4px 10px rgba(239, 68, 68, 0.4); text-decoration: none; }
 
-    .menu-toggle {
-        position: fixed; top: 15px; left: 15px; z-index: 1100;
-        width: 44px; height: 44px; background: var(--bg-card); color: var(--text-primary);
-        border-radius: 12px; box-shadow: var(--shadow-card);
-        display: flex; align-items: center; justify-content: center; border: none;
+    .menu-toggle { display: none !important; }
+    .side-menu { display: none !important; }
+
+    /* Bottom Nav Bar */
+    #bottomNav {
+        display: none;
+        position: fixed; bottom: 0; left: 0; right: 0; z-index: 1100;
+        background: var(--bg-card);
+        border-top: 1px solid rgba(0,0,0,0.08);
+        box-shadow: 0 -4px 20px rgba(0,0,0,0.08);
+        height: 64px;
+        padding-bottom: env(safe-area-inset-bottom);
     }
-    .side-menu {
-        background: var(--bg-card); width: var(--menu-width);
-        position: fixed; top: 0; bottom: 0; left: 0; z-index: 1000;
-        transform: translateX(-100%); transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        padding: 30px 20px; border-right: 1px solid rgba(0,0,0,0.05);
+    body.dark-mode #bottomNav { border-top-color: rgba(255,255,255,0.07); }
+    #bottomNav ul {
+        list-style: none; margin: 0; padding: 0;
+        display: flex; height: 64px;
     }
-    .side-menu.open { transform: translateX(0); }
-    .side-menu a {
-        padding: 16px; border-radius: var(--radius-md); 
-        color: var(--text-secondary); text-decoration: none; font-weight: 500; 
-        display: block; margin-bottom: 8px; transition: 0.2s;
+    #bottomNav ul li { flex: 1; }
+    #bottomNav ul li a {
+        display: flex; flex-direction: column; align-items: center; justify-content: center;
+        height: 100%; gap: 4px; text-decoration: none;
+        color: var(--text-muted); font-size: 0.62rem; font-weight: 600;
+        letter-spacing: 0.02em; text-transform: uppercase;
+        transition: color 0.2s; position: relative;
     }
-    .side-menu a.active-link { background: var(--primary-light); color: var(--primary-color); font-weight: 600; }
+    #bottomNav ul li a i { font-size: 1.15rem; transition: transform 0.2s; }
+    #bottomNav ul li a.active-link { color: var(--primary-color); }
+    #bottomNav ul li a.active-link i { transform: translateY(-2px); }
+    #bottomNav ul li a.active-link::before {
+        content: ''; position: absolute; top: 0; left: 20%; right: 20%;
+        height: 3px; background: var(--primary-color); border-radius: 0 0 4px 4px;
+    }
+    #nav-msg-badge {
+        position: absolute; top: 7px; right: calc(50% - 20px);
+        background: var(--danger-color); color: white;
+        border-radius: 50%; width: 17px; height: 17px;
+        font-size: 0.6rem; font-weight: 800;
+        display: none; align-items: center; justify-content: center;
+        border: 2px solid var(--bg-card);
+    }
     
-    .fab-container { position: fixed; bottom: 25px; right: 25px; display: flex; flex-direction: column; gap: 15px; z-index: 1000; }
-    .fab { width: 56px; height: 56px; border-radius: 20px; background: var(--text-primary); color: var(--bg-main); box-shadow: 0 8px 20px rgba(0,0,0,0.2); display: flex; justify-content: center; align-items: center; font-size: 1.2rem; cursor: pointer; border: none; transition: 0.3s; position: relative; }
+    .fab-container { display: none; }
     
     #note-notification-count {
         position: absolute;
@@ -354,33 +371,242 @@
 
 <nav id="sideMenu" class="side-menu"></nav>
 
+<!-- Bottom Navigation Bar -->
+<nav id="bottomNav">
+    <ul>
+        <li><a href="#" class="menu-link" data-target="retirosPropinaSection"><i class="fas fa-wallet"></i>Mi Billetera</a></li>
+        <li><a href="#" class="menu-link" data-target="montosSection"><i class="fas fa-exchange-alt"></i>Movimientos</a></li>
+        <li><a href="#" class="menu-link" data-target="datosUsuarioSection"><i class="fas fa-user-shield"></i>Perfil</a></li>
+        <li><a href="#" class="menu-link" data-target="notasSection" style="position:relative;"><i class="fas fa-envelope"></i><span id="nav-msg-badge"></span>Mensajes</a></li>
+    </ul>
+</nav>
+
 <div id="mainContainer" class="main-container">
     <button id="menuToggle" class="menu-toggle" style="display: none;">
         <i class="fas fa-bars"></i>
     </button>
     
-    <!-- Botón Ayuda -->
-    <button id="help-btn" class="fab" style="position:fixed; bottom:25px; left:25px; top:auto; right:auto; width:45px; height:45px; border-radius:50%; background:var(--bg-card); color:var(--text-primary); font-size:1rem; z-index:1200; box-shadow: 0 4px 10px rgba(0,0,0,0.1);">
-        <i class="fas fa-question"></i>
-    </button>
+
     
     <!-- Panel Ayuda -->
-    <div id="help-panel" style="position:fixed; top:0; left:0; width:300px; height:100%; background:var(--bg-card); z-index:2100; transform:translateX(-100%); transition:0.3s; padding:20px; box-shadow:5px 0 20px rgba(0,0,0,0.1);">
-        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
-            <h2 style="margin:0;">Ayuda</h2>
-            <button id="close-help-btn" style="background:none; color:var(--text-primary); padding:0; box-shadow:none;"><i class="fas fa-times" style="font-size:1.5rem;"></i></button>
-        </div>
-        <div class="help-content">
-            <div id="help-content-login" class="help-content-section">
-                <h3>Acceso Seguro</h3>
-                <p style="color:var(--text-secondary);">Ingresa tus credenciales para acceder a tu bóveda personal.</p>
+    <div id="help-panel" style="position:fixed; top:0; left:0; width:320px; height:100%; background:var(--bg-card); z-index:2100; transform:translateX(-100%); transition:0.35s cubic-bezier(0.4,0,0.2,1); box-shadow:5px 0 30px rgba(0,0,0,0.15); display:flex; flex-direction:column; overflow:hidden;">
+        
+        <!-- Header del panel -->
+        <div style="padding:20px; border-bottom:1px solid var(--bg-input); display:flex; justify-content:space-between; align-items:center; flex-shrink:0;">
+            <div style="display:flex; align-items:center; gap:10px;">
+                <div style="width:36px; height:36px; background:var(--primary-color); border-radius:10px; display:flex; align-items:center; justify-content:center; color:white; font-size:1rem;">
+                    <i class="fas fa-question"></i>
+                </div>
+                <div>
+                    <div style="font-weight:700; font-size:1rem; color:var(--text-primary);">Centro de Ayuda</div>
+                    <div style="font-size:0.72rem; color:var(--text-muted);">Bóveda Personal</div>
+                </div>
             </div>
-            <div id="help-content-main" class="help-content-section">
-                <h3>Resumen</h3>
-                <p style="color:var(--text-secondary);">Aquí puedes ver tu saldo acumulado, anticipos y estadísticas.</p>
-            </div>
+            <button id="close-help-btn" style="background:none; color:var(--text-muted); padding:6px; box-shadow:none; border-radius:8px;"><i class="fas fa-times" style="font-size:1.2rem;"></i></button>
         </div>
+
+        <!-- Pestañas de sección -->
+        <div id="help-tabs" style="display:flex; overflow-x:auto; padding:12px 16px 0; gap:6px; flex-shrink:0; scrollbar-width:none;">
+            <button class="help-tab active" data-tab="billetera" style="white-space:nowrap; padding:6px 12px; border-radius:20px; border:none; font-size:0.75rem; font-weight:600; cursor:pointer; background:var(--primary-color); color:white; transition:0.2s;">💳 Billetera</button>
+            <button class="help-tab" data-tab="movimientos" style="white-space:nowrap; padding:6px 12px; border-radius:20px; border:none; font-size:0.75rem; font-weight:600; cursor:pointer; background:var(--bg-input); color:var(--text-secondary); transition:0.2s;">🔄 Movimientos</button>
+            <button class="help-tab" data-tab="perfil" style="white-space:nowrap; padding:6px 12px; border-radius:20px; border:none; font-size:0.75rem; font-weight:600; cursor:pointer; background:var(--bg-input); color:var(--text-secondary); transition:0.2s;">👤 Perfil</button>
+            <button class="help-tab" data-tab="mensajes" style="white-space:nowrap; padding:6px 12px; border-radius:20px; border:none; font-size:0.75rem; font-weight:600; cursor:pointer; background:var(--bg-input); color:var(--text-secondary); transition:0.2s;">💬 Mensajes</button>
+            <button class="help-tab" data-tab="general" style="white-space:nowrap; padding:6px 12px; border-radius:20px; border:none; font-size:0.75rem; font-weight:600; cursor:pointer; background:var(--bg-input); color:var(--text-secondary); transition:0.2s;">⚙️ General</button>
+        </div>
+
+        <!-- Contenido scrolleable -->
+        <div style="flex:1; overflow-y:auto; padding:16px;">
+
+            <!-- TAB: BILLETERA -->
+            <div class="help-tab-content" id="help-tab-billetera">
+                <div class="help-section-intro" style="background:linear-gradient(135deg,var(--primary-color),var(--accent-color)); color:white; border-radius:14px; padding:16px; margin-bottom:16px;">
+                    <div style="font-size:1.8rem; margin-bottom:6px;">💳</div>
+                    <div style="font-weight:700; font-size:1rem; margin-bottom:4px;">Mi Billetera</div>
+                    <div style="font-size:0.82rem; opacity:0.9;">Tu dashboard principal. Aquí puedes ver en tiempo real cuánto te corresponde cobrar en el periodo actual.</div>
+                </div>
+
+                <div style="font-size:0.8rem; font-weight:700; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.05em; margin-bottom:10px;">La tarjeta principal</div>
+                <div class="help-item">
+                    <div class="help-icon" style="background:#1e3a5f;">💰</div>
+                    <div><div class="help-item-title">Saldo Disponible</div><div class="help-item-desc">El número grande en la tarjeta azul es tu monto neto a cobrar. Se calcula automáticamente descontando ausencias y anticipos.</div></div>
+                </div>
+
+                <div style="font-size:0.8rem; font-weight:700; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.05em; margin:14px 0 10px;">Botones de acción</div>
+                <div class="help-item">
+                    <div class="help-icon" style="background:#fee2e2;">⬇️</div>
+                    <div><div class="help-item-title">Anticipo</div><div class="help-item-desc">Registra cuando retiras dinero antes del cierre del periodo. Este monto se descuenta automáticamente de tu saldo final.</div></div>
+                </div>
+                <div class="help-item">
+                    <div class="help-icon" style="background:#ede9fe;">📊</div>
+                    <div><div class="help-item-title">Estadísticas</div><div class="help-item-desc">Abre un gráfico con el historial de tus cobros por periodo, para que veas cómo ha evolucionado tu propina mes a mes.</div></div>
+                </div>
+                <div class="help-item">
+                    <div class="help-icon" style="background:#fef3c7;">📅</div>
+                    <div><div class="help-item-title">Ausencias (Planta) / Días Trabajados (Part-Time)</div><div class="help-item-desc">Abre un calendario interactivo. <strong>Planta:</strong> marca los días que faltaste para que se descuente del cálculo. <strong>Part-Time:</strong> marca los días que sí trabajaste para calcular tu parte proporcional.</div></div>
+                </div>
+
+                <div style="font-size:0.8rem; font-weight:700; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.05em; margin:14px 0 10px;">Resumen del periodo</div>
+                <div class="help-item">
+                    <div class="help-icon" style="background:#e0f2fe;">🔢</div>
+                    <div><div class="help-item-title">Mis Puntos</div><div class="help-item-desc">Tu peso dentro del reparto. A más puntos, mayor es tu porcentaje del pozo total recaudado.</div></div>
+                </div>
+                <div class="help-item">
+                    <div class="help-icon" style="background:#dcfce7;">💵</div>
+                    <div><div class="help-item-title">Valor Punto</div><div class="help-item-desc">Cuánto vale cada punto en dinero este periodo. Se obtiene dividiendo el total recaudado entre la suma de todos los puntos del equipo.</div></div>
+                </div>
+                <div class="help-item">
+                    <div class="help-icon" style="background:#fce7f3;">📋</div>
+                    <div><div class="help-item-title">Saldo Anterior / Editar</div><div class="help-item-desc">Si quedó un remanente del periodo anterior, aparece aquí sumado. Puedes editarlo tocando el botón <strong>"Editar"</strong> si hubo algún ajuste manual.</div></div>
+                </div>
+                <div class="help-item">
+                    <div class="help-icon" style="background:#fff7ed;">🔁</div>
+                    <div><div class="help-item-title">Reiniciar Periodo</div><div class="help-item-desc">Al cerrar el mes, este botón limpia los anticipos y ausencias del periodo actual. Úsalo solo cuando el administrador confirme el cierre.</div></div>
+                </div>
+            </div>
+
+            <!-- TAB: MOVIMIENTOS -->
+            <div class="help-tab-content" id="help-tab-movimientos" style="display:none;">
+                <div class="help-section-intro" style="background:linear-gradient(135deg,#0891b2,#0e7490); color:white; border-radius:14px; padding:16px; margin-bottom:16px;">
+                    <div style="font-size:1.8rem; margin-bottom:6px;">🔄</div>
+                    <div style="font-weight:700; font-size:1rem; margin-bottom:4px;">Movimientos</div>
+                    <div style="font-size:0.82rem; opacity:0.9;">Historial completo de todos los montos recaudados por periodo que el administrador ha cargado al sistema.</div>
+                </div>
+                <div class="help-item">
+                    <div class="help-icon" style="background:#e0f2fe;">📋</div>
+                    <div><div class="help-item-title">Tarjetas por periodo</div><div class="help-item-desc">Cada tarjeta representa un periodo cerrado. Muestra la fecha, el monto total recaudado del casino y cuánto te correspondió a ti según tus puntos.</div></div>
+                </div>
+                <div class="help-item">
+                    <div class="help-icon" style="background:#dcfce7;">🔄 Sincronizar</div>
+                    <div><div class="help-item-title">Botón Sincronizar</div><div class="help-item-desc">Toca este botón para traer los datos más recientes desde el servidor. Úsalo si ves que los montos están desactualizados.</div></div>
+                </div>
+                <div class="help-item">
+                    <div class="help-icon" style="background:#fef3c7;">ℹ️</div>
+                    <div><div class="help-item-title">¿Por qué puede diferir?</div><div class="help-item-desc">El monto que ves aquí es el histórico oficial registrado por administración. Puede diferir levemente si hubo correcciones posteriores al cierre.</div></div>
+                </div>
+            </div>
+
+            <!-- TAB: PERFIL -->
+            <div class="help-tab-content" id="help-tab-perfil" style="display:none;">
+                <div class="help-section-intro" style="background:linear-gradient(135deg,#7c3aed,#6d28d9); color:white; border-radius:14px; padding:16px; margin-bottom:16px;">
+                    <div style="font-size:1.8rem; margin-bottom:6px;">👤</div>
+                    <div style="font-weight:700; font-size:1rem; margin-bottom:4px;">Perfil Financiero</div>
+                    <div style="font-size:0.82rem; opacity:0.9;">Tu información personal y opciones de seguridad de la cuenta.</div>
+                </div>
+                <div class="help-item">
+                    <div class="help-icon" style="background:#ede9fe;">🔢</div>
+                    <div><div class="help-item-title">Puntos Asignados ✏️</div><div class="help-item-desc">Muestra tus puntos actuales. Si el administrador te los cambió, puedes actualizarlos tocando el ícono del lápiz para que el cálculo sea correcto.</div></div>
+                </div>
+                <div class="help-item">
+                    <div class="help-icon" style="background:#e0f2fe;">📆</div>
+                    <div><div class="help-item-title">Fecha de Ingreso</div><div class="help-item-desc">La fecha en que comenzaste a participar del fondo de propinas. Usada como referencia histórica.</div></div>
+                </div>
+                <div class="help-item">
+                    <div class="help-icon" style="background:#fee2e2;">🔒</div>
+                    <div><div class="help-item-title">Cambiar Contraseña</div><div class="help-item-desc">Actualiza tu contraseña de acceso. Se recomienda hacerlo si crees que alguien más la conoce. Debes confirmarla dos veces para evitar errores.</div></div>
+                </div>
+                <div class="help-item">
+                    <div class="help-icon" style="background:#dcfce7;">📥</div>
+                    <div><div class="help-item-title">Exportar Respaldo JSON</div><div class="help-item-desc">Descarga un archivo con todos tus datos locales (anticipos, ausencias, saldos). Guárdalo en un lugar seguro como respaldo ante cualquier problema.</div></div>
+                </div>
+                <div class="help-item">
+                    <div class="help-icon" style="background:#fef3c7;">📤</div>
+                    <div><div class="help-item-title">Restaurar Respaldo</div><div class="help-item-desc">Si perdiste tus datos o cambiaste de dispositivo, sube aquí el archivo JSON que exportaste para recuperar toda tu información.</div></div>
+                </div>
+            </div>
+
+            <!-- TAB: MENSAJES -->
+            <div class="help-tab-content" id="help-tab-mensajes" style="display:none;">
+                <div class="help-section-intro" style="background:linear-gradient(135deg,#059669,#047857); color:white; border-radius:14px; padding:16px; margin-bottom:16px;">
+                    <div style="font-size:1.8rem; margin-bottom:6px;">💬</div>
+                    <div style="font-weight:700; font-size:1rem; margin-bottom:4px;">Mensajes Seguros</div>
+                    <div style="font-size:0.82rem; opacity:0.9;">Canal de comunicación directo con administración. Los mensajes son privados y se sincronizan automáticamente.</div>
+                </div>
+                <div class="help-item">
+                    <div class="help-icon" style="background:#dcfce7;">💬</div>
+                    <div><div class="help-item-title">Globos de chat</div><div class="help-item-desc">Los mensajes en <strong>azul/verde</strong> son los tuyos. Los mensajes en <strong>gris</strong> son de administración. El chat se actualiza cada 10 segundos automáticamente.</div></div>
+                </div>
+                <div class="help-item">
+                    <div class="help-icon" style="background:#e0f2fe;">✉️</div>
+                    <div><div class="help-item-title">Escribir y enviar</div><div class="help-item-desc">Escribe tu mensaje en el campo inferior y toca el botón de enviar ✈️. Puedes escribir varias líneas antes de enviar.</div></div>
+                </div>
+                <div class="help-item">
+                    <div class="help-icon" style="background:#fef3c7;">🔗</div>
+                    <div><div class="help-item-title">Links en mensajes</div><div class="help-item-desc">Si administración envía un enlace, aparecerá subrayado con el ícono 🔗. Tócalo directamente para abrirlo en el navegador.</div></div>
+                </div>
+                <div class="help-item">
+                    <div class="help-icon" style="background:#fce7f3;">🔴</div>
+                    <div><div class="help-item-title">Badge de notificación</div><div class="help-item-desc">Cuando hay mensajes nuevos sin leer, aparece un círculo rojo con el número sobre el ícono de mensajes en la barra inferior. Al entrar a la sección, se marca como leído.</div></div>
+                </div>
+            </div>
+
+            <!-- TAB: GENERAL -->
+            <div class="help-tab-content" id="help-tab-general" style="display:none;">
+                <div class="help-section-intro" style="background:linear-gradient(135deg,#475569,#334155); color:white; border-radius:14px; padding:16px; margin-bottom:16px;">
+                    <div style="font-size:1.8rem; margin-bottom:6px;">⚙️</div>
+                    <div style="font-weight:700; font-size:1rem; margin-bottom:4px;">General</div>
+                    <div style="font-size:0.82rem; opacity:0.9;">Opciones globales de la app y cómo funciona el header superior.</div>
+                </div>
+
+                <div style="font-size:0.8rem; font-weight:700; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.05em; margin-bottom:10px;">Barra superior</div>
+                <div class="help-item">
+                    <div class="help-icon" style="background:#f1f5f9;">❓</div>
+                    <div><div class="help-item-title">Botón de Ayuda (este panel)</div><div class="help-item-desc">El ícono ❓ en la esquina superior izquierda del header abre este panel desde cualquier sección de la app.</div></div>
+                </div>
+                <div class="help-item">
+                    <div class="help-icon" style="background:#1e293b;">🌙</div>
+                    <div><div class="help-item-title">Modo Oscuro / Claro</div><div class="help-item-desc">El ícono 🌙 cambia la app al tema oscuro. Si ya estás en oscuro, el ícono ☀️ te regresa al tema claro. La preferencia se guarda aunque cierres la app.</div></div>
+                </div>
+                <div class="help-item">
+                    <div class="help-icon" style="background:#fee2e2;">⏻</div>
+                    <div><div class="help-item-title">Cerrar Sesión</div><div class="help-item-desc">El botón rojo de encendido cierra tu sesión de forma segura. Tus datos locales se conservan para el próximo acceso rápido.</div></div>
+                </div>
+
+                <div style="font-size:0.8rem; font-weight:700; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.05em; margin:14px 0 10px;">Barra inferior de navegación</div>
+                <div class="help-item">
+                    <div class="help-icon" style="background:#eff6ff;">💳</div>
+                    <div><div class="help-item-title">Mi Billetera</div><div class="help-item-desc">Tu dashboard principal con el saldo y los botones de acción del periodo actual.</div></div>
+                </div>
+                <div class="help-item">
+                    <div class="help-icon" style="background:#e0f2fe;">🔄</div>
+                    <div><div class="help-item-title">Movimientos</div><div class="help-item-desc">Historial de periodos cerrados y montos recaudados.</div></div>
+                </div>
+                <div class="help-item">
+                    <div class="help-icon" style="background:#ede9fe;">👤</div>
+                    <div><div class="help-item-title">Perfil</div><div class="help-item-desc">Tu información personal, puntos y opciones de seguridad.</div></div>
+                </div>
+                <div class="help-item">
+                    <div class="help-icon" style="background:#dcfce7;">💬</div>
+                    <div><div class="help-item-title">Mensajes</div><div class="help-item-desc">Chat con administración. El badge rojo indica mensajes nuevos sin leer.</div></div>
+                </div>
+
+                <div style="font-size:0.8rem; font-weight:700; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.05em; margin:14px 0 10px;">Seguridad</div>
+                <div class="help-item">
+                    <div class="help-icon" style="background:#fef3c7;">⏱️</div>
+                    <div><div class="help-item-title">Cierre automático de sesión</div><div class="help-item-desc">Por seguridad, la app cierra la sesión automáticamente tras un periodo de inactividad. Solo vuelve a ingresar tus datos para reanudar.</div></div>
+                </div>
+                <div class="help-item">
+                    <div class="help-icon" style="background:#dcfce7;">🛡️</div>
+                    <div><div class="help-item-title">Conexión segura</div><div class="help-item-desc">Toda la comunicación con el servidor usa HTTPS cifrado. Tu contraseña nunca se guarda en texto plano.</div></div>
+                </div>
+            </div>
+
+        </div><!-- fin scroll -->
+
+        <!-- Footer del panel -->
+        <div style="padding:14px 16px; border-top:1px solid var(--bg-input); flex-shrink:0; text-align:center;">
+            <div style="font-size:0.72rem; color:var(--text-muted);">CarlosPN Interactive® · Bóveda Personal v2</div>
+        </div>
+
     </div>
+
+    <style>
+        .help-item { display:flex; gap:12px; align-items:flex-start; margin-bottom:12px; }
+        .help-icon { width:36px; height:36px; border-radius:10px; display:flex; align-items:center; justify-content:center; font-size:1rem; flex-shrink:0; }
+        .help-item-title { font-weight:700; font-size:0.87rem; color:var(--text-primary); margin-bottom:3px; }
+        .help-item-desc { font-size:0.8rem; color:var(--text-secondary); line-height:1.5; }
+        .help-tab { transition:all 0.2s; }
+        #help-tabs::-webkit-scrollbar { display:none; }
+    </style>
     
     <!-- LOGIN SCREEN -->
     <div id="login-container">
@@ -438,6 +664,8 @@
       <div class="app-header">
         <h1>Mi Billetera</h1>
         <div class="user-info-cluster">
+            <button id="help-btn-header" title="Ayuda" style="background:none;border:none;color:var(--text-muted);font-size:1.1rem;cursor:pointer;padding:6px;border-radius:8px;transition:0.2s;" onclick="document.getElementById('help-panel').style.transform='translateX(0)'"><i class="fas fa-question-circle"></i></button>
+            <button id="theme-toggle" title="Cambiar tema" style="background:none;border:none;color:var(--text-muted);font-size:1.1rem;cursor:pointer;padding:6px;border-radius:8px;transition:0.2s;"><i class="fas fa-moon"></i></button>
             <div style="text-align:right; line-height:1.2;">
                 <span id="userInfo" style="display:block; color:var(--text-primary);">Usuario</span>
                 <small style="color:var(--text-secondary); font-size:0.7em;">En línea</small>
@@ -652,14 +880,10 @@
     </div> 
 </div>
 
-<div class="fab-container">
-    <!-- ICONO FLOTANTE DE NOTIFICACIÓN -->
-    <button id="notification-fab" class="fab pulse-notification" style="display:none;">
-        <i class="fas fa-bell"></i>
-        <span id="note-notification-count">0</span>
-    </button>
-    <button id="theme-toggle" class="fab"><i class="fas fa-moon"></i></button>
-</div>
+<!-- notification-fab oculto (badge en bottomNav) -->
+<button id="notification-fab" style="display:none;" aria-hidden="true">
+    <span id="note-notification-count">0</span>
+</button>
 
 <footer>
     <div style="text-align:center; padding:30px 20px; color:var(--text-secondary); font-size:0.8rem;">
@@ -851,9 +1075,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
     
     // Al pulsar el FAB de notificación, vamos a la sección de notas
-    document.getElementById('notification-fab').addEventListener('click', () => { 
-        activatePanel('notasSection'); 
-    });
+    // notification-fab reemplazado por badge en bottomNav
 
     // --- FUNCIONES LOCALSTORAGE ---
     function getAppData() { return JSON.parse(localStorage.getItem('appData')) || { usuarios: {}, userData: {} }; }
@@ -1050,7 +1272,7 @@ document.addEventListener('DOMContentLoaded', () => {
         } catch (e) { console.error("Error verificando sesión", e); }
     }
 
-    function forceLogout() {
+    function forceLogout() { document.getElementById('bottomNav').style.display = 'none';
         if (notesInterval) clearInterval(notesInterval);
         if (sheetsInterval) clearInterval(sheetsInterval);
         if (statusCheckInterval) clearInterval(statusCheckInterval);
@@ -1086,21 +1308,46 @@ document.addEventListener('DOMContentLoaded', () => {
             if (panelId === 'retirosPropinaSection') actualizarCalculoRetiro(); 
         }
         document.querySelectorAll('.menu-link').forEach(l => l.classList.remove('active-link'));
-        const activeLink = document.querySelector(`.menu-link[data-target="${panelId}"]`);
-        if(activeLink) activeLink.classList.add('active-link');
-        if (window.innerWidth < 992) { sideMenu.classList.remove('open'); }
+        document.querySelectorAll(`.menu-link[data-target="${panelId}"]`).forEach(l => l.classList.add('active-link'));
     }
-    menuToggle.addEventListener('click', (e) => { e.stopPropagation(); sideMenu.classList.toggle('open'); });
-    document.addEventListener('click', (e) => { if (window.innerWidth < 992) { const menu = document.getElementById('sideMenu'); const btn = document.getElementById('menuToggle'); if (menu.classList.contains('open') && !menu.contains(e.target) && !btn.contains(e.target)) { menu.classList.remove('open'); } } });
+    // bottomNav clicks handled via event delegation on .menu-link
+    document.getElementById('bottomNav').addEventListener('click', (e) => {
+        const link = e.target.closest('.menu-link');
+        if (link) { e.preventDefault(); activatePanel(link.dataset.target); }
+    });
 
-    const helpBtn = document.getElementById('help-btn'); const helpPanel = document.getElementById('help-panel'); const closeHelpBtn = document.getElementById('close-help-btn');
-    helpBtn.addEventListener('click', () => { helpPanel.style.transform = 'translateX(0)'; });
+    const helpPanel = document.getElementById('help-panel'); const closeHelpBtn = document.getElementById('close-help-btn');
     closeHelpBtn.addEventListener('click', () => helpPanel.style.transform = 'translateX(-100%)');
+
+    // Help tabs logic
+    document.getElementById('help-tabs').addEventListener('click', (e) => {
+        const tab = e.target.closest('.help-tab');
+        if (!tab) return;
+        const target = tab.dataset.tab;
+        document.querySelectorAll('.help-tab').forEach(t => {
+            t.style.background = 'var(--bg-input)';
+            t.style.color = 'var(--text-secondary)';
+        });
+        tab.style.background = 'var(--primary-color)';
+        tab.style.color = 'white';
+        document.querySelectorAll('.help-tab-content').forEach(c => c.style.display = 'none');
+        const show = document.getElementById('help-tab-' + target);
+        if (show) show.style.display = 'block';
+    });
+
+    // Open help to matching tab when clicking from a section
+    function openHelp(tab) {
+        helpPanel.style.transform = 'translateX(0)';
+        if (tab) {
+            const btn = document.querySelector('.help-tab[data-tab="' + tab + '"]');
+            if (btn) btn.click();
+        }
+    }
 
     function checkLogin() {
         const user = JSON.parse(localStorage.getItem('loggedInUser'));
         if (user && user.id) {
-            loggedInUser = user; loginContainer.style.display = 'none'; mainContent.style.display = 'block'; menuToggle.style.display = 'flex';
+            loggedInUser = user; loginContainer.style.display = 'none'; mainContent.style.display = 'block'; document.getElementById('bottomNav').style.display = 'block';
             document.getElementById('userInfo').textContent = `${user.nombre} ${user.apellido}`;
             setupMenu(); initApp(); resetInactivityTimer();
             sendHeartbeat();
@@ -1372,11 +1619,13 @@ document.addEventListener('DOMContentLoaded', () => {
             return !isMe && (noteTimestamp > lastRead);
         });
 
+        const navBadge = document.getElementById('nav-msg-badge');
         if (unreadNotes.length > 0) { 
             countEl.textContent = unreadNotes.length; 
             notificationFab.style.display = 'flex'; 
             countEl.style.display = 'flex'; 
             notificationFab.classList.add('pulse-notification');
+            if (navBadge) { navBadge.textContent = unreadNotes.length > 9 ? '9+' : unreadNotes.length; navBadge.style.display = 'flex'; }
             
             const latestNote = unreadNotes[unreadNotes.length - 1];
             const latestNoteId = new Date(latestNote.fecha).getTime();
@@ -1390,10 +1639,35 @@ document.addEventListener('DOMContentLoaded', () => {
             notificationFab.style.display = 'none'; 
             countEl.style.display = 'none'; 
             notificationFab.classList.remove('pulse-notification');
+            if (navBadge) navBadge.style.display = 'none';
         } 
     }
     
     // --- LÓGICA DE CARGA DE NOTAS MEJORADA (SCROLL INTELIGENTE) ---
+    function formatearMensajeConLinks(texto) {
+        if (!texto) return '';
+        const escaped = texto
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;');
+        return escaped.replace(/(https?:\/\/[^\s<>"']+)/g, function(url) {
+            const clean = url.replace(/[.,;:!?)]+$/, '');
+            const trail = url.slice(clean.length);
+            let label = clean;
+            try {
+                const u = new URL(clean);
+                label = u.hostname + (u.pathname !== '/' ? u.pathname : '');
+                if (label.length > 38) label = label.slice(0, 38) + '\u2026';
+            } catch(e) {
+                label = clean.length > 42 ? clean.slice(0, 42) + '\u2026' : clean;
+            }
+            return '<a href="' + clean + '" target="_blank" rel="noopener noreferrer" '
+                + 'style="color:inherit;text-decoration:underline;opacity:0.9;word-break:break-all;" '
+                + 'title="' + clean + '">'
+                + '\uD83D\uDD17 ' + label + '</a>' + trail;
+        });
+    }
+
     async function cargarNotas(forceToBottom = false) { 
         if(!loggedInUser) return; 
         const container = document.getElementById('admin-notes-container'); 
@@ -1418,7 +1692,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 const isMe = note.autor.includes(loggedInUser.nombre);
                 const card = document.createElement('div'); 
                 card.className = `note-card ${isMe ? 'user-note' : ''}`; 
-                card.innerHTML = `<div style="font-size:0.75em; color:${isMe ? 'rgba(255,255,255,0.8)' : 'var(--text-muted)'}; margin-bottom:5px;"><strong>${note.autor}</strong> - ${formatNoteDate(note.fecha)}</div><div class="note-body">${note.mensaje}</div>`; 
+                card.innerHTML = '<div style="font-size:0.75em; color:' + (isMe ? 'rgba(255,255,255,0.8)' : 'var(--text-muted)') + '; margin-bottom:5px;"><strong>' + note.autor + '</strong> - ' + formatNoteDate(note.fecha) + '</div><div class="note-body" style="white-space:pre-wrap;">' + formatearMensajeConLinks(note.mensaje) + '</div>'; 
                 container.appendChild(card); 
             }); 
             
@@ -1449,6 +1723,8 @@ document.addEventListener('DOMContentLoaded', () => {
             
             fab.style.display = 'none'; 
             count.style.display = 'none';
+            const navBadge = document.getElementById('nav-msg-badge');
+            if (navBadge) navBadge.style.display = 'none';
         } 
     }
     
