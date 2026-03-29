@@ -1371,40 +1371,131 @@ document.addEventListener('DOMContentLoaded', () => {
 
     document.getElementById('loginForm').addEventListener('submit', async (e) => {
         e.preventDefault();
-        const rawNombre = document.getElementById('loginNombre').value.trim(); const rawApellido = document.getElementById('loginApellido').value.trim(); const generatedId = `${rawNombre.toLowerCase()}-${rawApellido.toLowerCase()}`;
-        const appData = getAppData(); const localUser = appData.usuarios[generatedId];
-        
-        if (localUser && localUser.password) { if (localUser.password !== document.getElementById('loginPassword').value) { showToast('Contraseña incorrecta', 'error'); return; } }
+        const rawNombre  = document.getElementById('loginNombre').value.trim();
+        const rawApellido = document.getElementById('loginApellido').value.trim();
+        const generatedId = `${rawNombre.toLowerCase()}-${rawApellido.toLowerCase()}`;
+        const appData  = getAppData();
+        const localUser = appData.usuarios[generatedId];
 
-        const user = { id: generatedId, nombre: rawNombre, apellido: rawApellido, tipo: document.getElementById('loginTipoContrato').value, seccion: document.getElementById('loginSeccion').value, dia: document.getElementById('loginDia').value, mes: document.getElementById('loginMes').value, anio: document.getElementById('loginAnio').value, puntos: parseFloat(document.getElementById('loginPuntos').value), password: document.getElementById('loginPassword').value, telefono: (localUser && localUser.telefono) ? localUser.telefono : '' };
-        
-        showLoadingOverlay(); 
-        const res = await enviarDatosLoginASheets(user); 
-        
-        if (res.status === 'success') {
-            try {
-                const responseData = await fetch(SCRIPT_URL_LOGIN + '?action=read&v=' + Date.now());
-                const usersData = await responseData.json();
+        // ── Verificar contraseña local ───────────────────────────
+        if (localUser && localUser.password) {
+            if (localUser.password !== document.getElementById('loginPassword').value) {
+                showToast('Contraseña incorrecta', 'error'); return;
+            }
+        }
+
+        const user = {
+            id: generatedId, nombre: rawNombre, apellido: rawApellido,
+            tipo: document.getElementById('loginTipoContrato').value,
+            seccion: document.getElementById('loginSeccion').value,
+            dia: document.getElementById('loginDia').value,
+            mes: document.getElementById('loginMes').value,
+            anio: document.getElementById('loginAnio').value,
+            puntos: parseFloat(document.getElementById('loginPuntos').value),
+            password: document.getElementById('loginPassword').value,
+            telefono: (localUser && localUser.telefono) ? localUser.telefono : ''
+        };
+
+        showLoadingOverlay();
+
+        // ── ESTRATEGIA: lanzar TODO en paralelo ─────────────────
+        // 1. POST login  + GET read  al mismo tiempo
+        // 2. No esperar el updateStatus (fire-and-forget)
+        // 3. Si ya hay datos en caché local, entrar de inmediato
+        //    y sincronizar en background sin bloquear al usuario.
+
+        const hasLocalData = !!(appData.userData && appData.userData[generatedId]);
+
+        // Lanzar ambas peticiones simultáneamente
+        const postPromise = enviarDatosLoginASheets(user);
+        const getPromise  = fetch(SCRIPT_URL_LOGIN + '?action=read&v=' + Date.now())
+                            .then(r => r.json())
+                            .catch(() => null);
+
+        // ── Si hay datos locales: entrar YA, sincronizar después ─
+        if (hasLocalData) {
+            // Preparar entrada inmediata
+            if (!user.telefono && localUser && localUser.telefono) user.telefono = localUser.telefono;
+
+            // Si no tiene teléfono, mostrar modal (no bloqueamos con Sheets)
+            if (!user.telefono) {
+                const resPost = await postPromise.catch(() => ({ status: 'success' }));
+                if (resPost.status !== 'success') { hideLoadingOverlay(); showToast(resPost.message || 'Error de conexión', 'error'); return; }
+                pendingLoginUser = user; hideLoadingOverlay();
+                document.getElementById('phoneModal').style.display = 'flex'; return;
+            }
+
+            // Entrar inmediatamente con datos locales
+            appData.usuarios[user.id] = user;
+            saveAppData(appData);
+            updateRecentLogins(user);
+            localStorage.setItem('loggedInUser', JSON.stringify(user));
+
+            // Fire-and-forget: updateStatus + sync en background
+            postPromise.then(() => {
+                fetch(SCRIPT_URL_LOGIN, { method:'POST', headers:{'Content-Type':'text/plain;charset=utf-8'}, body: JSON.stringify({ action:'updateStatus', id:user.id, status:'Activo' }) }).catch(()=>{});
+            }).catch(()=>{});
+
+            getPromise.then(usersData => {
+                if (!usersData) return;
                 const me = usersData.find(u => normalize(u['ID de Usuario']) === normalize(user.id));
-                const appData = getAppData();
-                if (!appData.userData[user.id]) { appData.userData[user.id] = { montosPorFecha: {}, anticipos: [], divisor: 0, dTrabajados: [], diasAusencia: [], divisorPartTime: 1, saldoAnterior: 0 }; }
-                if (me) {
-                    appData.userData[user.id].saldoAnterior = Number(me.SaldoAnterior) || 0;
-                    let serverAusencias = me.DiasAusencia || [];
-                    if (typeof serverAusencias === 'string') { try { serverAusencias = JSON.parse(serverAusencias); } catch(e) { serverAusencias = []; } }
-                    appData.userData[user.id].diasAusencia = (Array.isArray(serverAusencias) ? serverAusencias : []).map(normalizarFecha);
+                if (!me) return;
+                const d = getAppData();
+                if (!d.userData[user.id]) d.userData[user.id] = { montosPorFecha:{}, anticipos:[], divisor:0, dTrabajados:[], diasAusencia:[], divisorPartTime:1, saldoAnterior:0 };
+                d.userData[user.id].saldoAnterior = Number(me.SaldoAnterior) || 0;
+                let sa = me.DiasAusencia || [];
+                if (typeof sa === 'string') { try { sa = JSON.parse(sa); } catch(e){ sa=[]; } }
+                d.userData[user.id].diasAusencia = (Array.isArray(sa) ? sa : []).map(normalizarFecha);
+                saveAppData(d);
+            }).catch(()=>{});
+
+            location.reload();
+            return;
+        }
+
+        // ── Sin datos locales: esperar ambas promesas en paralelo ─
+        const [resPost, usersData] = await Promise.all([
+            postPromise.catch(() => ({ status: 'error', message: 'Error de conexión.' })),
+            getPromise
+        ]);
+
+        if (resPost.status === 'success') {
+            try {
+                if (!appData.userData[user.id]) {
+                    appData.userData[user.id] = { montosPorFecha:{}, anticipos:[], divisor:0, dTrabajados:[], diasAusencia:[], divisorPartTime:1, saldoAnterior:0 };
+                }
+                if (usersData) {
+                    const me = usersData.find(u => normalize(u['ID de Usuario']) === normalize(user.id));
+                    if (me) {
+                        appData.userData[user.id].saldoAnterior = Number(me.SaldoAnterior) || 0;
+                        let sa = me.DiasAusencia || [];
+                        if (typeof sa === 'string') { try { sa = JSON.parse(sa); } catch(e){ sa=[]; } }
+                        appData.userData[user.id].diasAusencia = (Array.isArray(sa) ? sa : []).map(normalizarFecha);
+                    }
                 }
                 saveAppData(appData);
             } catch(e) { console.error("Error syncing on login", e); }
 
-            await fetch(SCRIPT_URL_LOGIN, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify({ action: 'updateStatus', id: user.id, status: 'Activo' }) });
+            // updateStatus en paralelo, no bloqueamos
+            fetch(SCRIPT_URL_LOGIN, { method:'POST', headers:{'Content-Type':'text/plain;charset=utf-8'}, body: JSON.stringify({ action:'updateStatus', id:user.id, status:'Activo' }) }).catch(()=>{});
 
-            if(!user.telefono && appData.usuarios[user.id] && appData.usuarios[user.id].telefono) user.telefono = appData.usuarios[user.id].telefono;
-            if(!user.telefono) { pendingLoginUser = user; hideLoadingOverlay(); document.getElementById('phoneModal').style.display = 'flex'; return; }
-            
-            appData.usuarios[user.id] = user; saveAppData(appData); updateRecentLogins(user); localStorage.setItem('loggedInUser', JSON.stringify(user)); 
+            if (!user.telefono && appData.usuarios[user.id] && appData.usuarios[user.id].telefono)
+                user.telefono = appData.usuarios[user.id].telefono;
+
+            if (!user.telefono) {
+                pendingLoginUser = user; hideLoadingOverlay();
+                document.getElementById('phoneModal').style.display = 'flex'; return;
+            }
+
+            appData.usuarios[user.id] = user;
+            saveAppData(appData);
+            updateRecentLogins(user);
+            localStorage.setItem('loggedInUser', JSON.stringify(user));
             location.reload();
-        } else { hideLoadingOverlay(); showToast(res.message, 'error'); }
+        } else {
+            hideLoadingOverlay();
+            showToast(resPost.message, 'error');
+        }
     });
 
     document.getElementById('savePhoneBtn').addEventListener('click', async () => {
