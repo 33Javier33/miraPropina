@@ -1,49 +1,47 @@
-// A name for our cache
-const CACHE_NAME = 'registro-personal-v3'; // Changed version to force update
+const CACHE_NAME = 'boveda-personal-v1';
 
-// The files we want to cache for offline use
 const urlsToCache = [
-  '.',
   'index.html',
   'manifest.json',
   'icons/icon-192x192.png',
   'icons/icon-512x512.png'
 ];
 
-// Clean up old caches on activation
-self.addEventListener('activate', event => {
-  event.waitUntil(
-    caches.keys().then(cacheNames => {
-      return Promise.all(
-        cacheNames.filter(cacheName => cacheName !== CACHE_NAME)
-          .map(cacheName => caches.delete(cacheName))
-      );
-    })
-  );
-});
-
-// Install event: opens the cache and adds the core files
+// 1. Install
 self.addEventListener('install', event => {
   event.waitUntil(
-    caches.open(CACHE_NAME)
-      .then(cache => {
-        console.log('Opened cache and caching core files.');
-        return cache.addAll(urlsToCache);
-      })
+    caches.open(CACHE_NAME).then(cache => {
+      console.log('Cache abierto.');
+      return cache.addAll(urlsToCache);
+    })
   );
+  self.skipWaiting(); // Activa de inmediato sin esperar
 });
 
-// Fetch event: serves assets from the cache first
+// 2. Activate — limpia caches viejos
+self.addEventListener('activate', event => {
+  event.waitUntil(
+    caches.keys().then(cacheNames =>
+      Promise.all(
+        cacheNames
+          .filter(name => name !== CACHE_NAME)
+          .map(name => caches.delete(name))
+      )
+    )
+  );
+  self.clients.claim(); // Toma control de las pestañas abiertas de inmediato
+});
+
+// 3. Fetch — cache-first, pero deja pasar peticiones externas
 self.addEventListener('fetch', event => {
+  // No interceptar peticiones cross-origin (GAS, Google APIs, CDNs)
+  if (!event.request.url.startsWith(self.location.origin)) {
+    return;
+  }
+
   event.respondWith(
-    caches.match(event.request)
-      .then(response => {
-        // If the request is in the cache, return it
-        if (response) {
-          return response;
-        }
-        // Otherwise, fetch it from the network
-        return fetch(event.request);
-      })
+    caches.match(event.request).then(response => {
+      return response || fetch(event.request);
+    })
   );
 });
