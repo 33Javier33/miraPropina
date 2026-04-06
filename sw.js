@@ -1,4 +1,4 @@
-const CACHE_NAME = 'boveda-personal-v1';
+const CACHE_NAME = 'boveda-personal-v2'; // ← bumpeá esto con cada deploy
 
 const urlsToCache = [
   'index.html',
@@ -7,15 +7,15 @@ const urlsToCache = [
   'icons/icon-512x512.png'
 ];
 
-// 1. Install
+// 1. Install — NO skipWaiting aquí; esperamos confirmación del usuario
 self.addEventListener('install', event => {
   event.waitUntil(
     caches.open(CACHE_NAME).then(cache => {
-      console.log('Cache abierto.');
+      console.log('[SW] Cache abierto.');
       return cache.addAll(urlsToCache);
     })
   );
-  self.skipWaiting(); // Activa de inmediato sin esperar
+  // Sin self.skipWaiting() — el SW esperará en "waiting"
 });
 
 // 2. Activate — limpia caches viejos
@@ -29,19 +29,23 @@ self.addEventListener('activate', event => {
       )
     )
   );
-  self.clients.claim(); // Toma control de las pestañas abiertas de inmediato
+  self.clients.claim();
 });
 
-// 3. Fetch — cache-first, pero deja pasar peticiones externas
+// 3. Fetch — network-first para GAS, cache-first para el resto
 self.addEventListener('fetch', event => {
-  // No interceptar peticiones cross-origin (GAS, Google APIs, CDNs)
-  if (!event.request.url.startsWith(self.location.origin)) {
-    return;
-  }
+  if (!event.request.url.startsWith(self.location.origin)) return;
 
   event.respondWith(
     caches.match(event.request).then(response => {
       return response || fetch(event.request);
     })
   );
+});
+
+// 4. Mensaje desde el cliente — permite activar el nuevo SW bajo demanda
+self.addEventListener('message', event => {
+  if (event.data && event.data.type === 'SKIP_WAITING') {
+    self.skipWaiting();
+  }
 });
