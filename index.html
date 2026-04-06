@@ -365,6 +365,49 @@
         color: white !important;
         display: flex !important;
     }
+
+    /* ── Banner de actualización PWA ── */
+    #update-banner {
+        position: fixed;
+        bottom: 80px;
+        left: 50%;
+        transform: translateX(-50%);
+        z-index: 9500;
+        background: var(--primary-color);
+        color: #fff;
+        border-radius: 16px;
+        padding: 14px 18px;
+        box-shadow: 0 8px 24px rgba(37,99,235,0.45);
+        display: none;
+        align-items: center;
+        gap: 12px;
+        max-width: calc(100% - 32px);
+        width: max-content;
+        animation: slideUpBanner 0.35s ease;
+    }
+    @keyframes slideUpBanner {
+        from { opacity: 0; transform: translateX(-50%) translateY(20px); }
+        to   { opacity: 1; transform: translateX(-50%) translateY(0); }
+    }
+    #update-banner span {
+        font-size: 13px;
+        font-family: 'Inter', sans-serif;
+        font-weight: 500;
+        flex: 1;
+        white-space: nowrap;
+    }
+    #update-banner .update-btn {
+        background: rgba(255,255,255,0.2);
+        color: #fff;
+        border: 1px solid rgba(255,255,255,0.4);
+        border-radius: 10px;
+        padding: 7px 14px;
+        font-size: 12px;
+        font-weight: 700;
+        cursor: pointer;
+        white-space: nowrap;
+        box-shadow: none;
+    }
   </style>
 </head>
 <body>
@@ -2051,13 +2094,47 @@ document.addEventListener('DOMContentLoaded', () => {
     checkLogin();
 });
 
-// --- SERVICE WORKER REGISTRATION (NUEVO) ---
+// --- SERVICE WORKER + NOTIFICACIÓN DE ACTUALIZACIÓN ---
 if ('serviceWorker' in navigator) {
+    let swRegistration = null;
+
     window.addEventListener('load', () => {
-        navigator.serviceWorker.register('./sw.js')
-            .then(reg => console.log('Service Worker registrado: ', reg))
-            .catch(err => console.warn('Error registrando SW: ', err));
+        navigator.serviceWorker.register('./sw.js').then(reg => {
+            swRegistration = reg;
+            console.log('[SW] Registrado:', reg);
+
+            // Si ya hay un SW esperando al momento de cargar (ej: tab recargada)
+            if (reg.waiting) mostrarBannerActualizacion();
+
+            // Escucha cuando un nuevo SW instala y queda en estado "waiting"
+            reg.addEventListener('updatefound', () => {
+                const newWorker = reg.installing;
+                newWorker.addEventListener('statechange', () => {
+                    if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                        mostrarBannerActualizacion();
+                    }
+                });
+            });
+        }).catch(err => console.warn('[SW] Error al registrar:', err));
+
+        // Cuando el SW activo cambia (después de skipWaiting), recargamos la página
+        navigator.serviceWorker.addEventListener('controllerchange', () => {
+            window.location.reload();
+        });
     });
+
+    function mostrarBannerActualizacion() {
+        const banner = document.getElementById('update-banner');
+        if (banner) banner.style.display = 'flex';
+    }
+
+    window.activarNuevaVersion = function() {
+        const banner = document.getElementById('update-banner');
+        if (banner) banner.style.display = 'none';
+        if (swRegistration && swRegistration.waiting) {
+            swRegistration.waiting.postMessage({ type: 'SKIP_WAITING' });
+        }
+    };
 }
 
 function toggleAbout(show) {
@@ -2191,6 +2268,14 @@ function toggleAbout(show) {
             </button>
         </div>
     </div>
+</div>
+
+
+<!-- ── Banner de actualización PWA ── -->
+<div id="update-banner">
+    <i class="fas fa-arrows-rotate"></i>
+    <span>🎉 Nueva versión disponible</span>
+    <button class="update-btn" onclick="activarNuevaVersion()">Actualizar</button>
 </div>
 
 </body>
