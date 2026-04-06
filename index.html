@@ -1810,8 +1810,10 @@ document.addEventListener('DOMContentLoaded', () => {
         if(!loggedInUser) return; 
         const container = document.getElementById('admin-notes-container'); 
         
-        // 1. Verificar si el usuario estaba leyendo arriba (no al final)
-        const wasNearBottom = (container.scrollHeight - container.scrollTop - container.clientHeight) < 100;
+        // 1. Capturar posición actual ANTES del fetch (para restaurar si el usuario está leyendo)
+        const scrollBefore = container.scrollTop;
+        const heightBefore = container.scrollHeight;
+        const wasNearBottom = (heightBefore - scrollBefore - container.clientHeight) < 100;
         
         const response = await fetchFromNotasScript({ action: 'getNotes' }); 
         
@@ -1819,12 +1821,12 @@ document.addEventListener('DOMContentLoaded', () => {
             allFetchedNotes = response.data; 
             allFetchedNotes.sort((a, b) => new Date(a.fecha) - new Date(b.fecha)); 
             
-            // 2. Crear una firma del contenido actual para evitar parpadeos
+            // 2. Firma para evitar re-renderizado si no cambió nada
             const currentDataSignature = JSON.stringify(allFetchedNotes);
             if (currentDataSignature === lastNotesDataSignature) return;
-            
             lastNotesDataSignature = currentDataSignature;
 
+            // 3. Renderizar mensajes
             container.innerHTML = ''; 
             allFetchedNotes.forEach(note => { 
                 const isMe = note.autor.includes(loggedInUser.nombre);
@@ -1834,10 +1836,16 @@ document.addEventListener('DOMContentLoaded', () => {
                 container.appendChild(card); 
             }); 
             
-            // 3. Scroll solo si es necesario (CORRECCIÓN APLICADA: Eliminado el check de scrollTop === 0)
-            // Si es la primera carga (forceToBottom) O si el usuario ya estaba abajo leyendo.
+            // 4. Decidir posición de scroll:
+            //    - forceToBottom=true → entró a la sección o envió mensaje → ir al fondo
+            //    - wasNearBottom → ya estaba abajo leyendo lo último → seguir abajo
+            //    - Si estaba leyendo mensajes viejos → restaurar posición relativa
             if (forceToBottom || wasNearBottom) {
-                container.scrollTop = container.scrollHeight; 
+                container.scrollTop = container.scrollHeight;
+            } else {
+                // Restaurar posición: compensar la altura extra que agregaron los nuevos mensajes
+                const heightAfter = container.scrollHeight;
+                container.scrollTop = scrollBefore + (heightAfter - heightBefore);
             }
             
             checkForUnread(allFetchedNotes); 
@@ -2103,10 +2111,8 @@ if ('serviceWorker' in navigator) {
             swRegistration = reg;
             console.log('[SW] Registrado:', reg);
 
-            // Si ya hay un SW esperando al momento de cargar (ej: tab recargada)
             if (reg.waiting) mostrarBannerActualizacion();
 
-            // Escucha cuando un nuevo SW instala y queda en estado "waiting"
             reg.addEventListener('updatefound', () => {
                 const newWorker = reg.installing;
                 newWorker.addEventListener('statechange', () => {
@@ -2117,7 +2123,6 @@ if ('serviceWorker' in navigator) {
             });
         }).catch(err => console.warn('[SW] Error al registrar:', err));
 
-        // Cuando el SW activo cambia (después de skipWaiting), recargamos la página
         navigator.serviceWorker.addEventListener('controllerchange', () => {
             window.location.reload();
         });
