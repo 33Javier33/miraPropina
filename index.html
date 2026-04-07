@@ -1429,7 +1429,7 @@ document.addEventListener('DOMContentLoaded', () => {
         location.reload();
     }
 
-    document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'hidden') { sendDisconnectSignal(); } else { sendHeartbeat(); } });
+    window.addEventListener('beforeunload', () => { if (loggedInUser) sendDisconnectSignal(); });
     window.addEventListener('beforeunload', () => { sendDisconnectSignal(); });
 
     const setupMenu = () => {
@@ -1447,9 +1447,9 @@ document.addEventListener('DOMContentLoaded', () => {
             targetPanel.classList.add('active'); localStorage.setItem('activePanel', panelId);
             if (panelId === 'montosSection') cargarYMostrarMontos();
             if (panelId === 'notasSection') { 
-                // CORRECCIÓN: Al entrar, forzamos scroll abajo (true)
-                cargarNotas(true); 
-                markNotesAsRead(); 
+                markNotesAsRead();
+                // Pequeño delay para que el panel sea visible antes de calcular scrollHeight
+                setTimeout(() => cargarNotas(true), 50);
             }
             if (panelId === 'datosUsuarioSection') populateUserDataSection();
             if (panelId === 'retirosPropinaSection') actualizarCalculoRetiro(); 
@@ -1937,17 +1937,15 @@ document.addEventListener('DOMContentLoaded', () => {
                 container.appendChild(card); 
             }); 
             
-            // 4. Decidir posición de scroll:
-            //    - forceToBottom=true → entró a la sección o envió mensaje → ir al fondo
-            //    - wasNearBottom → ya estaba abajo leyendo lo último → seguir abajo
-            //    - Si estaba leyendo mensajes viejos → restaurar posición relativa
-            if (forceToBottom || wasNearBottom) {
-                container.scrollTop = container.scrollHeight;
-            } else {
-                // Restaurar posición: compensar la altura extra que agregaron los nuevos mensajes
-                const heightAfter = container.scrollHeight;
-                container.scrollTop = scrollBefore + (heightAfter - heightBefore);
-            }
+            // 4. Decidir posición de scroll después del paint del browser
+            requestAnimationFrame(() => {
+                if (forceToBottom || wasNearBottom) {
+                    container.scrollTop = container.scrollHeight;
+                } else {
+                    const heightAfter = container.scrollHeight;
+                    container.scrollTop = scrollBefore + (heightAfter - heightBefore);
+                }
+            });
             
             checkForUnread(allFetchedNotes); 
         } 
@@ -2185,10 +2183,62 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('importarDesdeSheetsBtn').onclick = async function() { const btn = this; const originalText = btn.innerHTML; btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>'; btn.disabled = true; try { await importarDesdeSheets(false); cargarYMostrarMontos(); actualizarCalculoRetiro(); showToast('Sincronizado'); } catch(e) { showToast('Error sync', 'error'); } finally { btn.innerHTML = originalText; btn.disabled = false; } };
     }
 
-    function resetInactivityTimer() { if (localStorage.getItem('loggedInUser')) lastActivityTime = Date.now(); }
-    function checkInactivity() { if (!localStorage.getItem('loggedInUser')) return; if (Date.now() - lastActivityTime > 660000) { sendDisconnectSignal(); forceLogout(); } }
-    ['mousemove', 'mousedown', 'keypress', 'touchmove', 'scroll', 'click'].forEach(evt => document.addEventListener(evt, resetInactivityTimer, true));
-    setInterval(checkInactivity, 10000);
+    // ── INACTIVIDAD: solo cuenta tiempo en segundo plano ─────────
+    // Cuando el usuario sale de la app → guardamos el momento
+    // Cuando vuelve → medimos cuánto tiempo estuvo fuera
+    // Si superó 15 min en segundo plano → cerrar sesión
+    const INACTIVITY_LIMIT_MS = 15 * 60 * 1000; // 15 minutos
+    let hiddenAt = null;
+    let inactivityTimeout = null;
+
+    function resetInactivityTimer() {
+        // Resetea solo la marca de tiempo — ya no usamos setInterval
+        hiddenAt = null;
+        if (inactivityTimeout) { clearTimeout(inactivityTimeout); inactivityTimeout = null; }
+    }
+
+    function checkInactivity() {
+        // Compatibilidad — ya no usada con setInterval
+    }
+
+    document.addEventListener('visibilitychange', () => {
+        if (!localStorage.getItem('loggedInUser')) return;
+
+        if (document.visibilityState === 'hidden') {
+            // App va a segundo plano → registrar momento y armar timeout
+            hiddenAt = Date.now();
+            sendDisconnectSignal();
+            inactivityTimeout = setTimeout(() => {
+                // Pasaron 15 min en segundo plano → cerrar
+                forceLogout();
+            }, INACTIVITY_LIMIT_MS);
+
+        } else {
+            // App vuelve al frente
+            sendHeartbeat();
+            if (inactivityTimeout) { clearTimeout(inactivityTimeout); inactivityTimeout = null; }
+
+            if (hiddenAt !== null) {
+                const tiempoFuera = Date.now() - hiddenAt;
+                hiddenAt = null;
+                if (tiempoFuera >= INACTIVITY_LIMIT_MS) {
+                    // Ya pasaron 15 min — cerrar igual
+                    forceLogout();
+                    return;
+                }
+            }
+        }
+    });
+
+    // Mantener el setInterval solo como fallback liviano (no cierra por sí solo)
+    setInterval(() => {
+        if (!localStorage.getItem('loggedInUser')) return;
+        if (document.visibilityState === 'hidden' && hiddenAt !== null) {
+            if (Date.now() - hiddenAt >= INACTIVITY_LIMIT_MS) {
+                forceLogout();
+            }
+        }
+    }, 30000);
 
     setupNumericInputFormatting(document.getElementById('addAnticipoMontoInput')); setupNumericInputFormatting(document.getElementById('editAnticipoMontoInput'));
 
@@ -2203,19 +2253,232 @@ document.addEventListener('DOMContentLoaded', () => {
     // ══════════════════════════════════════════════════════
     // CONSULTA DE ANTICIPOS POR ID — CÁLCULO ESPEJO
     // ══════════════════════════════════════════════════════
-    const CONSULTA_ID_KEY = 'consultaIDGuardado_v1';
+    const CONSULTA_ID_KEY       = 'consultaIDGuardado_v1';
+    const CONSULTA_CACHE_KEY    = 'consultaCache_v1';
+    const CONSULTA_SIG_KEY      = 'consultaSig_v1';   // firma para detectar cambios
 
+    // ── Guardar y leer caché ─────────────────────────────────────
+    function guardarCacheConsulta(data) {
+        try { localStorage.setItem(CONSULTA_CACHE_KEY, JSON.stringify({ ts: Date.now(), data })); } catch(e) {}
+    }
+    function leerCacheConsulta() {
+        try {
+            const raw = localStorage.getItem(CONSULTA_CACHE_KEY);
+            if (!raw) return null;
+            const c = JSON.parse(raw);
+            return c.data || null;
+        } catch(e) { return null; }
+    }
+
+    // ── Calcular resultado a partir de los datos crudos del servidor ──
+    function calcularConsulta(id, recData, sheetsData, saldosData, cierreData, diasTrabajados, allSociosData) {
+        const socio = allSociosData.find(u => String(u.ID || '').trim().toUpperCase() === id.toUpperCase());
+        if (!socio) return null;
+
+        const mapVP = {};
+        recData.forEach(r => {
+            const f = String(r.fecha).substring(0, 10);
+            const m = parseFloat(String(r.monto).replace(/\./g, '')) || 0;
+            const d = parseFloat(r.divisor) || 1;
+            if (!mapVP[f]) mapVP[f] = { totalVP: 0, montoReal: 0 };
+            mapVP[f].totalVP   += (m / d);
+            mapVP[f].montoReal += m;
+        });
+
+        const dIng = new Date(socio.FechaIngreso), hoy = new Date();
+        let anos = hoy.getFullYear() - dIng.getFullYear();
+        if (hoy.getMonth() < dIng.getMonth() || (hoy.getMonth() === dIng.getMonth() && hoy.getDate() < dIng.getDate())) anos--;
+        anos = Math.max(0, anos);
+        const area   = String(socio.Area || '');
+        const maxPts = area.includes('Mesa') ? 20 : area.includes('Cambista') ? 8 : area.includes('Boveda') ? 10 : 12;
+        const pts    = Math.min(4 + (anos * 2), maxPts);
+
+        const sID  = String(socio.ID).trim();
+        const esPT = String(socio.TipoContrato || '').toLowerCase().includes('part');
+
+        const allExtras = sheetsData.extras || {};
+        let userExtras  = allExtras[sID] || [];
+        if (!userExtras.length) { const k = Object.keys(allExtras).find(key => String(key).trim() === sID); if (k) userExtras = allExtras[k]; }
+
+        let puntoGlobalTotal = 0;
+        if (esPT) {
+            let myDias = diasTrabajados[sID] || [];
+            if (!myDias.length) { const k = Object.keys(diasTrabajados).find(key => String(key).trim() === sID); if (k) myDias = diasTrabajados[k]; }
+            myDias.forEach(dStr => { puntoGlobalTotal += (mapVP[String(dStr).substring(0,10)]?.totalVP || 0); });
+        } else {
+            Object.values(mapVP).forEach(v => puntoGlobalTotal += v.totalVP);
+            userExtras.filter(e => String(e.tipo).toUpperCase() === 'AUSENCIA').forEach(a => {
+                puntoGlobalTotal -= (mapVP[String(a.fecha).substring(0,10)]?.totalVP || 0);
+            });
+        }
+
+        const allAnticipos = sheetsData.anticipos || {};
+        let userAnticipos  = allAnticipos[sID] || [];
+        if (!userAnticipos.length) { const k = Object.keys(allAnticipos).find(key => String(key).trim() === sID); if (k) userAnticipos = allAnticipos[k]; }
+
+        const tAnt  = userAnticipos.reduce((a, b) => a + Number(b.cantidad || 0), 0);
+        const tDesc = userExtras.filter(e => e.tipo === 'DESCUENTO_PERSONAL').reduce((a, b) => a + Number(b.monto || 0), 0);
+        const sAnt  = (saldosData[sID] || 0) + (cierreData[sID] || 0);
+
+        const propinaBruta = puntoGlobalTotal * pts;
+        const saldoBruto   = (propinaBruta + sAnt) - (tAnt + tDesc);
+        const remanente    = saldoBruto > 0 ? saldoBruto % 1000 : saldoBruto;
+        const liquido      = saldoBruto > 0 ? saldoBruto - remanente : 0;
+        const nombre       = ((socio.Nombre || '') + ' ' + (socio.Apellido || '')).trim() || sID;
+        const movimientos  = [...userAnticipos, ...userExtras.filter(e => e.tipo === 'DESCUENTO_PERSONAL')];
+
+        return { socio, pts, esPT, sID, nombre, propinaBruta, sAnt, tAnt, tDesc, remanente, liquido, movimientos };
+    }
+
+    // ── Renderizar resultado en pantalla ─────────────────────────
+    function renderConsulta(r) {
+        document.getElementById('consultaNombreSocio').textContent = r.nombre.toUpperCase();
+        document.getElementById('consultaIDSocio').textContent = 'ID: ' + r.sID;
+        const finalEl = document.getElementById('consultaFinalAmount');
+        finalEl.textContent = '$' + formatNumberWithPoints(r.liquido);
+        if (r.liquido < 0) finalEl.classList.add('negative-value');
+        else finalEl.classList.remove('negative-value');
+
+        document.getElementById('consultaCalcGrid').innerHTML =
+            '<div class="calc-box"><span class="calc-label">Mis Puntos</span><span class="calc-value">' + r.pts + '</span></div>' +
+            '<div class="calc-box"><span class="calc-label">Tipo</span><span class="calc-value" style="font-size:0.85rem;">' + (r.esPT ? 'Part Time' : 'Planta') + '</span></div>' +
+            '<div class="calc-box"><span class="calc-label">Bruto</span><span class="calc-value" style="color:var(--primary-color);">$' + formatNumberWithPoints(r.propinaBruta) + '</span></div>' +
+            '<div class="calc-box"><span class="calc-label">Remanente</span><span class="calc-value" style="color:var(--warning-color);">$' + formatNumberWithPoints(r.remanente) + '</span></div>';
+
+        document.getElementById('consultaTransList').innerHTML =
+            '<div class="transaction-item"><div style="display:flex;align-items:center;"><div class="t-icon" style="background:var(--success-color);color:white;"><i class="fas fa-coins"></i></div><div class="t-info"><span class="t-title">Total Bruto (' + r.pts + ' pts)</span></div></div><span class="t-amount positive">$' + formatNumberWithPoints(r.propinaBruta) + '</span></div>' +
+            '<div class="transaction-item"><div style="display:flex;align-items:center;"><div class="t-icon" style="background:var(--primary-color);color:white;"><i class="fas fa-history"></i></div><div class="t-info"><span class="t-title">Saldo Anterior</span></div></div><span class="t-amount positive">+$' + formatNumberWithPoints(r.sAnt) + '</span></div>' +
+            '<div class="transaction-item"><div style="display:flex;align-items:center;"><div class="t-icon" style="background:var(--danger-color);color:white;"><i class="fas fa-hand-holding-usd"></i></div><div class="t-info"><span class="t-title">Anticipos / Descuentos</span></div></div><span class="t-amount" style="color:var(--danger-color);">-$' + formatNumberWithPoints(r.tAnt + r.tDesc) + '</span></div>' +
+            '<div class="transaction-item"><div style="display:flex;align-items:center;"><div class="t-icon" style="background:var(--warning-color);color:white;"><i class="fas fa-piggy-bank"></i></div><div class="t-info"><span class="t-title">Remanente</span></div></div><span class="t-amount" style="color:var(--warning-color);">$' + formatNumberWithPoints(r.remanente) + '</span></div>' +
+            '<div class="transaction-item" style="border-top:2px solid var(--primary-color);margin-top:4px;padding-top:12px;"><div style="display:flex;align-items:center;"><div class="t-icon" style="background:var(--primary-color);color:white;"><i class="fas fa-wallet"></i></div><div class="t-info"><span class="t-title" style="font-weight:700;">A Recibir (Líquido)</span></div></div><span class="t-amount positive" style="font-size:1.1rem;font-weight:700;">$' + formatNumberWithPoints(r.liquido) + '</span></div>';
+
+        renderConsultaAnticipos(r.movimientos);
+
+        document.getElementById('consultaResultado').style.display = 'block';
+        document.getElementById('consultaEstadoVacio').style.display = 'none';
+    }
+
+    // ── Fetch silencioso al servidor ─────────────────────────────
+    async function fetchConsultaServidor(id) {
+        const [recRes, dataRes, saldosRes, cierreRes, diasRes, sociosRes] = await Promise.all([
+            fetch(SCRIPT_URL_RECAUDACIONES + '?action=get',                                      { redirect: 'follow' }),
+            fetch(SCRIPT_URL_SOCIOS, { method:'POST', body:JSON.stringify({action:'getAllDataDesdeSheets'}), redirect:'follow' }),
+            fetch(SCRIPT_URL_SOCIOS + '?action=getSaldosAnteriores',                             { redirect: 'follow' }),
+            fetch(SCRIPT_URL_SOCIOS + '?action=getSaldosCierre',                                 { redirect: 'follow' }),
+            fetch(SCRIPT_URL_SOCIOS + '?action=getDiasPartTime',                                 { redirect: 'follow' }),
+            fetch(SCRIPT_URL_SOCIOS + '?action=getSocios',                                       { redirect: 'follow' })
+        ]);
+        const recData        = (await recRes.json()).data    || [];
+        const fullSheets     = await dataRes.json();
+        const sheetsData     = fullSheets.data || fullSheets;
+        const saldosData     = (await saldosRes.json()).data || {};
+        const cierreData     = (await cierreRes.json()).data || {};
+        const diasTrabajados = (await diasRes.json()).data   || {};
+        const allSociosData  = (await sociosRes.json()).data || [];
+        return { recData, sheetsData, saldosData, cierreData, diasTrabajados, allSociosData };
+    }
+
+    // ── Firma para detectar cambios en anticipos ─────────────────
+    function firmaAnticipos(movimientos) {
+        return JSON.stringify(
+            [...movimientos]
+                .sort((a,b) => String(a.fecha).localeCompare(String(b.fecha)))
+                .map(a => ({ f: a.fecha, c: a.cantidad || a.monto, d: a.desc || a.tipo }))
+        );
+    }
+
+    // ── initConsultaSection: carga caché + polling silencioso ────
     function initConsultaSection() {
         const saved = localStorage.getItem(CONSULTA_ID_KEY);
-        if (saved) {
-            document.getElementById('consultaIDGuardadoLabel').textContent = saved;
-            document.getElementById('consultaIDGuardadoBox').style.display = 'block';
-            document.getElementById('consultaIDInput').value = saved;
-            buscarConsulta();
-        } else {
+        if (!saved) {
             document.getElementById('consultaResultado').style.display = 'none';
             document.getElementById('consultaEstadoVacio').style.display = 'block';
             document.getElementById('consultaMensajeVacio').textContent = 'Ingresa un ID para consultar';
+            return;
+        }
+        document.getElementById('consultaIDGuardadoLabel').textContent = saved;
+        document.getElementById('consultaIDGuardadoBox').style.display = 'block';
+        document.getElementById('consultaIDInput').value = saved;
+
+        // 1. Mostrar caché inmediatamente si existe
+        const cache = leerCacheConsulta();
+        if (cache) {
+            renderConsulta(cache);
+            // 2. Polling silencioso en background
+            setTimeout(() => sincronizarConsultaSilencioso(saved), 300);
+        } else {
+            // Sin caché: carga completa con spinner
+            buscarConsulta();
+        }
+    }
+
+    // ── Polling silencioso ───────────────────────────────────────
+    async function sincronizarConsultaSilencioso(id) {
+        try {
+            const raw = await fetchConsultaServidor(id);
+            const resultado = calcularConsulta(id, raw.recData, raw.sheetsData, raw.saldosData, raw.cierreData, raw.diasTrabajados, raw.allSociosData);
+            if (!resultado) return;
+
+            const sigNueva   = firmaAnticipos(resultado.movimientos);
+            const sigAnterior = localStorage.getItem(CONSULTA_SIG_KEY + '_' + id);
+
+            if (sigAnterior && sigNueva !== sigAnterior) {
+                // Detectar qué cambió — anticipos nuevos o descuentos
+                const cacheVieja = leerCacheConsulta();
+                const movAntes   = cacheVieja ? cacheVieja.movimientos.length : 0;
+                const movAhora   = resultado.movimientos.length;
+                if (movAhora > movAntes) {
+                    showToast('Nuevo anticipo o descuento registrado', 'info');
+                } else {
+                    showToast('Datos actualizados', 'info');
+                }
+                renderConsulta(resultado);
+            }
+
+            // Guardar siempre la firma y caché nuevos
+            localStorage.setItem(CONSULTA_SIG_KEY + '_' + id, sigNueva);
+            guardarCacheConsulta(resultado);
+
+        } catch(e) {
+            console.warn('Sync silencioso consulta falló:', e);
+        }
+    }
+
+    // ── buscarConsulta: carga completa con spinner ───────────────
+    async function buscarConsulta() {
+        const id = document.getElementById('consultaIDInput').value.trim().toUpperCase();
+        if (!id) { mostrarVacioConsulta('Ingresa un ID para consultar'); return; }
+
+        localStorage.setItem(CONSULTA_ID_KEY, id);
+        document.getElementById('consultaIDGuardadoLabel').textContent = id;
+        document.getElementById('consultaIDGuardadoBox').style.display = 'block';
+
+        const iconEl = document.getElementById('consultaEstadoVacio').querySelector('i');
+        if (iconEl) iconEl.className = 'fas fa-circle-notch fa-spin';
+        mostrarVacioConsulta('Cargando datos...');
+        document.getElementById('consultaResultado').style.display = 'none';
+
+        try {
+            const raw       = await fetchConsultaServidor(id);
+            const resultado = calcularConsulta(id, raw.recData, raw.sheetsData, raw.saldosData, raw.cierreData, raw.diasTrabajados, raw.allSociosData);
+
+            if (iconEl) iconEl.className = 'fas fa-id-card';
+
+            if (!resultado) {
+                mostrarVacioConsulta('ID no encontrado. Verifica que sea correcto.');
+                return;
+            }
+
+            // Guardar caché y firma
+            guardarCacheConsulta(resultado);
+            localStorage.setItem(CONSULTA_SIG_KEY + '_' + id, firmaAnticipos(resultado.movimientos));
+
+            renderConsulta(resultado);
+
+        } catch(e) {
+            console.error('Error consulta:', e);
+            if (iconEl) iconEl.className = 'fas fa-id-card';
+            mostrarVacioConsulta('Error de conexión. Verifica tu internet e intenta de nuevo.');
         }
     }
 
@@ -2226,7 +2489,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function olvidarIDGuardado() {
         if (!confirm('¿Eliminar el ID guardado?')) return;
+        const id = localStorage.getItem(CONSULTA_ID_KEY);
         localStorage.removeItem(CONSULTA_ID_KEY);
+        localStorage.removeItem(CONSULTA_CACHE_KEY);
+        if (id) localStorage.removeItem(CONSULTA_SIG_KEY + '_' + id);
         document.getElementById('consultaIDGuardadoBox').style.display = 'none';
         document.getElementById('consultaIDInput').value = '';
         document.getElementById('consultaResultado').style.display = 'none';
@@ -2234,157 +2500,6 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('consultaMensajeVacio').textContent = 'Ingresa un ID para consultar';
     }
 
-    async function buscarConsulta() {
-        const id = document.getElementById('consultaIDInput').value.trim().toUpperCase();
-        if (!id) { mostrarVacioConsulta('Ingresa un ID para consultar'); return; }
-
-        localStorage.setItem(CONSULTA_ID_KEY, id);
-        document.getElementById('consultaIDGuardadoLabel').textContent = id;
-        document.getElementById('consultaIDGuardadoBox').style.display = 'block';
-
-        // Spinner mientras carga
-        const iconEl = document.getElementById('consultaEstadoVacio').querySelector('i');
-        if (iconEl) iconEl.className = 'fas fa-circle-notch fa-spin';
-        mostrarVacioConsulta('Cargando datos...');
-        document.getElementById('consultaResultado').style.display = 'none';
-
-        try {
-            // ── Las mismas 5 llamadas que hace refresh() en el V19 ──────────
-            const [recRes, dataRes, saldosRes, cierreRes, diasRes, sociosRes] = await Promise.all([
-                fetch(SCRIPT_URL_RECAUDACIONES + '?action=get',                                        { redirect: 'follow' }),
-                fetch(SCRIPT_URL_SOCIOS,      { method:'POST', body:JSON.stringify({action:'getAllDataDesdeSheets'}), redirect:'follow' }),
-                fetch(SCRIPT_URL_SOCIOS + '?action=getSaldosAnteriores',                               { redirect: 'follow' }),
-                fetch(SCRIPT_URL_SOCIOS + '?action=getSaldosCierre',                                  { redirect: 'follow' }),
-                fetch(SCRIPT_URL_SOCIOS + '?action=getDiasPartTime',                                   { redirect: 'follow' }),
-                fetch(SCRIPT_URL_SOCIOS + '?action=getSocios',                                         { redirect: 'follow' })
-            ]);
-
-            const recData        = (await recRes.json()).data    || [];
-            const fullSheets     = await dataRes.json();
-            const sheetsData     = fullSheets.data || fullSheets;
-            const saldosData     = (await saldosRes.json()).data || {};
-            const cierreData     = (await cierreRes.json()).data || {};
-            const diasTrabajados = (await diasRes.json()).data   || {};
-            const allSociosData  = (await sociosRes.json()).data || [];
-
-            // ── Buscar el socio por ID ──────────────────────────────────────
-            const socio = allSociosData.find(u => String(u.ID || '').trim().toUpperCase() === id.toUpperCase());
-            if (!socio) {
-                if (iconEl) iconEl.className = 'fas fa-id-card';
-                mostrarVacioConsulta('ID no encontrado. Verifica que sea correcto.');
-                return;
-            }
-
-            // ── Construir mapVP igual que refresh() ───────────────────────
-            const mapVP = {};
-            recData.forEach(r => {
-                const f = String(r.fecha).substring(0, 10);
-                const m = parseFloat(String(r.monto).replace(/\./g, '')) || 0;
-                const d = parseFloat(r.divisor) || 1;
-                if (!mapVP[f]) mapVP[f] = { totalVP: 0, montoReal: 0 };
-                mapVP[f].totalVP   += (m / d);
-                mapVP[f].montoReal += m;
-            });
-
-            // ── Puntos del socio (misma fórmula que el V19) ──────────────
-            const dIng = new Date(socio.FechaIngreso);
-            const hoy  = new Date();
-            let anos   = hoy.getFullYear() - dIng.getFullYear();
-            if (hoy.getMonth() < dIng.getMonth() ||
-               (hoy.getMonth() === dIng.getMonth() && hoy.getDate() < dIng.getDate())) anos--;
-            anos = Math.max(0, anos);
-            const area = String(socio.Area || '');
-            const maxPts = area.includes('Mesa') ? 20 : area.includes('Cambista') ? 8 : area.includes('Boveda') ? 10 : 12;
-            const pts = Math.min(4 + (anos * 2), maxPts);
-
-            const sID  = String(socio.ID).trim();
-            const esPT = String(socio.TipoContrato || '').toLowerCase().includes('part');
-
-            // ── Extras (ausencias, descuentos) ───────────────────────────
-            const allExtras = sheetsData.extras || {};
-            let userExtras  = allExtras[sID] || [];
-            if (!userExtras.length) {
-                const k = Object.keys(allExtras).find(key => String(key).trim() === sID);
-                if (k) userExtras = allExtras[k];
-            }
-
-            // ── puntoGlobalTotal (mismo algoritmo que refresh()) ─────────
-            let puntoGlobalTotal = 0;
-
-            if (esPT) {
-                let myDias = diasTrabajados[sID] || [];
-                if (!myDias.length) {
-                    const k = Object.keys(diasTrabajados).find(key => String(key).trim() === sID);
-                    if (k) myDias = diasTrabajados[k];
-                }
-                myDias.forEach(dStr => {
-                    puntoGlobalTotal += (mapVP[String(dStr).substring(0,10)]?.totalVP || 0);
-                });
-            } else {
-                Object.values(mapVP).forEach(v => puntoGlobalTotal += v.totalVP);
-                userExtras.filter(e => String(e.tipo).toUpperCase() === 'AUSENCIA').forEach(a => {
-                    puntoGlobalTotal -= (mapVP[String(a.fecha).substring(0,10)]?.totalVP || 0);
-                });
-            }
-
-            // ── Anticipos ────────────────────────────────────────────────
-            const allAnticipos = sheetsData.anticipos || {};
-            let userAnticipos  = allAnticipos[sID] || [];
-            if (!userAnticipos.length) {
-                const k = Object.keys(allAnticipos).find(key => String(key).trim() === sID);
-                if (k) userAnticipos = allAnticipos[k];
-            }
-
-            // ── Cálculo final (idéntico a refresh()) ─────────────────────
-            const tAnt  = userAnticipos.reduce((a, b) => a + Number(b.cantidad || 0), 0);
-            const tDesc = userExtras.filter(e => e.tipo === 'DESCUENTO_PERSONAL').reduce((a, b) => a + Number(b.monto || 0), 0);
-            const sAnt  = (saldosData[sID] || 0) + (cierreData[sID] || 0);
-
-            const propinaBruta = puntoGlobalTotal * pts;
-            const saldoBruto   = (propinaBruta + sAnt) - (tAnt + tDesc);
-            const remanente    = saldoBruto > 0 ? saldoBruto % 1000 : saldoBruto;
-            const liquido      = saldoBruto > 0 ? saldoBruto - remanente : 0;
-
-            // ── Renderizar hero card ──────────────────────────────────────
-            const nombre = ((socio.Nombre || '') + ' ' + (socio.Apellido || '')).trim() || id;
-            document.getElementById('consultaNombreSocio').textContent = nombre.toUpperCase();
-            document.getElementById('consultaIDSocio').textContent = 'ID: ' + sID;
-            const finalEl = document.getElementById('consultaFinalAmount');
-            finalEl.textContent = '$' + formatNumberWithPoints(liquido);
-            if (liquido < 0) finalEl.classList.add('negative-value');
-            else finalEl.classList.remove('negative-value');
-
-            // ── Renderizar grilla de cálculo ──────────────────────────────
-            document.getElementById('consultaCalcGrid').innerHTML =
-                '<div class="calc-box"><span class="calc-label">Mis Puntos</span><span class="calc-value">' + pts + '</span></div>' +
-                '<div class="calc-box"><span class="calc-label">Tipo</span><span class="calc-value" style="font-size:0.85rem;">' + (esPT ? 'Part Time' : 'Planta') + '</span></div>' +
-                '<div class="calc-box"><span class="calc-label">Bruto</span><span class="calc-value" style="color:var(--primary-color);">$' + formatNumberWithPoints(propinaBruta) + '</span></div>' +
-                '<div class="calc-box"><span class="calc-label">Remanente</span><span class="calc-value" style="color:var(--warning-color);">$' + formatNumberWithPoints(remanente) + '</span></div>';
-
-            // ── Renderizar resumen contable ───────────────────────────────
-            document.getElementById('consultaTransList').innerHTML =
-                '<div class="transaction-item"><div style="display:flex;align-items:center;"><div class="t-icon" style="background:var(--success-color);color:white;"><i class="fas fa-coins"></i></div><div class="t-info"><span class="t-title">Total Bruto (' + pts + ' pts)</span></div></div><span class="t-amount positive">$' + formatNumberWithPoints(propinaBruta) + '</span></div>' +
-                '<div class="transaction-item"><div style="display:flex;align-items:center;"><div class="t-icon" style="background:var(--primary-color);color:white;"><i class="fas fa-history"></i></div><div class="t-info"><span class="t-title">Saldo Anterior</span></div></div><span class="t-amount positive">+$' + formatNumberWithPoints(sAnt) + '</span></div>' +
-                '<div class="transaction-item"><div style="display:flex;align-items:center;"><div class="t-icon" style="background:var(--danger-color);color:white;"><i class="fas fa-hand-holding-usd"></i></div><div class="t-info"><span class="t-title">Anticipos / Descuentos</span></div></div><span class="t-amount" style="color:var(--danger-color);">-$' + formatNumberWithPoints(tAnt + tDesc) + '</span></div>' +
-                '<div class="transaction-item"><div style="display:flex;align-items:center;"><div class="t-icon" style="background:var(--warning-color);color:white;"><i class="fas fa-piggy-bank"></i></div><div class="t-info"><span class="t-title">Remanente</span></div></div><span class="t-amount" style="color:var(--warning-color);">$' + formatNumberWithPoints(remanente) + '</span></div>' +
-                '<div class="transaction-item" style="border-top:2px solid var(--primary-color);margin-top:4px;padding-top:12px;"><div style="display:flex;align-items:center;"><div class="t-icon" style="background:var(--primary-color);color:white;"><i class="fas fa-wallet"></i></div><div class="t-info"><span class="t-title" style="font-weight:700;">A Recibir (Líquido)</span></div></div><span class="t-amount positive" style="font-size:1.1rem;font-weight:700;">$' + formatNumberWithPoints(liquido) + '</span></div>';
-
-            // ── Renderizar lista de anticipos ─────────────────────────────
-            renderConsultaAnticipos([
-                ...userAnticipos,
-                ...userExtras.filter(e => e.tipo === 'DESCUENTO_PERSONAL')
-            ]);
-
-            if (iconEl) iconEl.className = 'fas fa-id-card';
-            document.getElementById('consultaResultado').style.display = 'block';
-            document.getElementById('consultaEstadoVacio').style.display = 'none';
-
-        } catch(e) {
-            console.error('Error consulta:', e);
-            if (iconEl) iconEl.className = 'fas fa-id-card';
-            mostrarVacioConsulta('Error de conexión. Verifica tu internet e intenta de nuevo.');
-        }
-    }
 
     function renderConsultaAnticipos(anticipos) {
         const container = document.getElementById('consultaAnticiposList');
