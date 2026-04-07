@@ -419,6 +419,7 @@
     <ul>
         <li><a href="#" class="menu-link" data-target="retirosPropinaSection"><i class="fas fa-wallet"></i>Mi Billetera</a></li>
         <li><a href="#" class="menu-link" data-target="montosSection"><i class="fas fa-exchange-alt"></i>Movimientos</a></li>
+        <li><a href="#" class="menu-link" data-target="consultaSection"><i class="fas fa-search"></i>Consulta</a></li>
         <li><a href="#" class="menu-link" data-target="datosUsuarioSection"><i class="fas fa-user-shield"></i>Perfil</a></li>
         <li><a href="#" class="menu-link" data-target="notasSection" style="position:relative;"><i class="fas fa-envelope"></i><span id="nav-msg-badge"></span>Mensajes</a></li>
     </ul>
@@ -916,6 +917,103 @@
       </section>
       
       <!-- SECCIÓN: NOTAS -->
+      <!-- ══════════════════════════════════════════
+           SECCIÓN: CONSULTA DE ANTICIPOS
+      ══════════════════════════════════════════ -->
+      <section id="consultaSection" class="content-panel">
+          <h2><i class="fas fa-search"></i> Consulta de Anticipos</h2>
+
+          <!-- Descripción -->
+          <p style="font-size:0.85rem; color:var(--text-secondary); margin-bottom:20px; line-height:1.6;">
+              Ingresa el <strong style="color:var(--text-primary);">ID de usuario</strong> que te entregó la Comisión Propina para ver el balance completo de ese socio.
+          </p>
+
+          <!-- Card búsqueda -->
+          <div style="background:var(--bg-card); border-radius:var(--radius-xl); padding:20px; box-shadow:var(--shadow-card); margin-bottom:20px;">
+              <div style="display:flex; gap:10px; margin-bottom:12px;">
+                  <input type="text" id="consultaIDInput"
+                         placeholder="Ingresa el ID (ej: juan-perez)"
+                         autocomplete="off" autocorrect="off" spellcheck="false"
+                         style="flex:1; font-family:monospace; font-weight:600; font-size:0.9rem; letter-spacing:0.02em;"
+                         oninput="this.value=this.value.toLowerCase().trim()"
+                         onkeydown="if(event.key==='Enter') buscarConsulta()" />
+                  <button onclick="buscarConsulta()" style="padding:14px 18px; border-radius:var(--radius-md); flex-shrink:0;">
+                      <i class="fas fa-search"></i>
+                  </button>
+              </div>
+
+              <!-- ID guardado -->
+              <div id="consultaIDGuardadoBox" style="display:none;">
+                  <div style="font-size:0.75rem; color:var(--text-muted); font-weight:600; margin-bottom:8px;">ID guardado:</div>
+                  <div style="display:flex; align-items:center; gap:8px;">
+                      <button onclick="usarIDGuardado()"
+                              style="flex:1; display:flex; align-items:center; gap:8px; background:var(--bg-input); color:var(--text-primary); border-radius:10px; padding:10px 14px; font-family:monospace; font-size:0.85rem; font-weight:700; box-shadow:none; justify-content:flex-start;">
+                          <i class="fas fa-bookmark" style="color:var(--primary-color);"></i>
+                          <span id="consultaIDGuardadoLabel">—</span>
+                      </button>
+                      <button onclick="olvidarIDGuardado()"
+                              style="width:40px; height:40px; padding:0; background:var(--bg-input); color:var(--danger-color); border-radius:10px; box-shadow:none; flex-shrink:0;">
+                          <i class="fas fa-trash" style="font-size:0.8rem;"></i>
+                      </button>
+                  </div>
+              </div>
+          </div>
+
+          <!-- Estado vacío / error -->
+          <div id="consultaEstadoVacio" style="text-align:center; padding:40px 20px; color:var(--text-muted);">
+              <i class="fas fa-id-card" style="font-size:2.5rem; margin-bottom:12px; opacity:0.3; display:block;"></i>
+              <p id="consultaMensajeVacio" style="font-size:0.9rem;">Ingresa un ID para consultar</p>
+          </div>
+
+          <!-- Resultado -->
+          <div id="consultaResultado" style="display:none;">
+
+              <!-- Tarjeta bancaria del socio consultado -->
+              <div class="bank-card" style="margin-bottom:20px;">
+                  <div class="bank-card-header">
+                      <span id="consultaNombreSocio">SOCIO</span>
+                      <span><i class="fas fa-wifi" style="transform:rotate(90deg);"></i></span>
+                  </div>
+                  <div class="bank-card-chip"></div>
+                  <div class="bank-card-balance-label" style="margin-top:15px; color:rgba(255,255,255,0.7);">Saldo Disponible</div>
+                  <div class="bank-card-balance" id="consultaFinalAmount">$0</div>
+                  <div class="bank-card-footer">
+                      <span id="consultaIDSocio" style="font-family:monospace; opacity:0.7; font-size:0.75rem;">ID: —</span>
+                      <span style="font-weight:700; font-style:italic; font-size:1.1em;">COMISIÓN</span>
+                  </div>
+              </div>
+
+              <!-- Resumen contable -->
+              <section style="margin-bottom:0; padding:20px; border-radius:var(--radius-xl); background:var(--bg-card); box-shadow:var(--shadow-card);">
+                  <h2 style="margin-bottom:16px;"><i class="fas fa-file-invoice-dollar"></i> Resumen del Período</h2>
+                  <div class="calculation-grid" id="consultaCalcGrid">
+                      <!-- Se rellena por JS -->
+                  </div>
+                  <div class="transaction-list" id="consultaTransList">
+                      <!-- Se rellena por JS -->
+                  </div>
+              </section>
+
+              <!-- Lista de anticipos -->
+              <section style="margin-top:20px; padding:20px; border-radius:var(--radius-xl); background:var(--bg-card); box-shadow:var(--shadow-card);">
+                  <h2 style="margin-bottom:16px;"><i class="fas fa-list"></i> Anticipos del Período</h2>
+                  <div id="consultaAnticiposList" class="transaction-list"></div>
+              </section>
+          </div>
+
+          <!-- WhatsApp CTA -->
+          <div style="margin-top:24px; text-align:center;">
+              <p style="font-size:0.8rem; color:var(--text-muted); margin-bottom:10px;">¿No tienes tu ID aún?</p>
+              <a href="https://wa.me/56920078076?text=Hola%2C%20necesito%20mi%20ID%20de%20consulta%20para%20ver%20el%20historial%20de%20anticipos."
+                 target="_blank" rel="noopener noreferrer"
+                 style="display:inline-flex; align-items:center; gap:8px; background:#25d366; color:white; font-weight:600; font-size:0.875rem; padding:12px 22px; border-radius:14px; text-decoration:none; box-shadow:0 4px 14px rgba(37,211,102,0.3); transition:opacity 0.2s; font-family:inherit;"
+                 onmouseover="this.style.opacity='0.9'" onmouseout="this.style.opacity='1'">
+                  <i class="fab fa-whatsapp" style="font-size:1.1em;"></i>
+                  Pedir ID a La Comisión
+              </a>
+          </div>
+      </section>
+
       <section id="notasSection" class="content-panel">
           <h2><i class="far fa-comments"></i> Mensajes Seguros</h2>
           <div id="admin-notes-container"></div>
@@ -1070,6 +1168,8 @@
 <script>
 document.addEventListener('DOMContentLoaded', () => {
     // --- URLs ---
+    const SCRIPT_URL_SOCIOS         = 'https://script.google.com/macros/s/AKfycbyr447pMQtsKoBfp8qTcB1uyE3rORhgPPmZM6Fgia3BgmIvtlZ_h04uGZrmx_HwubHQ/exec';
+    const SCRIPT_URL_RECAUDACIONES  = 'https://script.google.com/macros/s/AKfycbz_kCb4aEe437zHGbRqnjCibw1NtAqfCbTNmsVPn9jaZOPBFaZ6-FwmiTLqVxq39X1P/exec';
     const SCRIPT_URL_NOTAS = 'https://script.google.com/macros/s/AKfycbwhKQTp9kER_H87XLekd3d69u5PK5ZpfpGzKdAtYcfKM0qTUuF5apPvB2UNYSyS2-FR/exec';
     const SCRIPT_URL_RECAUDACION_EXTERNA = 'https://script.google.com/macros/s/AKfycbxdiAMbUy2nTuXvvIuF_-KF-ed0s7jxXvh4X2T5u88jl9FSZdrDkNVgVNc7akhpIwCX/exec';
     const SCRIPT_URL_RECAUDACION = 'https://script.google.com/macros/s/AKfycbxna9EH5LZPTPCPws58pGro6qCrZ8_zNwvUkUHS28BYfd8CsAcD1MRcqlITbDm4lTk/exec'; 
@@ -1353,6 +1453,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
             if (panelId === 'datosUsuarioSection') populateUserDataSection();
             if (panelId === 'retirosPropinaSection') actualizarCalculoRetiro(); 
+            if (panelId === 'consultaSection') initConsultaSection();
         }
         document.querySelectorAll('.menu-link').forEach(l => l.classList.remove('active-link'));
         document.querySelectorAll(`.menu-link[data-target="${panelId}"]`).forEach(l => l.classList.add('active-link'));
@@ -2099,6 +2200,239 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('saveNewPasswordLoggedInBtn').addEventListener('click', async () => { const newPass = changePassInput.value.trim(); if (!newPass || newPass.length < 4) { showToast('Contraseña muy corta.', 'error'); return; } const btn = document.getElementById('saveNewPasswordLoggedInBtn'); btn.textContent = 'Guardando...'; btn.disabled = true; try { loggedInUser.password = newPass; localStorage.setItem('loggedInUser', JSON.stringify(loggedInUser)); const appData = getAppData(); if (appData.usuarios[loggedInUser.id]) { appData.usuarios[loggedInUser.id].password = newPass; saveAppData(appData); } await enviarDatosLoginASheets(loggedInUser); showToast('Contraseña actualizada.'); changePassModal.style.display = 'none'; updateRecentLogins(loggedInUser); displayRecentLogins(); } catch (error) { showToast('Error al guardar.', 'error'); } finally { btn.textContent = 'Actualizar'; btn.disabled = false; } });
     document.querySelectorAll('.password-toggle-icon').forEach(icon => { icon.addEventListener('click', () => { const input = icon.previousElementSibling; if (input.type === 'password') { input.type = 'text'; icon.classList.replace('fa-eye', 'fa-eye-slash'); } else { input.type = 'password'; icon.classList.replace('fa-eye-slash', 'fa-eye'); } }); });
 
+    // ══════════════════════════════════════════════════════
+    // CONSULTA DE ANTICIPOS POR ID — CÁLCULO ESPEJO
+    // ══════════════════════════════════════════════════════
+    const CONSULTA_ID_KEY = 'consultaIDGuardado_v1';
+
+    function initConsultaSection() {
+        const saved = localStorage.getItem(CONSULTA_ID_KEY);
+        if (saved) {
+            document.getElementById('consultaIDGuardadoLabel').textContent = saved;
+            document.getElementById('consultaIDGuardadoBox').style.display = 'block';
+            document.getElementById('consultaIDInput').value = saved;
+            buscarConsulta();
+        } else {
+            document.getElementById('consultaResultado').style.display = 'none';
+            document.getElementById('consultaEstadoVacio').style.display = 'block';
+            document.getElementById('consultaMensajeVacio').textContent = 'Ingresa un ID para consultar';
+        }
+    }
+
+    function usarIDGuardado() {
+        const saved = localStorage.getItem(CONSULTA_ID_KEY);
+        if (saved) { document.getElementById('consultaIDInput').value = saved; buscarConsulta(); }
+    }
+
+    function olvidarIDGuardado() {
+        if (!confirm('¿Eliminar el ID guardado?')) return;
+        localStorage.removeItem(CONSULTA_ID_KEY);
+        document.getElementById('consultaIDGuardadoBox').style.display = 'none';
+        document.getElementById('consultaIDInput').value = '';
+        document.getElementById('consultaResultado').style.display = 'none';
+        document.getElementById('consultaEstadoVacio').style.display = 'block';
+        document.getElementById('consultaMensajeVacio').textContent = 'Ingresa un ID para consultar';
+    }
+
+    async function buscarConsulta() {
+        const id = document.getElementById('consultaIDInput').value.trim().toUpperCase();
+        if (!id) { mostrarVacioConsulta('Ingresa un ID para consultar'); return; }
+
+        localStorage.setItem(CONSULTA_ID_KEY, id);
+        document.getElementById('consultaIDGuardadoLabel').textContent = id;
+        document.getElementById('consultaIDGuardadoBox').style.display = 'block';
+
+        // Spinner mientras carga
+        const iconEl = document.getElementById('consultaEstadoVacio').querySelector('i');
+        if (iconEl) iconEl.className = 'fas fa-circle-notch fa-spin';
+        mostrarVacioConsulta('Cargando datos...');
+        document.getElementById('consultaResultado').style.display = 'none';
+
+        try {
+            // ── Las mismas 5 llamadas que hace refresh() en el V19 ──────────
+            const [recRes, dataRes, saldosRes, cierreRes, diasRes, sociosRes] = await Promise.all([
+                fetch(SCRIPT_URL_RECAUDACIONES + '?action=get',                                        { redirect: 'follow' }),
+                fetch(SCRIPT_URL_SOCIOS,      { method:'POST', body:JSON.stringify({action:'getAllDataDesdeSheets'}), redirect:'follow' }),
+                fetch(SCRIPT_URL_SOCIOS + '?action=getSaldosAnteriores',                               { redirect: 'follow' }),
+                fetch(SCRIPT_URL_SOCIOS + '?action=getSaldosCierre',                                  { redirect: 'follow' }),
+                fetch(SCRIPT_URL_SOCIOS + '?action=getDiasPartTime',                                   { redirect: 'follow' }),
+                fetch(SCRIPT_URL_SOCIOS + '?action=getSocios',                                         { redirect: 'follow' })
+            ]);
+
+            const recData        = (await recRes.json()).data    || [];
+            const fullSheets     = await dataRes.json();
+            const sheetsData     = fullSheets.data || fullSheets;
+            const saldosData     = (await saldosRes.json()).data || {};
+            const cierreData     = (await cierreRes.json()).data || {};
+            const diasTrabajados = (await diasRes.json()).data   || {};
+            const allSociosData  = (await sociosRes.json()).data || [];
+
+            // ── Buscar el socio por ID ──────────────────────────────────────
+            const socio = allSociosData.find(u => String(u.ID || '').trim().toUpperCase() === id.toUpperCase());
+            if (!socio) {
+                if (iconEl) iconEl.className = 'fas fa-id-card';
+                mostrarVacioConsulta('ID no encontrado. Verifica que sea correcto.');
+                return;
+            }
+
+            // ── Construir mapVP igual que refresh() ───────────────────────
+            const mapVP = {};
+            recData.forEach(r => {
+                const f = String(r.fecha).substring(0, 10);
+                const m = parseFloat(String(r.monto).replace(/\./g, '')) || 0;
+                const d = parseFloat(r.divisor) || 1;
+                if (!mapVP[f]) mapVP[f] = { totalVP: 0, montoReal: 0 };
+                mapVP[f].totalVP   += (m / d);
+                mapVP[f].montoReal += m;
+            });
+
+            // ── Puntos del socio (misma fórmula que el V19) ──────────────
+            const dIng = new Date(socio.FechaIngreso);
+            const hoy  = new Date();
+            let anos   = hoy.getFullYear() - dIng.getFullYear();
+            if (hoy.getMonth() < dIng.getMonth() ||
+               (hoy.getMonth() === dIng.getMonth() && hoy.getDate() < dIng.getDate())) anos--;
+            anos = Math.max(0, anos);
+            const area = String(socio.Area || '');
+            const maxPts = area.includes('Mesa') ? 20 : area.includes('Cambista') ? 8 : area.includes('Boveda') ? 10 : 12;
+            const pts = Math.min(4 + (anos * 2), maxPts);
+
+            const sID  = String(socio.ID).trim();
+            const esPT = String(socio.TipoContrato || '').toLowerCase().includes('part');
+
+            // ── Extras (ausencias, descuentos) ───────────────────────────
+            const allExtras = sheetsData.extras || {};
+            let userExtras  = allExtras[sID] || [];
+            if (!userExtras.length) {
+                const k = Object.keys(allExtras).find(key => String(key).trim() === sID);
+                if (k) userExtras = allExtras[k];
+            }
+
+            // ── puntoGlobalTotal (mismo algoritmo que refresh()) ─────────
+            let puntoGlobalTotal = 0;
+
+            if (esPT) {
+                let myDias = diasTrabajados[sID] || [];
+                if (!myDias.length) {
+                    const k = Object.keys(diasTrabajados).find(key => String(key).trim() === sID);
+                    if (k) myDias = diasTrabajados[k];
+                }
+                myDias.forEach(dStr => {
+                    puntoGlobalTotal += (mapVP[String(dStr).substring(0,10)]?.totalVP || 0);
+                });
+            } else {
+                Object.values(mapVP).forEach(v => puntoGlobalTotal += v.totalVP);
+                userExtras.filter(e => String(e.tipo).toUpperCase() === 'AUSENCIA').forEach(a => {
+                    puntoGlobalTotal -= (mapVP[String(a.fecha).substring(0,10)]?.totalVP || 0);
+                });
+            }
+
+            // ── Anticipos ────────────────────────────────────────────────
+            const allAnticipos = sheetsData.anticipos || {};
+            let userAnticipos  = allAnticipos[sID] || [];
+            if (!userAnticipos.length) {
+                const k = Object.keys(allAnticipos).find(key => String(key).trim() === sID);
+                if (k) userAnticipos = allAnticipos[k];
+            }
+
+            // ── Cálculo final (idéntico a refresh()) ─────────────────────
+            const tAnt  = userAnticipos.reduce((a, b) => a + Number(b.cantidad || 0), 0);
+            const tDesc = userExtras.filter(e => e.tipo === 'DESCUENTO_PERSONAL').reduce((a, b) => a + Number(b.monto || 0), 0);
+            const sAnt  = (saldosData[sID] || 0) + (cierreData[sID] || 0);
+
+            const propinaBruta = puntoGlobalTotal * pts;
+            const saldoBruto   = (propinaBruta + sAnt) - (tAnt + tDesc);
+            const remanente    = saldoBruto > 0 ? saldoBruto % 1000 : saldoBruto;
+            const liquido      = saldoBruto > 0 ? saldoBruto - remanente : 0;
+
+            // ── Renderizar hero card ──────────────────────────────────────
+            const nombre = ((socio.Nombre || '') + ' ' + (socio.Apellido || '')).trim() || id;
+            document.getElementById('consultaNombreSocio').textContent = nombre.toUpperCase();
+            document.getElementById('consultaIDSocio').textContent = 'ID: ' + sID;
+            const finalEl = document.getElementById('consultaFinalAmount');
+            finalEl.textContent = '$' + formatNumberWithPoints(liquido);
+            if (liquido < 0) finalEl.classList.add('negative-value');
+            else finalEl.classList.remove('negative-value');
+
+            // ── Renderizar grilla de cálculo ──────────────────────────────
+            document.getElementById('consultaCalcGrid').innerHTML =
+                '<div class="calc-box"><span class="calc-label">Mis Puntos</span><span class="calc-value">' + pts + '</span></div>' +
+                '<div class="calc-box"><span class="calc-label">Tipo</span><span class="calc-value" style="font-size:0.85rem;">' + (esPT ? 'Part Time' : 'Planta') + '</span></div>' +
+                '<div class="calc-box"><span class="calc-label">Bruto</span><span class="calc-value" style="color:var(--primary-color);">$' + formatNumberWithPoints(propinaBruta) + '</span></div>' +
+                '<div class="calc-box"><span class="calc-label">Remanente</span><span class="calc-value" style="color:var(--warning-color);">$' + formatNumberWithPoints(remanente) + '</span></div>';
+
+            // ── Renderizar resumen contable ───────────────────────────────
+            document.getElementById('consultaTransList').innerHTML =
+                '<div class="transaction-item"><div style="display:flex;align-items:center;"><div class="t-icon" style="background:var(--success-color);color:white;"><i class="fas fa-coins"></i></div><div class="t-info"><span class="t-title">Total Bruto (' + pts + ' pts)</span></div></div><span class="t-amount positive">$' + formatNumberWithPoints(propinaBruta) + '</span></div>' +
+                '<div class="transaction-item"><div style="display:flex;align-items:center;"><div class="t-icon" style="background:var(--primary-color);color:white;"><i class="fas fa-history"></i></div><div class="t-info"><span class="t-title">Saldo Anterior</span></div></div><span class="t-amount positive">+$' + formatNumberWithPoints(sAnt) + '</span></div>' +
+                '<div class="transaction-item"><div style="display:flex;align-items:center;"><div class="t-icon" style="background:var(--danger-color);color:white;"><i class="fas fa-hand-holding-usd"></i></div><div class="t-info"><span class="t-title">Anticipos / Descuentos</span></div></div><span class="t-amount" style="color:var(--danger-color);">-$' + formatNumberWithPoints(tAnt + tDesc) + '</span></div>' +
+                '<div class="transaction-item"><div style="display:flex;align-items:center;"><div class="t-icon" style="background:var(--warning-color);color:white;"><i class="fas fa-piggy-bank"></i></div><div class="t-info"><span class="t-title">Remanente</span></div></div><span class="t-amount" style="color:var(--warning-color);">$' + formatNumberWithPoints(remanente) + '</span></div>' +
+                '<div class="transaction-item" style="border-top:2px solid var(--primary-color);margin-top:4px;padding-top:12px;"><div style="display:flex;align-items:center;"><div class="t-icon" style="background:var(--primary-color);color:white;"><i class="fas fa-wallet"></i></div><div class="t-info"><span class="t-title" style="font-weight:700;">A Recibir (Líquido)</span></div></div><span class="t-amount positive" style="font-size:1.1rem;font-weight:700;">$' + formatNumberWithPoints(liquido) + '</span></div>';
+
+            // ── Renderizar lista de anticipos ─────────────────────────────
+            renderConsultaAnticipos([
+                ...userAnticipos,
+                ...userExtras.filter(e => e.tipo === 'DESCUENTO_PERSONAL')
+            ]);
+
+            if (iconEl) iconEl.className = 'fas fa-id-card';
+            document.getElementById('consultaResultado').style.display = 'block';
+            document.getElementById('consultaEstadoVacio').style.display = 'none';
+
+        } catch(e) {
+            console.error('Error consulta:', e);
+            if (iconEl) iconEl.className = 'fas fa-id-card';
+            mostrarVacioConsulta('Error de conexión. Verifica tu internet e intenta de nuevo.');
+        }
+    }
+
+    function renderConsultaAnticipos(anticipos) {
+        const container = document.getElementById('consultaAnticiposList');
+        if (!anticipos || !anticipos.length) {
+            container.innerHTML = '<div style="text-align:center; padding:15px; color:var(--text-secondary); font-size:0.9rem;">Sin anticipos en este período</div>';
+            return;
+        }
+        // campos del V19: a.cantidad (monto), a.desc (descripción), a.fecha
+        // campos de descuento personal: a.monto, a.tipo, a.fecha
+        const getMontoA  = a => Number(a.cantidad || a.monto || 0);
+        const getDescA   = a => a.desc || a.tipo || 'Anticipo';
+        const getFechaA  = a => {
+            const s = String(a.fecha || '').substring(0, 10);
+            if (s.includes('-')) {
+                const p = s.split('-');
+                if (p[0].length === 4) return p[2] + '/' + p[1] + '/' + p[0];
+            }
+            return s;
+        };
+        container.innerHTML = [...anticipos]
+            .filter(a => getMontoA(a) > 0)
+            .sort((a, b) => String(b.fecha).localeCompare(String(a.fecha)))
+            .map(a =>
+                '<div class="transaction-item">' +
+                    '<div style="display:flex;align-items:center;">' +
+                        '<div class="t-icon" style="background:var(--warning-color);color:white;"><i class="fas fa-money-bill-wave"></i></div>' +
+                        '<div class="t-info">' +
+                            '<span class="t-title">' + getDescA(a) + '</span>' +
+                            '<span class="t-date">' + getFechaA(a) + '</span>' +
+                        '</div>' +
+                    '</div>' +
+                    '<span class="t-amount" style="color:var(--danger-color);">-$' + formatNumberWithPoints(getMontoA(a)) + '</span>' +
+                '</div>'
+            ).join('') || '<div style="text-align:center; padding:15px; color:var(--text-secondary); font-size:0.9rem;">Sin anticipos en este período</div>';
+    }
+
+    function mostrarVacioConsulta(msg) {
+        document.getElementById('consultaMensajeVacio').textContent = msg;
+        document.getElementById('consultaEstadoVacio').style.display = 'block';
+        document.getElementById('consultaResultado').style.display = 'none';
+    }
+    // Exponer en window para que los onclick del HTML puedan llamarlas
+    window.buscarConsulta      = buscarConsulta;
+    window.usarIDGuardado      = usarIDGuardado;
+    window.olvidarIDGuardado   = olvidarIDGuardado;
+    window.initConsultaSection = initConsultaSection;
+    // ── fin consulta ──────────────────────────────────────────
+
     checkLogin();
 });
 
@@ -2141,6 +2475,7 @@ if ('serviceWorker' in navigator) {
         }
     };
 }
+
 
 function toggleAbout(show) {
     const m = document.getElementById('about-modal');
