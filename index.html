@@ -2290,7 +2290,11 @@ document.addEventListener('DOMContentLoaded', () => {
         if (hoy.getMonth() < dIng.getMonth() || (hoy.getMonth() === dIng.getMonth() && hoy.getDate() < dIng.getDate())) anos--;
         anos = Math.max(0, anos);
         const area   = String(socio.Area || '');
-        const maxPts = area.includes('Mesa') ? 20 : area.includes('Cambista') ? 8 : area.includes('Boveda') ? 10 : 12;
+        const areaN  = area.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
+        const maxPts = areaN.includes('mesa') ? 20
+                     : areaN.includes('cambist') ? 8
+                     : areaN.includes('boveda') ? 10
+                     : 12;
         const pts    = Math.min(4 + (anos * 2), maxPts);
 
         const sID  = String(socio.ID).trim();
