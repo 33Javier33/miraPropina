@@ -2165,11 +2165,11 @@ document.addEventListener('DOMContentLoaded', () => {
         divisoresDiariosExternos = JSON.parse(localStorage.getItem('cachedDivisores')) || {};
         const lastPanel = localStorage.getItem('activePanel') || 'retirosPropinaSection'; activatePanel(lastPanel);
         if (loggedInUser.tipo === 'Planta') { document.getElementById('vistaPlanta').style.display = 'block'; const calPlanta = document.getElementById('calendar-container-planta'); if (calPlanta) renderCalendar(calPlanta, true); } else { document.getElementById('vistaPartTime').style.display = 'block'; }
-        const syncFinancials = async () => { mostrarActualizandoEnCampos(); try { await importarDesdeSheets(true); if(loggedInUser.tipo === 'Planta') await obtenerYActualizarValorPorPuntoExterno(); await obtenerDivisoresExternos(true); } catch(e) { console.error("Error sync", e); } finally { cargarYMostrarMontos(); actualizarCalculoRetiro(); } };
+        const syncFinancials = async (silent = false) => { if (!silent) mostrarActualizandoEnCampos(); try { await importarDesdeSheets(true); await obtenerDivisoresExternos(true); } catch(e) { console.error("Error sync", e); } finally { cargarYMostrarMontos(); actualizarCalculoRetiro(); } };
         
-        syncFinancials();
+        syncFinancials(false);
         if (notesInterval) clearInterval(notesInterval); notesInterval = setInterval(cargarNotas, 10000);
-        if (sheetsInterval) clearInterval(sheetsInterval); sheetsInterval = setInterval(syncFinancials, 300000);
+        if (sheetsInterval) clearInterval(sheetsInterval); sheetsInterval = setInterval(() => syncFinancials(true), 60000);
         
         // --- AQUÍ ESTÁ EL ARREGLO DE NOTIFICACIÓN DE INICIO ---
         // Llamamos inmediatamente a verificarEstadoSesion para que si hay una novedad
